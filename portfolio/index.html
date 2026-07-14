@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="assets/css/base.css" />
   <link rel="stylesheet" href="assets/css/header.css" />
   <link rel="stylesheet" href="assets/css/hero.css" />
+  <link rel="stylesheet" href="assets/css/realisations.css" />
 
   <!-- Lenis (smooth scroll) — feuille de style de la lib -->
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.14/dist/lenis.css" />
@@ -135,8 +136,9 @@
     <!-- ---------------------------------------------------------------- -->
     <!-- RÉALISATIONS — pièces de mobilier & agencements sur-mesure       -->
     <!-- ---------------------------------------------------------------- -->
-    <section id="realisations" aria-label="Réalisations">
-      <!-- [PLACEHOLDER] Grille / liste éditoriale de pièces de mobilier et d'agencements -->
+    <section id="realisations" class="rea" aria-labelledby="rea-title">
+      <!-- Contenu (en-tête + index) généré par realisations-ui.js depuis realisations.js -->
+      <div class="wrap" id="reaRoot"></div>
     </section>
 
     <!-- ---------------------------------------------------------------- -->
@@ -181,6 +183,9 @@
   <script defer src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
   <script defer src="assets/js/lenis.js"></script>
   <script defer src="assets/js/motion.js"></script>
+  <script defer src="assets/js/realisations.js"></script>
   <script defer src="assets/js/main.js"></script>
+  <!-- UI des sections : après main.js (Lenis + plugins prêts) -->
+  <script defer src="assets/js/realisations-ui.js"></script>
 </body>
 </html>

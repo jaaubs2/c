@@ -29,6 +29,11 @@
   --wood-walnut: #6B4E34; /* noyer — accent profond, contraste          */
   --stone:       #A08B6F; /* pierre — neutre chaud intermédiaire        */
 
+  /* Accent chromatique — terracotta (sections réalisations, savoir-faire,
+   * à propos, contact). Employé avec parcimonie : survols, détails, filets. */
+  --terracotta:      #B15C39; /* terre cuite chaude                     */
+  --terracotta-deep: #8A462B; /* terre cuite profonde                   */
+
   /* Alias sémantiques — on manipule ceux-ci dans les composants        */
   --color-accent:       var(--wood-oak);
   --color-accent-deep:  var(--wood-walnut);

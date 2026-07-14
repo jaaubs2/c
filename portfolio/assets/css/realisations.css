@@ -1,0 +1,357 @@
+/* ==========================================================================
+   REALISATIONS.CSS — Section #realisations (index + vue détail)
+   --------------------------------------------------------------------------
+   Index éditorial "à la Mersi" : lignes numérotées, nom en Fraunces, méta en
+   mono. Survol desktop → aperçu qui suit le curseur. Mobile / reduced-motion
+   → vignette inline. Vue détail = overlay dialog généré depuis les données.
+   Accent terracotta, matière bois. Valeurs issues des tokens.
+   ========================================================================== */
+
+.rea {
+  padding-block: var(--section-space);
+}
+
+/* --------------------------------------------------------------------
+ * En-tête de section
+ * ------------------------------------------------------------------ */
+.rea__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-9);
+}
+.rea__eyebrow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.rea__count {
+  font-family: var(--font-mono);
+  color: var(--terracotta);
+}
+.rea__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: var(--leading-snug);
+  max-width: 18ch;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------
+ * Index — liste des pièces
+ * ------------------------------------------------------------------ */
+.rea__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: var(--stroke-hair) solid var(--line);
+}
+.rea__item {
+  border-bottom: var(--stroke-hair) solid var(--line);
+}
+
+/* Chaque ligne est un vrai bouton (ouvre la vue détail au clic/Entrée). */
+.rea__row {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-4) var(--space-5);
+  width: 100%;
+  padding-block: var(--space-6);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  transition: padding-left var(--dur-base) var(--ease-quiet);
+}
+.rea__row:hover,
+.rea__row:focus-visible {
+  padding-left: var(--space-3);
+}
+
+.rea__num {
+  grid-column: 1;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+/* Vignette inline (mobile + mode statique / reduced-motion) */
+.rea__thumb {
+  grid-column: 1;
+  display: none;
+  width: 4rem;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius-xs);
+  background: linear-gradient(135deg, var(--wood-oak), var(--wood-walnut));
+}
+
+.rea__name {
+  grid-column: 2;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.1;
+  color: var(--ink);
+  transition: color var(--dur-base) var(--ease-quiet);
+}
+.rea__row:hover .rea__name,
+.rea__row:focus-visible .rea__name {
+  color: var(--terracotta);
+}
+
+.rea__meta {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+  line-height: 1.7;
+}
+.rea__meta span { display: block; }
+
+/* Mode statique (pas de survol / reduced-motion) → vignette visible */
+.rea--static .rea__num { display: none; }
+.rea--static .rea__thumb { display: block; }
+
+/* --------------------------------------------------------------------
+ * Aperçu qui suit le curseur (desktop, mode survol uniquement)
+ * ------------------------------------------------------------------ */
+.rea__preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: clamp(220px, 22vw, 340px);
+  aspect-ratio: 4 / 5;
+  z-index: var(--z-overlay);
+  pointer-events: none;
+  opacity: 0;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  /* cadre bois discret */
+  border: var(--stroke-hair) solid color-mix(in srgb, var(--wood-walnut) 45%, transparent);
+  box-shadow: var(--shadow-lift);
+  background: linear-gradient(135deg, var(--wood-oak), var(--wood-walnut));
+  will-change: transform, opacity;
+}
+.rea__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------------
+ * VUE DÉTAIL — overlay dialog
+ * ------------------------------------------------------------------ */
+.rea-detail {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  overflow-y: auto;
+  padding: var(--gutter);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--dur-base) var(--ease-quiet),
+    visibility 0s linear var(--dur-base);
+}
+.rea-detail.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--dur-base) var(--ease-quiet);
+}
+
+.rea-detail__panel {
+  position: relative;
+  margin: auto;
+  width: min(1100px, 100%);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  padding: clamp(var(--space-6), 5vw, var(--space-9));
+  transform: translateY(16px) scale(0.99);
+  transition: transform var(--dur-slow) var(--ease-quiet);
+}
+.rea-detail.is-open .rea-detail__panel {
+  transform: translateY(0) scale(1);
+}
+
+.rea-detail__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: var(--stroke-hair) solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color var(--dur-fast) var(--ease-quiet),
+              color var(--dur-fast) var(--ease-quiet);
+}
+.rea-detail__close:hover,
+.rea-detail__close:focus-visible {
+  border-color: var(--terracotta);
+  color: var(--terracotta);
+}
+
+.rea-detail__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 60ch;
+  margin-bottom: var(--space-7);
+  padding-right: 44px; /* n'empiète pas sous la croix */
+}
+.rea-detail__title {
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+.rea-detail__meta {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+}
+.rea-detail__meta b {
+  color: var(--terracotta);
+  font-weight: var(--weight-regular);
+}
+.rea-detail__desc {
+  font-size: var(--step-1);
+  font-weight: var(--weight-light);
+  line-height: var(--leading-snug);
+  max-width: 46ch;
+  color: var(--ink);
+}
+
+/* Galerie éditoriale : image de tête pleine largeur, puis alternance 7/5 */
+.rea-detail__gallery {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-4);
+  margin-block: var(--space-7);
+}
+.rea-detail__fig {
+  grid-column: span 12;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--wood-oak), var(--wood-walnut));
+  aspect-ratio: 3 / 2;
+}
+.rea-detail__fig:nth-child(3n + 2) { grid-column: span 7; aspect-ratio: 4 / 5; }
+.rea-detail__fig:nth-child(3n + 3) { grid-column: span 5; aspect-ratio: 4 / 5; }
+.rea-detail__fig img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Repli si l'image manque (404) : dégradé bois + libellé, jamais de vide */
+.rea-detail__fig.is-fallback { position: relative; }
+.rea-detail__fig.is-fallback img { display: none; }
+.rea-detail__fig.is-fallback::after {
+  content: attr(data-fallback);
+  position: absolute;
+  inset: auto var(--space-4) var(--space-4) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--surface);
+}
+
+/* Navigation précédent / suivant */
+.rea-detail__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-top: var(--stroke-hair) solid var(--line);
+  padding-top: var(--space-6);
+}
+.rea-detail__navbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+  transition: color var(--dur-fast) var(--ease-quiet);
+}
+.rea-detail__navbtn:hover,
+.rea-detail__navbtn:focus-visible { color: var(--terracotta); }
+.rea-detail__navbtn--next { margin-left: auto; }
+.rea-detail__navbtn small {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  letter-spacing: var(--tracking-tight);
+  text-transform: none;
+  color: var(--ink);
+}
+
+/* Verrou de scroll quand un overlay est ouvert */
+.rea-lock { overflow: hidden; }
+
+/* --------------------------------------------------------------------
+ * RESPONSIVE
+ * ------------------------------------------------------------------ */
+@media (max-width: 800px) {
+  .rea__row {
+    grid-template-columns: 4rem 1fr;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding-block: var(--space-5);
+  }
+  .rea__num { display: none; }
+  .rea__thumb { display: block; grid-row: 1 / span 2; align-self: center; }
+  .rea__name { grid-column: 2; grid-row: 1; font-size: var(--step-1); }
+  .rea__meta {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    text-align: left;
+    line-height: 1.5;
+  }
+  .rea__meta span { display: inline; }
+  .rea__meta span + span::before { content: " · "; }
+  .rea__row:hover,
+  .rea__row:focus-visible { padding-left: 0; } /* pas de décalage tactile */
+
+  .rea-detail__fig,
+  .rea-detail__fig:nth-child(3n + 2),
+  .rea-detail__fig:nth-child(3n + 3) {
+    grid-column: span 12;
+    aspect-ratio: 3 / 2;
+  }
+}
+
+/* --------------------------------------------------------------------
+ * MOUVEMENT RÉDUIT — overlay en fondu simple, pas de suivi de curseur
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .rea__preview { display: none; }
+  .rea-detail__panel { transform: none; transition: none; }
+}
