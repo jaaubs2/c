@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- ====================================================================
-       MÉTADONNÉES  [PLACEHOLDER — à affiner]
+       MÉTADONNÉES
        ==================================================================== -->
-  <title>[PLACEHOLDER] Nom de l'artisan — Ébéniste · Mobilier &amp; agencements sur-mesure</title>
+  <title>Atelier Cormier — Ébéniste · Mobilier &amp; agencements sur-mesure</title>
   <meta
     name="description"
-    content="[PLACEHOLDER] Portfolio one-page — ébéniste créateur de mobilier et d'agencements sur-mesure en bois massif (chêne, noyer, frêne). La matière, l'assemblage, le geste d'atelier."
+    content="Atelier Cormier, ébéniste à Lyon depuis 2014 — mobilier et agencements sur-mesure en bois massif. Chaque pièce naît d'une essence, d'un geste, et du temps qu'il faut."
   />
   <meta name="theme-color" content="#EAE5DD" />
 
@@ -26,19 +26,18 @@
   />
 
   <!-- ====================================================================
-       STYLES — tokens (variables) puis base (reset + globaux)
+       STYLES — tokens → base → composants (header, hero)
        ==================================================================== -->
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/header.css" />
+  <link rel="stylesheet" href="assets/css/hero.css" />
 
-  <!-- ====================================================================
-       LIBS — via CDN (aucune installation, aucun build)
-       Lenis (smooth scroll) — feuille de style optionnelle de la lib
-       ==================================================================== -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/lenis@1.1.14/dist/lenis.css"
-  />
+  <!-- Lenis (smooth scroll) — feuille de style de la lib -->
+  <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.14/dist/lenis.css" />
+
+  <!-- Sécurité : si JS désactivé, on masque le préchargeur (sinon il couvrirait tout) -->
+  <noscript><style>.preloader { display: none !important; }</style></noscript>
 </head>
 
 <body>
@@ -46,28 +45,91 @@
   <a class="skip-link" href="#hero">Aller au contenu</a>
 
   <!-- ====================================================================
-       HEADER / NAVIGATION
-       [PLACEHOLDER] — structure à concevoir (logo-nom + menu ancres)
+       PRÉCHARGEUR — voile d'ouverture, retiré par main.js
        ==================================================================== -->
-  <header class="site-header">
-    <div class="wrap">
-      <!-- [PLACEHOLDER] Nom / monogramme de l'ébéniste -->
-      <!-- [PLACEHOLDER] Navigation : Réalisations · Savoir-faire · À propos · Contact -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <span class="preloader__label">Atelier Cormier</span>
+  </div>
+
+  <!-- ====================================================================
+       HEADER / NAVIGATION (fixe, discret)
+       ==================================================================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="#hero">Atelier Cormier</a>
+
+      <!-- Nav desktop -->
+      <nav class="nav" aria-label="Navigation principale">
+        <ul class="nav__list" role="list">
+          <li><a class="nav__link" href="#realisations">Réalisations</a></li>
+          <li><a class="nav__link" href="#savoir-faire">Savoir-faire</a></li>
+          <li><a class="nav__link" href="#a-propos">À propos</a></li>
+          <li><a class="nav__link" href="#contact">Contact</a></li>
+          <li><a class="nav__link nav__link--cta" href="#contact">Prendre contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- Bouton menu (mobile) -->
+      <button
+        class="nav-toggle"
+        id="navToggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobileNav"
+        aria-label="Ouvrir le menu"
+      >
+        <span class="nav-toggle__bar"></span>
+        <span class="nav-toggle__bar"></span>
+      </button>
     </div>
   </header>
 
+  <!-- Overlay de navigation mobile -->
+  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+    <nav class="mobile-nav__inner" aria-label="Navigation mobile">
+      <a class="mobile-nav__link" href="#realisations">Réalisations</a>
+      <a class="mobile-nav__link" href="#savoir-faire">Savoir-faire</a>
+      <a class="mobile-nav__link" href="#a-propos">À propos</a>
+      <a class="mobile-nav__link" href="#contact">Contact</a>
+      <a class="mobile-nav__link mobile-nav__link--cta" href="#contact">Prendre contact</a>
+    </nav>
+  </div>
+
   <!-- ====================================================================
        CONTENU PRINCIPAL
-       Les sections ci-dessous sont des ANCRES VIDES commentées.
-       On les construira une par une, dans les prochaines étapes.
        ==================================================================== -->
   <main id="contenu">
 
     <!-- ---------------------------------------------------------------- -->
-    <!-- HERO — accroche d'ouverture                                      -->
+    <!-- HERO — accroche d'ouverture plein écran                          -->
     <!-- ---------------------------------------------------------------- -->
-    <section id="hero" aria-label="Introduction">
-      <!-- [PLACEHOLDER] Hero : nom de l'ébéniste, métier, phrase d'accroche -->
+    <section id="hero" class="hero" aria-label="Introduction">
+      <div class="wrap hero__inner">
+
+        <p class="hero__eyebrow eyebrow">Ébéniste — Lyon — Depuis 2014</p>
+
+        <div class="hero__wordwrap">
+          <span class="hero__caption hero__caption--left">Mobilier sur-mesure</span>
+
+          <!-- Mot géant : vrai texte, rempli par la texture bois.
+               "Cormier" est aussi une essence (sorbier) — clin d'œil. -->
+          <h1 class="hero__word">Cormier.</h1>
+
+          <span class="hero__caption hero__caption--right">Agencements en bois massif</span>
+        </div>
+
+        <!-- Accroche révélée mot par mot (motion.revealWords) -->
+        <p class="hero__lede" data-reveal-words>
+          Chaque pièce naît d'une essence, d'un geste, et du temps qu'il faut.
+        </p>
+
+      </div>
+
+      <!-- Indice de scroll (s'estompe au premier défilement) -->
+      <a class="hero__scroll" href="#realisations" aria-label="Défiler vers les réalisations">
+        <span class="hero__scroll-line" aria-hidden="true"></span>
+        <span class="hero__scroll-label">Défiler</span>
+      </a>
     </section>
 
     <!-- ---------------------------------------------------------------- -->
@@ -102,7 +164,6 @@
 
   <!-- ====================================================================
        FOOTER
-       [PLACEHOLDER] — mentions, réseaux, crédit
        ==================================================================== -->
   <footer class="site-footer">
     <div class="wrap">
@@ -112,13 +173,14 @@
 
   <!-- ====================================================================
        SCRIPTS — ordre important :
-       GSAP → ScrollTrigger → Lenis (lib) → lenis.js (init) → main.js
+       GSAP → ScrollTrigger → Lenis (lib) → lenis.js → motion.js → main.js
        Tous en `defer` : exécutés après le parsing du DOM, dans l'ordre.
        ==================================================================== -->
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
   <script defer src="assets/js/lenis.js"></script>
+  <script defer src="assets/js/motion.js"></script>
   <script defer src="assets/js/main.js"></script>
 </body>
 </html>

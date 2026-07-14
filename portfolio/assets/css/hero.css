@@ -1,0 +1,231 @@
+/* ==========================================================================
+   HERO.CSS — Préchargeur, section hero plein écran & utilitaires de mouvement
+   --------------------------------------------------------------------------
+   Contient :
+     - le préchargeur (voile d'ouverture),
+     - l'utilitaire .word / .word__inner (support de revealWords),
+     - le hero 100vh : eyebrow, mot géant "matière bois", légendes, accroche,
+       indice de scroll.
+   Valeurs issues des tokens. Sur mouvement réduit, tout est en état final.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------
+ * Verrou de défilement pendant le préchargeur (posé/enlevé par main.js)
+ * ------------------------------------------------------------------ */
+.is-loading { overflow: hidden; }
+
+/* --------------------------------------------------------------------
+ * PRÉCHARGEUR — voile plein écran, se retire après chargement
+ * ------------------------------------------------------------------ */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+.preloader__label {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-mono);
+  color: var(--muted);
+  /* Respiration discrète pendant le chargement (neutralisée si mouvement réduit) */
+  animation: preloader-breathe 1.6s var(--ease-inout) infinite;
+}
+@keyframes preloader-breathe {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+/* --------------------------------------------------------------------
+ * UTILITAIRE MOTS MASQUÉS — support de motion.revealWords()
+ * ------------------------------------------------------------------ */
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* la marge négative laisse respirer les jambages sans être rognés */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.word__inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------
+ * HERO — pleine hauteur, centré, beaucoup de vide
+ * ------------------------------------------------------------------ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;               /* pas de scroll horizontal (mot géant) */
+  padding-block: var(--space-10) var(--space-9);
+}
+
+.hero__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-6);
+  width: 100%;
+}
+
+/* Eyebrow */
+.hero__eyebrow {
+  margin: 0;
+}
+
+/* --- Bloc du mot géant + légendes latérales --- */
+.hero__wordwrap {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+}
+
+.hero__caption {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+  line-height: 1.5;
+  max-width: 14ch;
+}
+.hero__caption--left  { grid-column: 1; justify-self: end;   text-align: right; }
+.hero__caption--right { grid-column: 3; justify-self: start; text-align: left; }
+
+/* --- LE MOT GÉANT — vrai texte, rempli de matière bois --- */
+.hero__word {
+  grid-column: 2;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-regular);
+  font-size: clamp(3rem, 18vw, 14rem);
+  line-height: 0.9;
+  letter-spacing: var(--tracking-tight);
+  white-space: nowrap;
+
+  /* Fallback si background-clip:text n'est pas supporté OU si l'image manque :
+   * la couleur de fond (noyer) reste "coupée" dans le texte → jamais invisible. */
+  color: var(--wood-walnut);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero__word {
+    /* Remplissage matière : le grain de bois traverse les lettres.
+     * background-color = filet de sécurité si le .jpg est absent (404). */
+    background-color: var(--wood-walnut);
+    background-image: url("../img/wood-grain.jpg");
+    background-size: cover;
+    background-position: 50% 20%;     /* position animée au scroll (main.js) */
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    will-change: background-position;
+  }
+}
+
+/* --- Accroche révélée mot par mot --- */
+.hero__lede {
+  margin: 0;
+  max-width: 30ch;
+  font-family: var(--font-sans);
+  font-size: var(--step-1);
+  font-weight: var(--weight-light);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+/* --- Indice de scroll (bas du hero) --- */
+.hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-6);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--muted);
+  transition: opacity var(--dur-base) var(--ease-quiet);
+}
+/* s'estompe au premier scroll (classe posée par main.js) */
+.hero__scroll.is-gone {
+  opacity: 0;
+  pointer-events: none;
+}
+.hero__scroll-label {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+/* petit trait vertical qui "coule" vers le bas en boucle */
+.hero__scroll-line {
+  position: relative;
+  display: block;
+  width: var(--stroke-hair);
+  height: 48px;
+  background: var(--line);
+  overflow: hidden;
+}
+.hero__scroll-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleY(0);
+  transform-origin: top;
+  animation: scroll-drip 2s var(--ease-inout) infinite;
+}
+@keyframes scroll-drip {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  45%  { transform: scaleY(1); transform-origin: top; }
+  55%  { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* --------------------------------------------------------------------
+ * RESPONSIVE — légendes empilées sous le mot sur mobile
+ * ------------------------------------------------------------------ */
+@media (max-width: 800px) {
+  .hero__wordwrap {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  .hero__word    { grid-column: 1; order: 0; }
+  .hero__caption--left,
+  .hero__caption--right {
+    grid-column: 1;
+    justify-self: center;
+    text-align: center;
+    max-width: none;
+  }
+  .hero__caption--left  { order: 1; }
+  .hero__caption--right { order: 2; }
+}
+
+/* --------------------------------------------------------------------
+ * MOUVEMENT RÉDUIT — tout figé en état final visible
+ * (le bois reste affiché dans le texte ; pas de boucles ni de scrub)
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .preloader__label,
+  .hero__scroll-line::after {
+    animation: none;
+  }
+}
