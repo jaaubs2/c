@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="assets/css/header.css" />
   <link rel="stylesheet" href="assets/css/hero.css" />
   <link rel="stylesheet" href="assets/css/realisations.css" />
+  <link rel="stylesheet" href="assets/css/savoirfaire.css" />
 
   <!-- Lenis (smooth scroll) — feuille de style de la lib -->
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.14/dist/lenis.css" />
@@ -144,8 +145,95 @@
     <!-- ---------------------------------------------------------------- -->
     <!-- SAVOIR-FAIRE — essences, assemblages, atelier                    -->
     <!-- ---------------------------------------------------------------- -->
-    <section id="savoir-faire" aria-label="Savoir-faire">
-      <!-- [PLACEHOLDER] Les essences (chêne, noyer, frêne), les assemblages, le geste d'atelier -->
+    <section id="savoir-faire" class="sf" aria-labelledby="sf-title">
+
+      <!-- Intro -->
+      <div class="wrap sf__intro">
+        <p class="eyebrow sf__eyebrow">
+          <span>Savoir-faire</span><span class="sf__chapter">02</span>
+        </p>
+        <h2 class="sf__title" id="sf-title">La matière d'abord, le geste ensuite.</h2>
+        <p class="sf__lead">
+          Privilégier le bois massif, les assemblages traditionnels, les finitions à
+          l'huile — et le temps qu'il faut.
+        </p>
+      </div>
+
+      <!-- Démarche : texte + photo d'atelier (parallax) -->
+      <div class="wrap sf-demarche">
+        <div class="sf-demarche__text">
+          <p>
+            À l'atelier, tout commence par le bois : on choisit la planche, on lit son
+            fil, on la laisse se stabiliser. Rien n'est précipité.
+          </p>
+          <p>
+            Les assemblages sont traditionnels, pensés pour tenir des décennies ; les
+            finitions se font à l'huile, à la main, pour que la matière reste vivante
+            au toucher.
+          </p>
+        </div>
+        <figure class="sf-demarche__media">
+          <img
+            src="assets/img/atelier/demarche.jpg"
+            alt="Mains au travail sur une pièce de bois à l'établi, copeaux de rabot"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+      </div>
+
+      <!-- Essences : en-tête + galerie horizontale épinglée (repli grille) -->
+      <div class="wrap sf-essences__head">
+        <span class="eyebrow">Essences</span>
+        <span class="sf-essences__hint" aria-hidden="true">Faites défiler &rarr;</span>
+      </div>
+      <div class="sf-essences" id="sfEssences" aria-label="Essences de bois travaillées">
+        <div class="sf-essences__pin">
+          <div class="sf-essences__track" id="sfEssencesTrack">
+            <!-- Panneaux générés depuis savoirfaire.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Assemblages -->
+      <div class="wrap sf-assemblages">
+        <span class="eyebrow sf-assemblages__eyebrow">Assemblages</span>
+        <ol class="sf-assemblages__list" id="sfAssemblages">
+          <!-- Items générés depuis savoirfaire.js -->
+        </ol>
+      </div>
+
+      <!-- Finitions -->
+      <div class="wrap sf-finitions">
+        <span class="eyebrow sf-finitions__eyebrow">Finitions</span>
+        <span class="sf-chip">Huile-cire naturelle</span>
+        <span class="sf-chip">Vernis mat</span>
+        <span class="sf-chip">Brossé</span>
+        <span class="sf-chip">Cérusé</span>
+      </div>
+
+      <!-- Atelier : bandeau immersif sombre (parallax) -->
+      <div class="sf-atelier">
+        <figure class="sf-atelier__media">
+          <img
+            src="assets/img/atelier/atelier.jpg"
+            alt="L'atelier d'ébénisterie à Lyon : établi, outils et bois massif"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+        <div class="sf-atelier__scrim" aria-hidden="true"></div>
+        <div class="sf-atelier__inner">
+          <p class="sf-atelier__phrase">Un atelier à Lyon, du bois massif, et le temps qu'il faut.</p>
+          <p class="sf-atelier__reperes">Depuis 2014 · Sur-mesure · Bois massif</p>
+        </div>
+      </div>
+
+      <!-- Marquee (décoratif) -->
+      <div class="sf-marquee" aria-hidden="true">
+        <div class="sf-marquee__track" id="sfMarquee"></div>
+      </div>
+
     </section>
 
     <!-- ---------------------------------------------------------------- -->
@@ -184,8 +272,10 @@
   <script defer src="assets/js/lenis.js"></script>
   <script defer src="assets/js/motion.js"></script>
   <script defer src="assets/js/realisations.js"></script>
+  <script defer src="assets/js/savoirfaire.js"></script>
   <script defer src="assets/js/main.js"></script>
   <!-- UI des sections : après main.js (Lenis + plugins prêts) -->
   <script defer src="assets/js/realisations-ui.js"></script>
+  <script defer src="assets/js/savoirfaire-ui.js"></script>
 </body>
 </html>

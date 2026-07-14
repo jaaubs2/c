@@ -129,6 +129,34 @@
     });
   }
 
+  /* ------------------------------------------------------------------ *
+   * marquee — bandeau de texte en boucle continue.
+   * Duplique le contenu de la piste pour une boucle sans couture, puis
+   * anime en translation. En mouvement réduit : reste statique (visible).
+   * @param track  élément "piste" contenant le texte à faire défiler
+   * @param opts   { speed: px/s (def 60), reverse: bool }
+   * ------------------------------------------------------------------ */
+  function marquee(track, opts) {
+    opts = opts || {};
+    if (!track) return null;
+    if (reduced || !hasGSAP) return null; // statique, contenu déjà lisible
+
+    // Duplique le contenu une fois → largeur totale doublée → boucle à -50%.
+    track.innerHTML = track.innerHTML + track.innerHTML;
+    var speed = opts.speed || 60; // pixels par seconde
+    var half = track.scrollWidth / 2;
+    var duration = half / speed;
+    var from = opts.reverse ? -50 : 0;
+    var to = opts.reverse ? 0 : -50;
+    gsap.set(track, { xPercent: from });
+    return gsap.to(track, {
+      xPercent: to,
+      duration: duration,
+      ease: "none",
+      repeat: -1,
+    });
+  }
+
   window.motion = {
     reduced: reduced,
     hasGSAP: hasGSAP,
@@ -137,5 +165,6 @@
     revealWords: revealWords,
     revealUp: revealUp,
     parallax: parallax,
+    marquee: marquee,
   };
 })();

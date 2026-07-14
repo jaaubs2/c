@@ -1,0 +1,334 @@
+/* ==========================================================================
+   SAVOIRFAIRE.CSS — Section #savoir-faire
+   --------------------------------------------------------------------------
+   La plus tactile du site : démarche, essences (galerie horizontale épinglée),
+   assemblages, finitions, et un bandeau atelier sombre + marquee.
+   Accent terracotta, matière bois. Valeurs issues des tokens.
+   Repli obligatoire (grille verticale) en mobile / mouvement réduit pour la
+   galerie horizontale.
+   ========================================================================== */
+
+.sf { padding-block: var(--section-space); }
+
+/* --------------------------------------------------------------------
+ * 1. INTRO
+ * ------------------------------------------------------------------ */
+.sf__eyebrow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+.sf__chapter { color: var(--terracotta); }
+.sf__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: var(--leading-snug);
+  max-width: 20ch;
+  margin: 0 0 var(--space-5);
+}
+.sf__lead {
+  max-width: 54ch;
+  font-size: var(--step-1);
+  font-weight: var(--weight-light);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------------
+ * 2. DÉMARCHE — deux colonnes (texte + photo haute avec parallax)
+ * ------------------------------------------------------------------ */
+.sf-demarche {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(var(--space-6), 6vw, var(--space-10));
+  align-items: center;
+  margin-top: var(--space-10);
+}
+.sf-demarche__text p {
+  max-width: 46ch;
+  font-size: var(--step-0);
+  line-height: var(--leading-normal);
+  color: var(--ink);
+}
+.sf-demarche__text p + p { margin-top: var(--space-4); }
+.sf-demarche__media {
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(135deg, var(--wood-oak), var(--wood-walnut));
+}
+.sf-demarche__media img {
+  width: 100%;
+  height: 116%;                     /* marge pour le parallax vertical */
+  object-fit: cover;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------
+ * 3. ESSENCES — galerie horizontale épinglée (+ repli grille)
+ * ------------------------------------------------------------------ */
+.sf-essences { margin-top: var(--space-10); }
+.sf-essences__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-inline: var(--gutter);
+  margin-bottom: var(--space-6);
+}
+.sf-essences__hint {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+}
+
+/* Repli par défaut : grille verticale simple (mobile / reduced-motion) */
+.sf-essences__track {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+  padding-inline: var(--gutter);
+}
+
+.sf-panel {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--wood-oak), var(--wood-walnut));
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+}
+/* voile bas pour lisibilité du texte clair */
+.sf-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top,
+    rgba(20, 16, 12, 0.62) 0%,
+    rgba(20, 16, 12, 0.12) 45%,
+    rgba(20, 16, 12, 0) 70%);
+}
+.sf-panel__body {
+  position: relative;
+  padding: var(--space-5);
+  color: var(--surface);
+}
+.sf-panel__name {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.05;
+  margin: 0 0 var(--space-2);
+}
+.sf-panel__note {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: color-mix(in srgb, var(--surface) 82%, transparent);
+  margin: 0;
+}
+
+/* Mode horizontal épinglé (activé par JS : desktop, non-réduit) */
+.sf-essences.is-horizontal .sf-essences__pin {
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.sf-essences.is-horizontal .sf-essences__track {
+  display: flex;
+  flex-wrap: nowrap;
+  grid-template-columns: none;
+  gap: 0;
+  padding-inline: var(--gutter);
+  height: min(76vh, 620px);
+  will-change: transform;
+}
+.sf-essences.is-horizontal .sf-panel {
+  flex: 0 0 auto;
+  width: clamp(320px, 40vw, 600px);
+  height: 100%;
+  aspect-ratio: auto;
+  margin-right: var(--space-4);
+}
+
+/* --------------------------------------------------------------------
+ * 4. ASSEMBLAGES — liste numérotée éditoriale
+ * ------------------------------------------------------------------ */
+.sf-assemblages { margin-top: var(--space-11); }
+.sf-assemblages__eyebrow { margin-bottom: var(--space-6); }
+.sf-assemblages__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: var(--stroke-hair) solid var(--line);
+}
+.sf-asm {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr minmax(200px, 34%);
+  gap: var(--space-5);
+  align-items: center;
+  padding-block: var(--space-6);
+  border-bottom: var(--stroke-hair) solid var(--line);
+}
+.sf-asm__num {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--terracotta);
+}
+.sf-asm__name {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.1;
+  margin: 0 0 var(--space-2);
+}
+.sf-asm__note {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+  margin: 0;
+}
+.sf-asm__media {
+  margin: 0;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--wood-oak), var(--wood-walnut));
+}
+.sf-asm__media img { width: 100%; height: 100%; object-fit: cover; }
+
+/* --------------------------------------------------------------------
+ * 5. FINITIONS — rangée de libellés (chips)
+ * ------------------------------------------------------------------ */
+.sf-finitions {
+  margin-top: var(--space-10);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.sf-finitions__eyebrow { margin-right: var(--space-2); }
+.sf-chip {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+  padding: var(--space-2) var(--space-4);
+  border: var(--stroke-hair) solid var(--line);
+  border-radius: var(--radius-pill);
+  transition: color var(--dur-fast) var(--ease-quiet),
+              border-color var(--dur-fast) var(--ease-quiet);
+}
+.sf-chip:hover { color: var(--terracotta); border-color: var(--terracotta); }
+
+/* --------------------------------------------------------------------
+ * 6. ATELIER — bandeau immersif plein largeur, fond sombre
+ * ------------------------------------------------------------------ */
+.sf-atelier {
+  position: relative;
+  margin-top: var(--space-11);
+  min-height: min(82vh, 660px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--ink);
+}
+.sf-atelier__media {
+  position: absolute;
+  inset: -8% 0;                     /* marge pour le parallax */
+  margin: 0;
+}
+.sf-atelier__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;                    /* laisse ressortir le bois sans écraser le texte */
+  will-change: transform;
+}
+.sf-atelier__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(20, 16, 12, 0.55), rgba(20, 16, 12, 0.35));
+}
+.sf-atelier__inner {
+  position: relative;
+  text-align: center;
+  padding: var(--gutter);
+  max-width: min(88vw, 32rem);
+}
+.sf-atelier__phrase {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: var(--leading-snug);
+  color: var(--surface);
+  margin: 0 0 var(--space-5);
+  text-wrap: balance;
+}
+.sf-atelier__reperes {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+/* --------------------------------------------------------------------
+ * 7. MARQUEE — bandeau de termes du métier (décoratif)
+ * ------------------------------------------------------------------ */
+.sf-marquee {
+  overflow: hidden;
+  background: var(--ink);
+  border-top: var(--stroke-hair) solid color-mix(in srgb, var(--surface) 12%, transparent);
+  padding-block: var(--space-4);
+}
+.sf-marquee__track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+.sf-marquee__item {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: color-mix(in srgb, var(--surface) 55%, transparent);
+  padding-inline: var(--space-4);
+}
+.sf-marquee__item::after { content: "·"; margin-left: var(--space-4); color: var(--terracotta); }
+
+/* --------------------------------------------------------------------
+ * RESPONSIVE
+ * ------------------------------------------------------------------ */
+@media (max-width: 800px) {
+  .sf-demarche { grid-template-columns: 1fr; }
+  .sf-demarche__media { order: -1; aspect-ratio: 3 / 2; }
+
+  .sf-asm {
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--space-3) var(--space-4);
+    align-items: start;
+  }
+  .sf-asm__media { grid-column: 1 / -1; margin-top: var(--space-2); }
+}
+
+/* --------------------------------------------------------------------
+ * MOUVEMENT RÉDUIT — pas d'animation ; galerie en grille (jamais horizontale)
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .sf-demarche__media img,
+  .sf-atelier__media img { height: 100%; transform: none; }
+}
