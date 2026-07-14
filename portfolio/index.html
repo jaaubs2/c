@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="assets/css/hero.css" />
   <link rel="stylesheet" href="assets/css/realisations.css" />
   <link rel="stylesheet" href="assets/css/savoirfaire.css" />
+  <link rel="stylesheet" href="assets/css/finpage.css" />
 
   <!-- Lenis (smooth scroll) — feuille de style de la lib -->
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.14/dist/lenis.css" />
@@ -239,27 +240,147 @@
     <!-- ---------------------------------------------------------------- -->
     <!-- À PROPOS — bio de l'artisan                                      -->
     <!-- ---------------------------------------------------------------- -->
-    <section id="a-propos" aria-label="À propos">
-      <!-- [PLACEHOLDER] Portrait & parcours de l'ébéniste, sa démarche -->
+    <section id="a-propos" class="ap" aria-labelledby="ap-title">
+      <div class="wrap ap__grid">
+        <figure class="ap__portrait">
+          <img
+            src="assets/img/apropos/portrait.jpg"
+            alt="Portrait de Julien Cormier, ébéniste, dans son atelier à Lyon"
+            loading="lazy"
+            decoding="async"
+          />
+        </figure>
+        <div class="ap__body">
+          <p class="eyebrow ap__eyebrow">
+            <span>À propos</span><span class="ap__chapter">03</span>
+          </p>
+          <h2 class="ap__title" id="ap-title">Julien Cormier, ébéniste à Lyon.</h2>
+          <p class="ap__bio">
+            Julien Cormier dessine et fabrique du mobilier sur-mesure dans son atelier
+            lyonnais. Formé au compagnonnage, il travaille le bois massif — chêne, noyer,
+            frêne — en privilégiant les assemblages traditionnels et les finitions à
+            l'huile. Chaque pièce est unique, pensée pour durer et vieillir avec grâce.
+          </p>
+          <p class="ap__reperes">Formé au compagnonnage · Atelier à Lyon · Depuis 2014</p>
+        </div>
+      </div>
     </section>
 
     <!-- ---------------------------------------------------------------- -->
     <!-- CONTACT                                                          -->
     <!-- ---------------------------------------------------------------- -->
-    <section id="contact" aria-label="Contact">
-      <!-- [PLACEHOLDER] Prise de contact, coordonnées, atelier -->
+    <section id="contact" class="ct" aria-labelledby="ct-title">
+      <div class="wrap">
+        <h2 class="ct__title" id="ct-title">Un projet sur-mesure&#8239;? Parlons-en.</h2>
+
+        <div class="ct__grid">
+          <!-- Formulaire (statique → mailto pré-rempli) -->
+          <form class="ct__form" id="ctForm" novalidate>
+            <div class="ct__field">
+              <label class="ct__label" for="ct-nom">Nom</label>
+              <input class="ct__input" type="text" id="ct-nom" name="nom"
+                     autocomplete="name" required aria-describedby="ct-nom-err" />
+              <span class="ct__error" id="ct-nom-err" role="alert"></span>
+            </div>
+
+            <div class="ct__field">
+              <label class="ct__label" for="ct-email">Email</label>
+              <input class="ct__input" type="email" id="ct-email" name="email"
+                     autocomplete="email" required aria-describedby="ct-email-err" />
+              <span class="ct__error" id="ct-email-err" role="alert"></span>
+            </div>
+
+            <div class="ct__field">
+              <label class="ct__label" for="ct-message">Votre projet</label>
+              <textarea class="ct__textarea" id="ct-message" name="message"
+                        rows="4" required aria-describedby="ct-message-err"></textarea>
+              <span class="ct__error" id="ct-message-err" role="alert"></span>
+            </div>
+
+            <button class="ct__submit" type="submit">Envoyer</button>
+            <p class="ct__confirm" id="ctConfirm" role="status" aria-live="polite" hidden></p>
+          </form>
+
+          <!-- Contact direct -->
+          <aside class="ct__direct" aria-label="Contact direct">
+            <div class="ct__direct-item">
+              <span class="ct__direct-label">Email</span>
+              <a class="ct__direct-value" href="mailto:bonjour@ateliercormier.fr">bonjour@ateliercormier.fr</a>
+            </div>
+            <div class="ct__direct-item">
+              <span class="ct__direct-label">Instagram</span>
+              <a class="ct__direct-value" href="https://instagram.com/ateliercormier"
+                 target="_blank" rel="noopener">@ateliercormier</a>
+            </div>
+            <div class="ct__direct-item">
+              <span class="ct__direct-label">Atelier</span>
+              <span class="ct__direct-value">Atelier à Lyon — sur rendez-vous</span>
+            </div>
+          </aside>
+        </div>
+      </div>
     </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- CLÔTURE TYPOGRAPHIQUE — grand mot bois (bookend du hero)         -->
+    <!-- ---------------------------------------------------------------- -->
+    <div class="closing" aria-hidden="true">
+      <p class="closing__word">Merci.</p>
+    </div>
 
   </main>
 
   <!-- ====================================================================
-       FOOTER
+       FOOTER — fond sombre
        ==================================================================== -->
-  <footer class="site-footer">
-    <div class="wrap">
-      <!-- [PLACEHOLDER] Pied de page -->
+  <footer class="site-footer ft" role="contentinfo">
+    <div class="wrap ft__grid">
+      <div class="ft__brand">
+        <p class="ft__name">Atelier Cormier</p>
+        <p class="ft__tag">Ébéniste — Mobilier &amp; agencements sur-mesure — Lyon</p>
+      </div>
+
+      <nav class="ft__col" aria-label="Navigation du pied de page">
+        <p class="ft__col-title">Explorer</p>
+        <ul class="ft__list" role="list">
+          <li><a class="ft__link" href="#realisations">Réalisations</a></li>
+          <li><a class="ft__link" href="#savoir-faire">Savoir-faire</a></li>
+          <li><a class="ft__link" href="#a-propos">À propos</a></li>
+          <li><a class="ft__link" href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="ft__col">
+        <p class="ft__col-title">Suivre</p>
+        <ul class="ft__list" role="list">
+          <li><a class="ft__link" href="https://instagram.com/ateliercormier" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a class="ft__link" href="mailto:bonjour@ateliercormier.fr">Email</a></li>
+          <li><a class="ft__link" href="#hero">Retour en haut ↑</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wrap ft__legal">
+      <p>© <span id="ftYear">2026</span> Atelier Cormier</p>
+      <button class="ft__legal-link" id="legalOpen" type="button" aria-haspopup="dialog">Mentions légales</button>
     </div>
   </footer>
+
+  <!-- Modale — mentions légales (champs placeholder à compléter) -->
+  <div class="legal" id="legal" role="dialog" aria-modal="true" aria-labelledby="legalTitle" aria-hidden="true">
+    <div class="legal__panel">
+      <button class="legal__close" type="button" aria-label="Fermer les mentions légales">&#10005;</button>
+      <h2 class="legal__title" id="legalTitle">Mentions légales</h2>
+      <dl class="legal__list">
+        <div class="legal__row"><dt class="legal__dt">Raison sociale</dt><dd class="legal__dd">Atelier Cormier</dd></div>
+        <div class="legal__row"><dt class="legal__dt">SIRET</dt><dd class="legal__dd">000 000 000 00000</dd></div>
+        <div class="legal__row"><dt class="legal__dt">TVA intracommunautaire</dt><dd class="legal__dd">FR00 000000000</dd></div>
+        <div class="legal__row"><dt class="legal__dt">Directeur de la publication</dt><dd class="legal__dd">Julien Cormier</dd></div>
+        <div class="legal__row"><dt class="legal__dt">Hébergeur</dt><dd class="legal__dd">[Nom de l'hébergeur — adresse]</dd></div>
+      </dl>
+      <p class="legal__note">Informations placeholder — à compléter avant mise en ligne.</p>
+    </div>
+  </div>
 
   <!-- ====================================================================
        SCRIPTS — ordre important :
@@ -277,5 +398,6 @@
   <!-- UI des sections : après main.js (Lenis + plugins prêts) -->
   <script defer src="assets/js/realisations-ui.js"></script>
   <script defer src="assets/js/savoirfaire-ui.js"></script>
+  <script defer src="assets/js/finpage.js"></script>
 </body>
 </html>

@@ -55,7 +55,10 @@
       return el ? Array.prototype.slice.call(el.querySelectorAll(".word__inner")) : [];
     }
     var text = (el.textContent || "").trim();
-    var words = text.split(/\s+/);
+    // On découpe sur les espaces "normaux" uniquement : les espaces insécables
+    // (U+00A0, U+202F) restent DANS le mot → typo française préservée
+    // (ex. "sur-mesure ?" ne se coupe jamais).
+    var words = text.split(/[ \t\r\n\f]+/);
     el.textContent = "";
     var inners = [];
     words.forEach(function (w, i) {
