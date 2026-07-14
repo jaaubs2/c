@@ -16,15 +16,18 @@ cette étape ne pose que les fondations. Ci-dessous, l'inventaire des visuels
 - [ ] `hero.jpg` — image d'ouverture plein cadre ou détail matière fort.
       Format paysage large (≥ 2400px de large). Prévoir version portrait mobile.
 
-### Projets (sélection)
-- [ ] `projet-01.jpg` … `projet-0N.jpg` — une image maîtresse par projet.
+### Réalisations (sélection de pièces / agencements)
+- [ ] `realisation-01.jpg` … `realisation-0N.jpg` — une image maîtresse par pièce.
       Cadrage cohérent (même hauteur / ratio conseillé, ex. 3:4 ou 4:5).
-- [ ] Vignettes / secondaires éventuelles : `projet-01-detail.jpg`, etc.
+- [ ] Vignettes / secondaires éventuelles : `realisation-01-detail.jpg` (assemblages, arêtes), etc.
 
 ### Savoir-faire
-- [ ] `atelier.jpg` — l'atelier, les outils, le geste.
-- [ ] `matiere-chene.jpg`, `matiere-noyer.jpg` — gros plans de matière (textures).
-- [ ] Éventuel portrait de l'artisan : `portrait.jpg`.
+- [ ] `atelier.jpg` — l'atelier, l'établi, les outils, le geste.
+- [ ] `matiere-chene.jpg`, `matiere-noyer.jpg`, `matiere-frene.jpg` — gros plans de matière (textures, veinage).
+- [ ] Détails d'assemblages : `assemblage-tenon-mortaise.jpg`, `assemblage-queue-aronde.jpg`.
+
+### À propos
+- [ ] `portrait.jpg` — portrait de l'ébéniste (à l'établi, lumière naturelle).
 
 ### Divers
 - [ ] `favicon` / icônes (à générer plus tard).

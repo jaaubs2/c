@@ -73,7 +73,7 @@
     setupSmoothScroll();
 
     // Point d'accroche pour les prochaines étapes :
-    // ici viendront les inits de sections (hero, projets, savoir-faire…).
+    // ici viendront les inits de sections (hero, réalisations, savoir-faire…).
     // Ex. : if (hasGSAP && !prefersReducedMotion) initHero();
 
     // Marque la page comme "prête" — utile pour d'éventuelles transitions

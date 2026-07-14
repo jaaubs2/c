@@ -1,17 +1,17 @@
-# Portfolio — Architecte · Maître d'œuvre · Ébéniste
+# Portfolio — Ébéniste · Mobilier & agencements sur-mesure
 
-Site portfolio **one-page** pour un artisan aux trois casquettes : architecte,
-maître d'œuvre et ébéniste.
+Site portfolio **one-page** pour un **artisan ébéniste** — créateur de mobilier
+et d'agencements sur-mesure en bois massif (chêne, noyer, frêne).
 
 **Direction artistique** — *quiet luxury* éditorial & matière
 (inspiration : [mersi-architecture.com](https://www.mersi-architecture.com/)).
 Fond greige chaud, quasi-monochrome, beaucoup de vide, typographie raffinée,
-et le **bois** (chêne / noyer) comme unique accent qui raconte l'artisanat.
+et le **bois** en héros — matière, assemblages, atelier — qui raconte l'artisanat.
 
 > **État du projet : FONDATIONS.**
 > Seul le socle est en place (design system, base, smooth scroll, structure
-> sémantique). Les sections (hero, projets, savoir-faire, contact) seront
-> construites une par une dans les étapes suivantes.
+> sémantique). Les sections (hero, réalisations, savoir-faire, à propos,
+> contact) seront construites une par une dans les étapes suivantes.
 
 ---
 
@@ -107,8 +107,9 @@ Voir **`styleguide.html`** pour la référence visuelle complète.
 
 1. Header / navigation
 2. Section **Hero**
-3. Section **Projets**
-4. Section **Savoir-faire**
-5. Section **Contact** + footer
+3. Section **Réalisations** (mobilier & agencements)
+4. Section **Savoir-faire** (essences, assemblages, atelier)
+5. Section **À propos** (bio de l'ébéniste)
+6. Section **Contact** + footer
 
 *(Chaque section sera ajoutée et validée l'une après l'autre.)*
