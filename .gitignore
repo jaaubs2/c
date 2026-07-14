@@ -1,0 +1,8 @@
+# Dépendances installées uniquement pour la vérification locale (non nécessaires au site)
+node_modules/
+package-lock.json
+package.json
+
+# Divers
+.DS_Store
+*.log

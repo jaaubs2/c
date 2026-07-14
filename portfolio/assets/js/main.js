@@ -225,11 +225,20 @@
       gsap.set(word, { clipPath: "inset(115% 0% -15% 0%)", y: "0.06em" });
     }
 
-    whenReady(function () {
+    // Compteur de progression fluide 0 → 100. L'entrée du hero n'est déclenchée
+    // qu'une fois le compteur ARRIVÉ à 100 ET les polices prêtes.
+    var countEl = document.getElementById("preloaderCount");
+    var progress = { v: 0 };
+    var counterDone = false, fontsReady = false, started = false;
+
+    function startReveal() {
+      if (started || !counterDone || !fontsReady) return;
+      started = true;
+
       var tl = gsap.timeline({ defaults: { ease: motion.easeQuiet } });
 
       // (0) retrait du préchargeur
-      tl.to(pre, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, 0.35)
+      tl.to(pre, { autoAlpha: 0, duration: 0.7, ease: "power2.inOut" }, 0.2)
         .add(function () {
           if (pre && pre.parentNode) pre.parentNode.removeChild(pre);
           html.classList.remove("is-loading");
@@ -237,20 +246,11 @@
         });
 
       // (1) eyebrow + légendes latérales : fondu doux
-      tl.to([eyebrow, capL, capR], {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.9,
-        stagger: 0.08,
-      }, "-=0.35");
+      tl.to([eyebrow, capL, capR], { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08 }, "-=0.35");
 
       // (2) mot géant : révélation clip du bas vers le haut
       if (word) {
-        tl.to(word, {
-          clipPath: "inset(0% 0% 0% 0%)",
-          y: 0,
-          duration: 1.2,
-        }, "-=0.55");
+        tl.to(word, { clipPath: "inset(0% 0% 0% 0%)", y: 0, duration: 1.2 }, "-=0.55");
       }
 
       // (3) accroche : révélation mot par mot (motion.revealWords)
@@ -262,9 +262,19 @@
       // (4) indice de scroll : apparition
       tl.to(scroll, { autoAlpha: 1, duration: 0.6 }, "-=0.25");
 
-      // Recalage des ScrollTrigger une fois tout en place.
+      // Recalage des ScrollTrigger une fois tout en place (positions correctes).
       tl.add(function () { if (ST) ST.refresh(); });
+    }
+
+    gsap.to(progress, {
+      v: 100,
+      duration: 1.15,
+      ease: "power1.inOut",
+      onUpdate: function () { if (countEl) countEl.textContent = Math.round(progress.v); },
+      onComplete: function () { counterDone = true; startReveal(); },
     });
+
+    whenReady(function () { fontsReady = true; startReveal(); });
   }
 
   /* ====================================================================
@@ -280,6 +290,12 @@
 
     html.classList.add("is-ready");
     if (reduced) html.classList.add("reduced-motion");
+
+    // Recalage des ScrollTrigger après chargement complet (images/polices),
+    // en plus du refresh de fin d'intro : évite les positions décalées.
+    if (hasGSAP && ST) {
+      window.addEventListener("load", function () { ST.refresh(); });
+    }
   }
 
   if (document.readyState === "loading") {

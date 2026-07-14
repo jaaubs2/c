@@ -27,7 +27,7 @@
 }
 .rea__count {
   font-family: var(--font-mono);
-  color: var(--terracotta);
+  color: var(--terracotta-deep);    /* contraste AA sur greige */
 }
 .rea__title {
   font-family: var(--font-display);
@@ -229,7 +229,7 @@
   color: var(--muted);
 }
 .rea-detail__meta b {
-  color: var(--terracotta);
+  color: var(--terracotta-deep);
   font-weight: var(--weight-regular);
 }
 .rea-detail__desc {

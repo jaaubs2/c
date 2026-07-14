@@ -21,7 +21,7 @@
   --bg:        #EAE5DD;   /* greige chaud — fond global de la page      */
   --surface:   #F2EDE4;   /* off-white — cartes, panneaux, surélévation */
   --ink:       #1E1A15;   /* brun-noir chaud — texte principal          */
-  --muted:     #8A8175;   /* gris-taupe — texte secondaire, légendes    */
+  --muted:     #6B6255;   /* taupe profond — texte secondaire (contraste AA ≈ 4.8:1 sur --bg) */
   --line:      #D8D0C4;   /* filet clair — bordures, séparateurs        */
 
   /* Accents matière — le bois */

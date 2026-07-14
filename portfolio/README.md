@@ -8,10 +8,13 @@ et d'agencements sur-mesure en bois massif (chêne, noyer, frêne).
 Fond greige chaud, quasi-monochrome, beaucoup de vide, typographie raffinée,
 et le **bois** en héros — matière, assemblages, atelier — qui raconte l'artisanat.
 
-> **État du projet : FONDATIONS.**
-> Seul le socle est en place (design system, base, smooth scroll, structure
-> sémantique). Les sections (hero, réalisations, savoir-faire, à propos,
-> contact) seront construites une par une dans les étapes suivantes.
+> **État du projet : SITE COMPLET (one-page).**
+> Toutes les sections sont en place : hero, réalisations (index + vue détail),
+> savoir-faire (essences en défilement horizontal, assemblages, atelier), à
+> propos, contact, footer. Une passe qualité finale a été menée — voir
+> **`REVIEW.md`** pour ce qui a été vérifié et la **checklist des tâches
+> restantes** (déposer les vraies photos, compléter les mentions légales,
+> brancher le formulaire).
 
 ---
 
@@ -42,16 +45,28 @@ python3 -m http.server 8000
 
 ```
 portfolio/
-├─ index.html            # Page principale (structure sémantique, sections à venir)
+├─ index.html            # Page principale (toutes les sections)
 ├─ styleguide.html       # Référence vivante du design system
+├─ REVIEW.md             # Audit qualité + checklist des tâches restantes
 ├─ assets/
 │  ├─ css/
 │  │  ├─ tokens.css      # Variables : couleurs, typo, espacements, durées… (source de vérité)
-│  │  └─ base.css        # Reset moderne, styles globaux, utilitaires
+│  │  ├─ base.css        # Reset moderne, styles globaux, utilitaires
+│  │  ├─ header.css      # En-tête fixe + navigation + menu mobile
+│  │  ├─ hero.css        # Préchargeur + hero (mot géant bois)
+│  │  ├─ realisations.css# Index éditorial + vue détail
+│  │  ├─ savoirfaire.css # Essences (horizontal), assemblages, atelier, marquee
+│  │  └─ finpage.css     # À propos, contact, clôture, footer, mentions légales
 │  ├─ js/
 │  │  ├─ lenis.js        # Init du smooth scroll (Lenis)
-│  │  └─ main.js         # Point d'entrée : GSAP + synchro Lenis/ScrollTrigger
-│  └─ img/               # Visuels (voir assets/img/NOTES.md)
+│  │  ├─ motion.js       # Helpers : revealWords / revealUp / parallax / marquee + easing quiet
+│  │  ├─ main.js         # Point d'entrée : préchargeur, intro, header, ancres
+│  │  ├─ realisations.js       # Données (source unique) des réalisations
+│  │  ├─ realisations-ui.js    # Rendu index + overlay détail
+│  │  ├─ savoirfaire.js        # Données essences / assemblages / termes
+│  │  ├─ savoirfaire-ui.js     # Rendu + pin horizontal + parallax + marquee
+│  │  └─ finpage.js            # Formulaire, modale légale, clôture, reveals
+│  └─ img/               # Visuels — placeholders générés (voir REVIEW.md)
 └─ README.md
 ```
 
@@ -103,13 +118,11 @@ Voir **`styleguide.html`** pour la référence visuelle complète.
 
 ---
 
-## Prochaines étapes
+## Avant la mise en ligne
 
-1. Header / navigation
-2. Section **Hero**
-3. Section **Réalisations** (mobilier & agencements)
-4. Section **Savoir-faire** (essences, assemblages, atelier)
-5. Section **À propos** (bio de l'ébéniste)
-6. Section **Contact** + footer
-
-*(Chaque section sera ajoutée et validée l'une après l'autre.)*
+Voir **`REVIEW.md`** pour la checklist complète :
+1. Déposer les **vraies photos** (réalisations, essences, assemblages, atelier,
+   portrait) + la **texture bois** du hero.
+2. Compléter les **mentions légales** (SIRET, TVA, hébergeur…).
+3. Brancher le **formulaire** (Formspree / Netlify) au moment de l'hébergement.
+4. Compresser les images (**WebP**) ; optionnel : polices en local.

@@ -7,12 +7,28 @@
   <!-- ====================================================================
        MÉTADONNÉES
        ==================================================================== -->
-  <title>Atelier Cormier — Ébéniste · Mobilier &amp; agencements sur-mesure</title>
+  <title>Atelier Cormier — Ébéniste à Lyon | Mobilier &amp; agencements sur-mesure</title>
   <meta
     name="description"
     content="Atelier Cormier, ébéniste à Lyon depuis 2014 — mobilier et agencements sur-mesure en bois massif. Chaque pièce naît d'une essence, d'un geste, et du temps qu'il faut."
   />
   <meta name="theme-color" content="#EAE5DD" />
+
+  <!-- Favicon (placeholder SVG — à remplacer par un vrai logo) -->
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+
+  <!-- Open Graph / partage social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="Atelier Cormier" />
+  <meta property="og:title" content="Atelier Cormier — Ébéniste à Lyon" />
+  <meta property="og:description" content="Mobilier et agencements sur-mesure en bois massif. Chaque pièce naît d'une essence, d'un geste, et du temps qu'il faut." />
+  <!-- [PLACEHOLDER] Remplacer par une vraie image de partage 1200×630 -->
+  <meta property="og:image" content="assets/img/atelier/atelier.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Préchargement de la texture bois du hero (rendu plus rapide du mot géant) -->
+  <link rel="preload" as="image" href="assets/img/wood-grain.jpg" />
 
   <!-- ====================================================================
        POLICES — Google Fonts
@@ -51,7 +67,10 @@
        PRÉCHARGEUR — voile d'ouverture, retiré par main.js
        ==================================================================== -->
   <div class="preloader" id="preloader" aria-hidden="true">
-    <span class="preloader__label">Atelier Cormier</span>
+    <div class="preloader__inner">
+      <span class="preloader__label">Atelier Cormier</span>
+      <span class="preloader__count"><span id="preloaderCount">0</span>&#8202;%</span>
+    </div>
   </div>
 
   <!-- ====================================================================
