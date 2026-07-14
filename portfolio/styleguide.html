@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Style guide — Design system</title>
+
+  <!-- Polices — identiques à index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter+Tight:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+
+  <!-- Lenis (smooth scroll) -->
+  <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.14/dist/lenis.css" />
+
+  <!-- ====================================================================
+       STYLES SPÉCIFIQUES À LA STYLEGUIDE
+       Uniquement de la mise en page de démonstration. Toujours via tokens.
+       (Ces styles ne servent PAS au site : ils affichent le système.)
+       ==================================================================== -->
+  <style>
+    .sg-header {
+      padding-block: var(--space-9) var(--space-7);
+      border-bottom: var(--stroke-hair) solid var(--line);
+    }
+    .sg-header h1 {
+      font-size: var(--step-4);
+      margin-top: var(--space-3);
+    }
+    .sg-header p {
+      margin-top: var(--space-4);
+      color: var(--muted);
+    }
+
+    .sg-section {
+      padding-block: var(--space-8);
+      border-bottom: var(--stroke-hair) solid var(--line);
+    }
+    .sg-section > .eyebrow {
+      display: block;
+      margin-bottom: var(--space-6);
+    }
+
+    /* --- Palette --- */
+    .sg-swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--space-4);
+    }
+    .sg-swatch {
+      border: var(--stroke-hair) solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .sg-swatch__chip {
+      height: 96px;
+    }
+    .sg-swatch__body {
+      padding: var(--space-3) var(--space-4) var(--space-4);
+    }
+    .sg-swatch__name {
+      font-family: var(--font-sans);
+      font-weight: var(--weight-medium);
+      font-size: var(--step--1);
+    }
+    .sg-swatch__var,
+    .sg-swatch__hex {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .sg-swatch__hex {
+      text-transform: uppercase;
+    }
+
+    /* --- Échelle typo --- */
+    .sg-type-row {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: var(--space-5);
+      align-items: baseline;
+      padding-block: var(--space-4);
+      border-top: var(--stroke-hair) solid var(--line);
+    }
+    .sg-type-row:first-of-type {
+      border-top: 0;
+    }
+    .sg-type-meta {
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+      line-height: var(--leading-normal);
+    }
+    .sg-type-meta strong {
+      display: block;
+      color: var(--ink);
+      font-weight: var(--weight-regular);
+    }
+    .sg-type-sample {
+      line-height: var(--leading-snug);
+      overflow: hidden;
+    }
+
+    /* --- Espacements --- */
+    .sg-space-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: var(--space-5);
+      align-items: center;
+      padding-block: var(--space-2);
+    }
+    .sg-space-bar {
+      height: 16px;
+      background: var(--wood-oak);
+      border-radius: var(--radius-xs);
+    }
+
+    /* --- Boutons & labels de démo --- */
+    .sg-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      align-items: center;
+    }
+
+    /* Boutons (préfigurent les composants à venir) */
+    .btn {
+      --_pad-y: var(--space-3);
+      --_pad-x: var(--space-6);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--_pad-y) var(--_pad-x);
+      font-family: var(--font-sans);
+      font-size: var(--step--1);
+      font-weight: var(--weight-medium);
+      letter-spacing: 0.02em;
+      border-radius: var(--radius-pill);
+      border: var(--stroke-med) solid transparent;
+      cursor: pointer;
+      transition:
+        background-color var(--dur-base) var(--ease-quiet),
+        color var(--dur-base) var(--ease-quiet),
+        border-color var(--dur-base) var(--ease-quiet),
+        transform var(--dur-fast) var(--ease-quiet);
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .btn--solid {
+      background: var(--ink);
+      color: var(--surface);
+    }
+    .btn--solid:hover {
+      background: var(--wood-walnut);
+    }
+    .btn--outline {
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+    .btn--outline:hover {
+      border-color: var(--wood-walnut);
+      color: var(--wood-walnut);
+    }
+    /* Lien souligné éditorial */
+    .link-underline {
+      font-family: var(--font-sans);
+      font-weight: var(--weight-medium);
+      color: var(--ink);
+      border-bottom: var(--stroke-med) solid var(--wood-oak);
+      padding-bottom: 2px;
+      transition: border-color var(--dur-base) var(--ease-quiet);
+    }
+    .link-underline:hover {
+      border-color: var(--wood-walnut);
+    }
+
+    /* Étiquette / tag (style métadonnée) */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-1) var(--space-3);
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+      color: var(--muted);
+      border: var(--stroke-hair) solid var(--line);
+      border-radius: var(--radius-pill);
+    }
+
+    /* --- Divers : ombres --- */
+    .sg-shadow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-6);
+    }
+    .sg-shadow-card {
+      padding: var(--space-6);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      font-family: var(--font-mono);
+      font-size: var(--step--1);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+    }
+    .sg-shadow-card--soft { box-shadow: var(--shadow-soft); }
+    .sg-shadow-card--lift { box-shadow: var(--shadow-lift); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- ================================================================ -->
+    <!-- EN-TÊTE                                                          -->
+    <!-- ================================================================ -->
+    <header class="sg-header">
+      <span class="eyebrow">Design system · Référence vivante</span>
+      <h1>Style guide</h1>
+      <p>
+        Palette, typographie, espacements et composants de base.
+        Quiet luxury éditorial &amp; matière — accent bois (chêne / noyer).
+      </p>
+    </header>
+
+    <!-- ================================================================ -->
+    <!-- 1. COULEURS                                                      -->
+    <!-- ================================================================ -->
+    <section class="sg-section" aria-label="Palette de couleurs">
+      <span class="eyebrow">01 — Couleurs</span>
+      <div class="sg-swatches">
+
+        <!-- Neutres -->
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--bg)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Greige (fond)</span>
+            <span class="sg-swatch__var">--bg</span>
+            <span class="sg-swatch__hex">#EAE5DD</span>
+          </div>
+        </article>
+
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--surface)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Off-white (surface)</span>
+            <span class="sg-swatch__var">--surface</span>
+            <span class="sg-swatch__hex">#F2EDE4</span>
+          </div>
+        </article>
+
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--ink)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Encre (texte)</span>
+            <span class="sg-swatch__var">--ink</span>
+            <span class="sg-swatch__hex">#1E1A15</span>
+          </div>
+        </article>
+
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--muted)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Taupe (secondaire)</span>
+            <span class="sg-swatch__var">--muted</span>
+            <span class="sg-swatch__hex">#8A8175</span>
+          </div>
+        </article>
+
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--line)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Filet (bordures)</span>
+            <span class="sg-swatch__var">--line</span>
+            <span class="sg-swatch__hex">#D8D0C4</span>
+          </div>
+        </article>
+
+        <!-- Accents matière -->
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--wood-oak)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Chêne</span>
+            <span class="sg-swatch__var">--wood-oak</span>
+            <span class="sg-swatch__hex">#B79A6E</span>
+          </div>
+        </article>
+
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--wood-walnut)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Noyer</span>
+            <span class="sg-swatch__var">--wood-walnut</span>
+            <span class="sg-swatch__hex">#6B4E34</span>
+          </div>
+        </article>
+
+        <article class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--stone)"></div>
+          <div class="sg-swatch__body">
+            <span class="sg-swatch__name">Pierre</span>
+            <span class="sg-swatch__var">--stone</span>
+            <span class="sg-swatch__hex">#A08B6F</span>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- 2. TYPOGRAPHIE                                                   -->
+    <!-- ================================================================ -->
+    <section class="sg-section" aria-label="Échelle typographique">
+      <span class="eyebrow">02 — Typographie</span>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Display / Hero</strong>
+          Fraunces · --step-5
+        </div>
+        <div class="sg-type-sample" style="font-family: var(--font-display); font-size: var(--step-5); letter-spacing: var(--tracking-tight);">
+          Le geste
+        </div>
+      </div>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Titre 1</strong>
+          Fraunces · --step-4
+        </div>
+        <div class="sg-type-sample" style="font-family: var(--font-display); font-size: var(--step-4); letter-spacing: var(--tracking-tight);">
+          Architecte &amp; ébéniste
+        </div>
+      </div>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Titre 2</strong>
+          Fraunces · --step-3
+        </div>
+        <div class="sg-type-sample" style="font-family: var(--font-display); font-size: var(--step-3);">
+          Du dessin à la matière
+        </div>
+      </div>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Titre 3</strong>
+          Fraunces · --step-2
+        </div>
+        <div class="sg-type-sample" style="font-family: var(--font-display); font-size: var(--step-2);">
+          Chêne, noyer, lumière
+        </div>
+      </div>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Sous-titre</strong>
+          Inter Tight · --step-1
+        </div>
+        <div class="sg-type-sample" style="font-family: var(--font-sans); font-size: var(--step-1); font-weight: var(--weight-light);">
+          Une pratique unique, trois métiers.
+        </div>
+      </div>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Corps</strong>
+          Inter Tight · --step-0
+        </div>
+        <div class="sg-type-sample" style="font-family: var(--font-sans); font-size: var(--step-0); line-height: var(--leading-normal);">
+          Le corps de texte en Inter Tight, pensé pour une lecture calme et
+          confortable. Longueur de ligne mesurée, interlignage généreux.
+        </div>
+      </div>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Petit / légende</strong>
+          Inter Tight · --step--1
+        </div>
+        <div class="sg-type-sample" style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--muted);">
+          Légende, note de bas de section, mention discrète.
+        </div>
+      </div>
+
+      <div class="sg-type-row">
+        <div class="sg-type-meta">
+          <strong>Eyebrow / Meta</strong>
+          Space Mono · capitales
+        </div>
+        <div class="sg-type-sample">
+          <span class="eyebrow">Savoir-faire — 03</span><br />
+          <span class="meta" style="margin-top: var(--space-2); display: inline-block;">N° 001 · Noyer massif · 2024</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- 3. ESPACEMENTS                                                   -->
+    <!-- ================================================================ -->
+    <section class="sg-section" aria-label="Échelle d'espacements">
+      <span class="eyebrow">03 — Espacements</span>
+
+      <div class="sg-space-row">
+        <span class="meta">--space-1 · 4px</span>
+        <div class="sg-space-bar" style="width: var(--space-1)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-2 · 8px</span>
+        <div class="sg-space-bar" style="width: var(--space-2)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-3 · 12px</span>
+        <div class="sg-space-bar" style="width: var(--space-3)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-4 · 16px</span>
+        <div class="sg-space-bar" style="width: var(--space-4)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-5 · 24px</span>
+        <div class="sg-space-bar" style="width: var(--space-5)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-6 · 32px</span>
+        <div class="sg-space-bar" style="width: var(--space-6)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-7 · 48px</span>
+        <div class="sg-space-bar" style="width: var(--space-7)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-8 · 64px</span>
+        <div class="sg-space-bar" style="width: var(--space-8)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-9 · 96px</span>
+        <div class="sg-space-bar" style="width: var(--space-9)"></div>
+      </div>
+      <div class="sg-space-row">
+        <span class="meta">--space-10 · 128px</span>
+        <div class="sg-space-bar" style="width: var(--space-10)"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- 4. COMPOSANTS — boutons & labels                                 -->
+    <!-- ================================================================ -->
+    <section class="sg-section" aria-label="Boutons et labels">
+      <span class="eyebrow">04 — Composants</span>
+
+      <div class="sg-cluster" style="margin-bottom: var(--space-7)">
+        <button class="btn btn--solid" type="button">Prendre contact</button>
+        <button class="btn btn--outline" type="button">Voir les projets</button>
+        <a class="link-underline" href="#">Découvrir l'atelier</a>
+      </div>
+
+      <div class="sg-cluster">
+        <span class="tag">Architecture</span>
+        <span class="tag">Maîtrise d'œuvre</span>
+        <span class="tag">Ébénisterie</span>
+        <span class="eyebrow">Eyebrow — micro-titre</span>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- 5. RELIEF — ombres douces                                        -->
+    <!-- ================================================================ -->
+    <section class="sg-section" aria-label="Ombres et relief" style="border-bottom: 0">
+      <span class="eyebrow">05 — Relief / ombres</span>
+      <div class="sg-shadow-grid">
+        <div class="sg-shadow-card sg-shadow-card--soft">--shadow-soft</div>
+        <div class="sg-shadow-card sg-shadow-card--lift">--shadow-lift</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Scripts — mêmes libs que index.html (le smooth scroll s'applique ici aussi) -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script defer src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script defer src="assets/js/lenis.js"></script>
+  <script defer src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+/* ==========================================================================
+   TOKENS.CSS — Design system / source de vérité
+   --------------------------------------------------------------------------
+   Toutes les variables du projet vivent ici, dans :root.
+   Direction artistique : "quiet luxury" éditorial & matière.
+   Fond greige chaud, quasi-monochrome, accent BOIS (chêne / noyer).
+   N'écris jamais de valeur "en dur" dans base.css ou les composants :
+   passe toujours par un token défini ci-dessous.
+   ========================================================================== */
+
+:root {
+
+  /* ------------------------------------------------------------------ *
+   * 1. COULEURS
+   * ------------------------------------------------------------------ *
+   * Palette greige chaude, quasi-monochrome. Le bois est l'unique
+   * accent chromatique — il "raconte" l'artisanat.
+   * ------------------------------------------------------------------ */
+
+  /* Neutres — fonds & encre */
+  --bg:        #EAE5DD;   /* greige chaud — fond global de la page      */
+  --surface:   #F2EDE4;   /* off-white — cartes, panneaux, surélévation */
+  --ink:       #1E1A15;   /* brun-noir chaud — texte principal          */
+  --muted:     #8A8175;   /* gris-taupe — texte secondaire, légendes    */
+  --line:      #D8D0C4;   /* filet clair — bordures, séparateurs        */
+
+  /* Accents matière — le bois */
+  --wood-oak:    #B79A6E; /* chêne — accent clair, chaleureux           */
+  --wood-walnut: #6B4E34; /* noyer — accent profond, contraste          */
+  --stone:       #A08B6F; /* pierre — neutre chaud intermédiaire        */
+
+  /* Alias sémantiques — on manipule ceux-ci dans les composants        */
+  --color-accent:       var(--wood-oak);
+  --color-accent-deep:  var(--wood-walnut);
+  --color-text:         var(--ink);
+  --color-text-muted:   var(--muted);
+  --color-bg:           var(--bg);
+  --color-surface:      var(--surface);
+  --color-border:       var(--line);
+
+  /* ------------------------------------------------------------------ *
+   * 2. TYPOGRAPHIE
+   * ------------------------------------------------------------------ *
+   * display = Fraunces    → titres, serif variable, éditorial & chaud
+   * sans    = Inter Tight → nav + corps de texte
+   * mono    = Space Mono  → légendes, métadonnées "plan d'archi"
+   * (les polices sont chargées via Google Fonts dans le <head> HTML)
+   * ------------------------------------------------------------------ */
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans:    "Inter Tight", system-ui, -apple-system, sans-serif;
+  --font-mono:    "Space Mono", "SFMono-Regular", ui-monospace, monospace;
+
+  /* Graisses */
+  --weight-light:   300;
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semi:    600;
+
+  /* Échelle typographique FLUIDE (clamp : min → préféré vw → max)
+   * Base ~18px. Ratio proche du tiers majeur pour un rythme éditorial. */
+  --step--1: clamp(0.83rem, 0.79rem + 0.20vw, 0.94rem);  /* petit / légende */
+  --step-0:  clamp(1.00rem, 0.94rem + 0.30vw, 1.15rem);  /* corps           */
+  --step-1:  clamp(1.25rem, 1.14rem + 0.55vw, 1.62rem);  /* sous-titre      */
+  --step-2:  clamp(1.56rem, 1.36rem + 1.00vw, 2.29rem);  /* h3              */
+  --step-3:  clamp(1.95rem, 1.61rem + 1.70vw, 3.24rem);  /* h2              */
+  --step-4:  clamp(2.44rem, 1.88rem + 2.80vw, 4.58rem);  /* h1              */
+  --step-5:  clamp(3.05rem, 2.15rem + 4.50vw, 6.48rem);  /* display / hero  */
+
+  /* Interlignage */
+  --leading-tight:   1.05;   /* grands titres display        */
+  --leading-snug:    1.2;    /* titres intermédiaires        */
+  --leading-normal:  1.6;    /* corps de texte               */
+
+  /* Interlettrage */
+  --tracking-tight:  -0.02em; /* grands titres serif         */
+  --tracking-normal: 0em;
+  --tracking-wide:   0.18em;  /* eyebrow / mono en capitales */
+  --tracking-mono:   0.24em;  /* métadonnées mono            */
+
+  /* ------------------------------------------------------------------ *
+   * 3. ESPACEMENTS — échelle modulaire (base 8px, progression douce)
+   * ------------------------------------------------------------------ */
+  --space-1:  0.25rem;   /*  4px */
+  --space-2:  0.5rem;    /*  8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.5rem;    /* 24px */
+  --space-6:  2rem;      /* 32px */
+  --space-7:  3rem;      /* 48px */
+  --space-8:  4rem;      /* 64px */
+  --space-9:  6rem;      /* 96px */
+  --space-10: 8rem;      /* 128px */
+  --space-11: 12rem;     /* 192px */
+  --space-12: 16rem;     /* 256px */
+
+  /* Gouttières fluides & rythme vertical de section */
+  --gutter:        clamp(1.25rem, 4vw, 3rem);
+  --section-space: clamp(4rem, 10vw, 10rem);
+
+  /* Largeur maximale du contenu */
+  --wrap-max: 1400px;
+
+  /* ------------------------------------------------------------------ *
+   * 4. RAYONS / TRAITS / OMBRES
+   * ------------------------------------------------------------------ */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --stroke-hair:  1px;   /* filet fin — séparateurs        */
+  --stroke-thin:  1.5px;
+  --stroke-med:   2px;   /* soulignés, bordures de bouton  */
+
+  /* Ombres "relief" — très douces, chaleureuses (teintées brun) */
+  --shadow-soft:
+      0 1px 2px rgba(30, 26, 21, 0.04),
+      0 8px 24px rgba(30, 26, 21, 0.06);
+  --shadow-lift:
+      0 2px 6px rgba(30, 26, 21, 0.06),
+      0 18px 48px rgba(30, 26, 21, 0.10);
+
+  /* ------------------------------------------------------------------ *
+   * 5. ANIMATION — durées & easings "quiet" (lents, retenus)
+   * ------------------------------------------------------------------ */
+  --dur-fast:  200ms;
+  --dur-base:  400ms;
+  --dur-slow:  800ms;
+  --dur-xslow: 1200ms;
+
+  --ease-quiet:  cubic-bezier(0.22, 1, 0.36, 1);   /* sortie douce, "expo-out" */
+  --ease-inout:  cubic-bezier(0.65, 0, 0.35, 1);   /* symétrique              */
+  --ease-linear: linear;
+
+  /* ------------------------------------------------------------------ *
+   * 6. DIVERS
+   * ------------------------------------------------------------------ */
+  --z-nav:     100;
+  --z-overlay: 200;
+  --z-modal:   300;
+
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   VARIANTE SOMBRE — optionnelle, à activer plus tard
+   --------------------------------------------------------------------------
+   Décommenter le bloc ci-dessous (et poser data-theme="dark" sur <html>,
+   ou remplacer par @media (prefers-color-scheme: dark)) pour basculer.
+   Les alias sémantiques suffisent : on ne redéfinit que les neutres.
+   ========================================================================== */
+
+/*
+:root[data-theme="dark"] {
+  --bg:        #17140F;
+  --surface:   #201C16;
+  --ink:       #EDE7DC;
+  --muted:     #9A9080;
+  --line:      #35301F;
+
+  --wood-oak:    #C9AC7E;
+  --wood-walnut: #8A6842;
+  --stone:       #B29A78;
+
+  color-scheme: dark;
+}
+*/
