@@ -1,0 +1,171 @@
+/* =============================================================
+   CAMAÏEU — header.css  (étape 2)
+   Header éditorial minimal + menu mobile plein écran.
+   Réutilise les tokens (tokens.css). Importer APRÈS base.css.
+   ============================================================= */
+
+.site-header {
+  /* Au sommet : transparent. Gagne un fond au scroll via .is-scrolled. */
+  background-color: transparent;
+  backdrop-filter: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--dur-fast) var(--ease-out-soft),
+    border-color var(--dur-fast) var(--ease-out-soft),
+    box-shadow var(--dur-fast) var(--ease-out-soft);
+}
+
+.site-header.is-scrolled {
+  background-color: color-mix(in srgb, var(--plaster) 88%, transparent);
+  backdrop-filter: saturate(1.2) blur(10px);
+  border-bottom-color: var(--line);
+  box-shadow: 0 1px 0 rgba(23, 19, 16, 0.04),
+              0 12px 30px -24px rgba(23, 19, 16, 0.5);
+}
+
+/* Le header vit au-dessus du hero sombre : au sommet, l'encre passe en clair.
+   .site-header--on-dark est posée par hero.js tant que le header chevauche
+   le hero et qu'il n'est pas encore .is-scrolled. */
+.site-header--on-dark:not(.is-scrolled) {
+  color: var(--plaster);
+}
+.site-header--on-dark:not(.is-scrolled) .site-nav a { color: rgba(240, 234, 224, 0.72); }
+.site-header--on-dark:not(.is-scrolled) .site-nav a:hover { color: var(--plaster); }
+.site-header--on-dark:not(.is-scrolled) .btn {
+  --btn-fg: var(--plaster);
+  --btn-line: rgba(240, 234, 224, 0.6);
+}
+.site-header--on-dark:not(.is-scrolled) .btn:hover {
+  --btn-fg: var(--vine-black);
+  --btn-bg: var(--plaster);
+}
+.site-header--on-dark:not(.is-scrolled) .burger__line { background: var(--plaster); }
+
+/* --- Brand --------------------------------------------------- */
+.site-header__brand {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* --- Nav (desktop) ------------------------------------------- */
+.site-header__nav-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+.site-nav ul {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.site-nav a {
+  position: relative;
+  display: inline-block;
+  padding: 0.35em 0;
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-med) var(--ease-brush);
+}
+.site-nav a:hover::after,
+.site-nav a[aria-current="true"]::after { transform: scaleX(1); }
+
+/* --- Burger (mobile) ----------------------------------------- */
+.burger {
+  display: none;
+  position: relative;
+  width: var(--hit-target);
+  height: var(--hit-target);
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.burger__line {
+  position: absolute;
+  left: 50%;
+  width: 24px;
+  height: 1.5px;
+  background: var(--fg);
+  transform: translateX(-50%);
+  transition: transform var(--dur-fast) var(--ease-out-soft),
+              opacity var(--dur-fast) var(--ease-out-soft),
+              background-color var(--dur-fast) var(--ease-out-soft);
+}
+.burger__line:nth-child(1) { top: 40%; }
+.burger__line:nth-child(2) { top: 60%; }
+.burger[aria-expanded="true"] .burger__line:nth-child(1) { top: 50%; transform: translateX(-50%) rotate(45deg); }
+.burger[aria-expanded="true"] .burger__line:nth-child(2) { top: 50%; transform: translateX(-50%) rotate(-45deg); }
+
+/* --- Menu mobile plein écran --------------------------------- */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-header);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--container-pad);
+  background-color: var(--plaster);
+  /* Fermé par défaut : invisible et hors tabulation */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease-out-soft),
+              visibility 0s linear var(--dur-med);
+}
+.mobile-menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity var(--dur-med) var(--ease-out-soft);
+}
+.mobile-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.mobile-menu__link {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.1;
+  min-height: var(--hit-target);
+}
+.mobile-menu__foot {
+  margin-top: var(--space-lg);
+}
+
+/* Affichage responsive : bascule desktop ↔ burger à 768px */
+@media (max-width: 768px) {
+  .site-header__nav-wrap { display: none; }
+  .burger { display: inline-flex; align-items: center; justify-content: center; }
+}
+@media (min-width: 769px) {
+  .mobile-menu { display: none; }
+}
+
+/* Le <body> ne défile pas quand le menu est ouvert */
+body.menu-open { overflow: hidden; }

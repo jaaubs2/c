@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>CAMAÏEU — Styleguide (référence vivante)</title>
+  <meta name="description" content="Référence vivante des design tokens et fonctions de motion du site CAMAÏEU." />
+  <script>document.documentElement.classList.remove('no-js');</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Space+Grotesk:wght@400;500;700&display=swap" />
+
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+
+  <!-- Libs (mêmes CDN que index.html) -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+
+  <style>
+    /* Styles LOCAUX au styleguide (ne polluent pas le site) */
+    .sg-head { padding-block: var(--space-2xl) var(--space-lg); border-bottom: 1px solid var(--line); }
+    .sg-section { padding-block: var(--space-xl); border-bottom: 1px solid var(--line); }
+    .sg-section > h2 { font-size: var(--step-3); margin-bottom: var(--space-lg); }
+    .sg-grid { display: grid; gap: var(--space-md); }
+    .sg-swatches { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .sg-row { display: flex; align-items: baseline; gap: var(--space-md); flex-wrap: wrap; padding-block: var(--space-2xs); border-bottom: 1px dashed var(--line); }
+    .sg-row code { font-family: var(--font-body); font-size: var(--step--1); color: var(--muted); }
+    .sg-space-bar { height: 14px; background: var(--sienna-500); border-radius: var(--radius-sm); }
+    .sg-demo { padding: var(--space-lg); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--plaster-veil); margin-bottom: var(--space-md); }
+    .sg-demo__stage { min-height: 90px; display: flex; align-items: center; }
+    .sg-demo__stage .big { font-family: var(--font-display); font-size: var(--step-4); }
+    .sg-replay { margin-top: var(--space-sm); }
+    .sg-tonal { padding: var(--space-lg); border-radius: var(--radius-md); background: var(--bg); color: var(--fg); border: 1px solid var(--line); }
+    .sg-toc a { color: var(--muted); }
+    .sg-toc a:hover { color: var(--fg); }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#sg-main">Aller au contenu</a>
+
+  <header class="site-header">
+    <a class="site-header__brand" href="index.html">CAMAÏEU</a>
+    <nav class="site-nav" aria-label="Sommaire styleguide">
+      <ul role="list" class="sg-toc">
+        <li><a href="#palette">Palette</a></li>
+        <li><a href="#typo">Typo</a></li>
+        <li><a href="#space">Espaces</a></li>
+        <li><a href="#buttons">Boutons</a></li>
+        <li><a href="#motion">Motion</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="sg-main">
+    <div class="container">
+      <div class="sg-head">
+        <p class="label u-label--wide">Référence vivante — étape 1</p>
+        <h1 class="u-step-5">Styleguide CAMAÏEU</h1>
+        <p class="u-muted u-mt-lg">Tous les design tokens et fonctions de motion, en démonstration.
+          Cette page consomme <code>css/tokens.css</code> et <code>js/motion.js</code> — elle ne redéfinit rien.</p>
+      </div>
+
+      <!-- ============ PALETTE ============ -->
+      <section class="sg-section" id="palette">
+        <h2>Palette</h2>
+
+        <h3 class="u-step-1 u-mb-lg">Base</h3>
+        <div class="sg-grid sg-swatches" id="sw-base"></div>
+
+        <h3 class="u-step-1 u-mt-lg u-mb-lg">Pigments — camaïeux</h3>
+        <div class="sg-grid sg-swatches" id="sw-pigments"></div>
+
+        <h3 class="u-step-1 u-mt-lg u-mb-lg">Rôles sémantiques</h3>
+        <div class="sg-grid sg-swatches" id="sw-roles"></div>
+      </section>
+
+      <!-- ============ TYPO ============ -->
+      <section class="sg-section" id="typo">
+        <h2>Échelle typographique</h2>
+        <p class="u-muted u-mb-lg">Fraunces (titres) &amp; Space Grotesk (corps/labels). Échelle fluide clamp().</p>
+        <div id="type-scale"></div>
+
+        <h3 class="u-step-1 u-mt-lg u-mb-lg">Labels espacés</h3>
+        <p class="label">Label — tracking normal</p>
+        <p class="label u-label--wide">Label — tracking large</p>
+
+        <h3 class="u-step-1 u-mt-lg u-mb-lg">Familles</h3>
+        <p class="u-display u-step-2">Fraunces — La couleur comme matière <em>(italique)</em></p>
+        <p class="u-body u-step-2">Space Grotesk — badigeon, patine, stuc, fresque.</p>
+      </section>
+
+      <!-- ============ ESPACES ============ -->
+      <section class="sg-section" id="space">
+        <h2>Échelle d'espaces</h2>
+        <div id="space-scale" class="stack stack--sm"></div>
+      </section>
+
+      <!-- ============ BOUTONS ============ -->
+      <section class="sg-section" id="buttons">
+        <h2>Boutons &amp; états</h2>
+        <div class="sg-row" style="border:0;">
+          <button class="btn">Contour</button>
+          <button class="btn btn--solid">Plein</button>
+          <button class="btn btn--accent">Accent</button>
+          <button class="btn" disabled>Désactivé</button>
+          <a class="link" href="#buttons">Lien au trait</a>
+        </div>
+        <p class="u-muted u-mt-lg">Focus visible : tabulez pour voir l'anneau <code>:focus-visible</code>.</p>
+      </section>
+
+      <!-- ============ MOTION ============ -->
+      <section class="sg-section" id="motion">
+        <h2>Fonctions de motion <code>window.motion</code></h2>
+        <p class="u-muted u-mb-lg">Chaque démo a un bouton « Rejouer ». En
+          <code>prefers-reduced-motion</code>, tout se réduit à un fondu d'opacité.</p>
+
+        <!-- brushReveal -->
+        <div class="sg-demo">
+          <p class="label">brushReveal(el)</p>
+          <div class="sg-demo__stage"><span class="big" data-demo="brush">Coup de pinceau</span></div>
+          <button class="btn sg-replay" data-replay="brush">Rejouer</button>
+        </div>
+
+        <!-- fadeUp -->
+        <div class="sg-demo">
+          <p class="label">fadeUp(el)</p>
+          <div class="sg-demo__stage"><span class="big" data-demo="fade">Dépôt en douceur</span></div>
+          <button class="btn sg-replay" data-replay="fade">Rejouer</button>
+        </div>
+
+        <!-- splitTextReveal -->
+        <div class="sg-demo">
+          <p class="label">splitTextReveal(el)</p>
+          <div class="sg-demo__stage">
+            <span class="big" data-demo="split">La couleur arrive par grands aplats de pigment maîtrisés</span>
+          </div>
+          <button class="btn sg-replay" data-replay="split">Rejouer</button>
+        </div>
+
+        <!-- tonalShift -->
+        <div class="sg-demo">
+          <p class="label">tonalShift(section)</p>
+          <div class="sg-tonal" data-demo="tonal">
+            <p class="u-step-2 u-display">Bascule de camaïeu</p>
+            <p>Le fond et l'encre glissent d'un pigment à l'autre.</p>
+          </div>
+          <button class="btn sg-replay" data-replay="tonal">Rejouer</button>
+        </div>
+      </section>
+
+      <p class="u-muted" style="padding-block: var(--space-xl);">
+        <a class="link" href="index.html">← Retour à l'accueil</a>
+      </p>
+    </div>
+  </main>
+
+  <!-- Fondations : lib-init → motion (pas de preloader/cursor/hero ici) -->
+  <script src="js/lib-init.js" defer></script>
+  <script src="js/motion.js" defer></script>
+
+  <script defer>
+  window.addEventListener('load', function () {
+    var root = getComputedStyle(document.documentElement);
+    function val(n) { return root.getPropertyValue(n).trim(); }
+
+    /* --- Swatches ------------------------------------------- */
+    function swatch(name, cssVar) {
+      var hex = val(cssVar);
+      return '<figure class="swatch"><div class="swatch__chip" style="background:' + hex + '"></div>' +
+        '<figcaption class="swatch__meta"><span class="swatch__name">' + name + '</span>' +
+        '<span class="swatch__hex">' + (hex || '—') + '</span>' +
+        '<span class="swatch__hex">' + cssVar + '</span></figcaption></figure>';
+    }
+    document.getElementById('sw-base').innerHTML = [
+      ['Plaster', '--plaster'], ['Plaster deep', '--plaster-deep'],
+      ['Plaster veil', '--plaster-veil'], ['Vine black', '--vine-black'],
+      ['Vine soft', '--vine-soft']
+    ].map(function (p) { return swatch(p[0], p[1]); }).join('');
+
+    var pigments = ['prussian', 'ochre', 'sienna', 'verdigris', 'rose'];
+    var pigmentNames = { prussian: 'Bleu de Prusse', ochre: 'Ocre jaune', sienna: 'Sienne brûlée', verdigris: 'Vert-de-gris', rose: 'Vieux rose' };
+    var pig = [];
+    pigments.forEach(function (p) {
+      ['700', '500', '300'].forEach(function (t) {
+        pig.push(swatch(pigmentNames[p] + ' ' + t, '--' + p + '-' + t));
+      });
+    });
+    document.getElementById('sw-pigments').innerHTML = pig.join('');
+
+    document.getElementById('sw-roles').innerHTML = [
+      ['bg', '--bg'], ['fg', '--fg'], ['accent', '--accent'], ['muted', '--muted']
+    ].map(function (p) { return swatch(p[0], p[1]); }).join('');
+
+    /* --- Échelle typo --------------------------------------- */
+    var steps = ['--step--1', '--step-0', '--step-1', '--step-2', '--step-3', '--step-4', '--step-5', '--step-6'];
+    document.getElementById('type-scale').innerHTML = steps.map(function (s) {
+      return '<div class="sg-row"><span class="u-display" style="font-size:var(' + s + ')">Aa Fraunces</span>' +
+        '<code>' + s + ' → ' + val(s) + '</code></div>';
+    }).join('');
+
+    /* --- Échelle d'espaces ---------------------------------- */
+    var spaces = ['--space-2xs', '--space-xs', '--space-sm', '--space-md', '--space-lg', '--space-xl', '--space-2xl', '--space-3xl'];
+    document.getElementById('space-scale').innerHTML = spaces.map(function (s) {
+      return '<div class="sg-row" style="border:0;"><code style="min-width:9ch;">' + s + '</code>' +
+        '<div class="sg-space-bar" style="width:var(' + s + ')"></div><code>' + val(s) + '</code></div>';
+    }).join('');
+
+    /* --- Démos motion : Rejouer ----------------------------- */
+    var M = window.motion;
+    function reset(el) { if (!el) return; el.removeAttribute('data-motion-ready'); el.style.cssText = ''; }
+
+    document.querySelectorAll('[data-replay]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var kind = btn.getAttribute('data-replay');
+        if (kind === 'brush') { var el = document.querySelector('[data-demo="brush"]'); reset(el); M.brushReveal(el, { start: 'top 100%' }); }
+        else if (kind === 'fade') { var el = document.querySelector('[data-demo="fade"]'); reset(el); M.fadeUp(el, { start: 'top 100%' }); }
+        else if (kind === 'split') { var el = document.querySelector('[data-demo="split"]'); reset(el); M.splitTextReveal(el, { start: 'top 100%' }); }
+        else if (kind === 'tonal') {
+          var el = document.querySelector('[data-demo="tonal"]'); reset(el);
+          M.tonalShift(el, {
+            from: { bg: val('--plaster'), fg: val('--vine-black') },
+            to: { bg: val('--prussian-700'), fg: val('--plaster') },
+            start: 'top 90%', end: 'bottom 60%'
+          });
+        }
+      });
+    });
+
+    // Joue une première fois les démos visibles
+    ['brush', 'fade', 'split'].forEach(function (k) {
+      var b = document.querySelector('[data-replay="' + k + '"]');
+      if (b) b.click();
+    });
+  });
+  </script>
+</body>
+</html>

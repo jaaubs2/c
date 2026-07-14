@@ -1,0 +1,113 @@
+/* =============================================================
+   CAMAÏEU — reset.css
+   Reset moderne, minimal, sans opinion typographique
+   (la typo est posée dans base.css).
+   ============================================================= */
+
+/* Box-sizing cohérent partout */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Suppression des marges par défaut */
+* {
+  margin: 0;
+}
+
+/* Réglages document */
+html {
+  -webkit-text-size-adjust: 100%;   /* pas de zoom auto du texte sur mobile */
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;           /* désactivé plus bas en reduced-motion */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Médias responsives par défaut */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Les formulaires héritent de la typo */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Éviter les débordements de mots longs */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Titres : on repart d'un poids/échelle neutres (gérés dans base.css) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Listes utilisées comme UI : on nettoie */
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  padding: 0;
+}
+
+/* Liens : héritage de couleur, décoration gérée en base */
+a {
+  color: inherit;
+  text-decoration-skip-ink: auto;
+}
+
+/* Racine d'ancrage React/JS éventuelle */
+#root,
+#__next {
+  isolation: isolate;
+}
+
+/* =============================================================
+   prefers-reduced-motion : coupe tout mouvement superflu.
+   (lib-init.js / motion.js / preloader.js / cursor.js
+    respectent aussi ce réglage côté JS.)
+   ============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

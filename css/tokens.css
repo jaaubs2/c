@@ -1,0 +1,163 @@
+/* =============================================================
+   CAMAÏEU — tokens.css
+   Design tokens : couleurs, camaïeux de pigments, rôles
+   sémantiques, typographie fluide, espaces, rayons,
+   durées/easings « coup de pinceau », z-index.
+
+   Convention de nommage des pigments :
+     --<pigment>-700  → ton sombre
+     --<pigment>-500  → ton médian (= couleur « base » fournie)
+     --<pigment>-300  → ton clair
+   Chaque camaïeu a été composé pour rester harmonieux et pour
+   qu'AU MOINS le ton -700 passe le contraste AA en TEXTE sur
+   --plaster (voir styleguide.html pour la vérification visuelle).
+   ============================================================= */
+
+:root {
+  /* ---------------------------------------------------------
+     1. COULEURS DE BASE
+     --------------------------------------------------------- */
+  --plaster: #f0eae0;     /* fond neutre, blanc de chaux */
+  --vine-black: #171310;  /* texte principal (contraste ~15:1 sur plaster) */
+
+  /* Variantes utiles du fond / de l'encre */
+  --plaster-deep: #e5dccd;  /* plaster légèrement plus profond (cartouches) */
+  --plaster-veil: #f6f2ea;  /* voile clair, quasi papier */
+  --vine-soft: #3a322b;     /* encre adoucie (texte secondaire) */
+
+  /* ---------------------------------------------------------
+     2. PIGMENTS — camaïeux de 3 tons
+     --------------------------------------------------------- */
+
+  /* Bleu de Prusse (base #16233B) */
+  --prussian-700: #0e1726;
+  --prussian-500: #16233b;
+  --prussian-300: #3c5876;
+
+  /* Ocre jaune (base #C89A3C) */
+  --ochre-700: #7a5c1e;
+  --ochre-500: #c89a3c;
+  --ochre-300: #e0c88a;
+
+  /* Terre de Sienne brûlée (base #8A4B2F) */
+  --sienna-700: #5a2f1c;
+  --sienna-500: #8a4b2f;
+  --sienna-300: #c08363;
+
+  /* Vert-de-gris (base #5E7460) */
+  --verdigris-700: #3a4a3c;
+  --verdigris-500: #5e7460;
+  --verdigris-300: #97a998;
+
+  /* Vieux rose (base #B65C5C) */
+  --rose-700: #7a3a3a;
+  --rose-500: #b65c5c;
+  --rose-300: #d89a9a;
+
+  /* ---------------------------------------------------------
+     3. RÔLES SÉMANTIQUES
+     Réassignables par section via une classe de section
+     (ex : .section--prussian { --bg: var(--prussian-700); ... }).
+     tonalShift() (motion.js) interpole --bg / --fg au scroll.
+     --------------------------------------------------------- */
+  --bg: var(--plaster);
+  --fg: var(--vine-black);
+  --accent: var(--sienna-500);
+  --muted: var(--vine-soft);
+  --line: rgba(23, 19, 16, 0.14);      /* filets de grille discrets */
+  --line-strong: rgba(23, 19, 16, 0.28);
+  --selection-bg: var(--ochre-300);
+  --selection-fg: var(--vine-black);
+
+  /* ---------------------------------------------------------
+     4. TYPOGRAPHIE
+     --------------------------------------------------------- */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Échelle fluide en clamp() — min @375px, max @1440px, ratio ~1.25.
+     Formule : clamp(minREM, calc(baseVW + offsetREM), maxREM). */
+  --step--1: clamp(0.80rem, 0.76rem + 0.17vw, 0.90rem);   /* labels / légendes */
+  --step-0:  clamp(1.00rem, 0.95rem + 0.22vw, 1.125rem);  /* corps */
+  --step-1:  clamp(1.25rem, 1.16rem + 0.38vw, 1.50rem);
+  --step-2:  clamp(1.56rem, 1.41rem + 0.64vw, 2.00rem);
+  --step-3:  clamp(1.95rem, 1.70rem + 1.06vw, 2.66rem);
+  --step-4:  clamp(2.44rem, 2.03rem + 1.72vw, 3.55rem);
+  --step-5:  clamp(3.05rem, 2.41rem + 2.72vw, 4.74rem);
+  --step-6:  clamp(3.81rem, 2.83rem + 4.19vw, 6.31rem);   /* display hero */
+
+  /* Interlignes */
+  --leading-tight: 1.05;   /* titres display */
+  --leading-snug: 1.2;     /* sous-titres */
+  --leading-body: 1.6;     /* corps */
+
+  /* Graisses */
+  --weight-body: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Interlettrage */
+  --tracking-tight: -0.02em;   /* grands titres Fraunces */
+  --tracking-normal: 0em;
+  --tracking-label: 0.18em;    /* petites capitales / labels */
+  --tracking-label-wide: 0.28em;
+
+  /* ---------------------------------------------------------
+     5. ESPACES — échelle fluide clamp()
+     --------------------------------------------------------- */
+  --space-2xs: clamp(0.375rem, 0.35rem + 0.11vw, 0.5rem);
+  --space-xs:  clamp(0.625rem, 0.58rem + 0.19vw, 0.875rem);
+  --space-sm:  clamp(1rem, 0.93rem + 0.30vw, 1.25rem);
+  --space-md:  clamp(1.5rem, 1.39rem + 0.47vw, 2rem);
+  --space-lg:  clamp(2.25rem, 2.03rem + 0.94vw, 3rem);
+  --space-xl:  clamp(3.5rem, 3.06rem + 1.88vw, 5rem);
+  --space-2xl: clamp(5rem, 4.23rem + 3.29vw, 8rem);
+  --space-3xl: clamp(7rem, 5.5rem + 6.4vw, 12rem);
+
+  /* ---------------------------------------------------------
+     6. CONTAINER / GRILLE
+     --------------------------------------------------------- */
+  --container-max: 1440px;
+  --container-pad: clamp(1.25rem, 0.7rem + 2.3vw, 3.5rem);  /* gouttières fluides */
+  --gutter: clamp(1rem, 0.6rem + 1.6vw, 2rem);
+  --grid-cols: 12;
+
+  /* ---------------------------------------------------------
+     7. RAYONS — sobres
+     --------------------------------------------------------- */
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+
+  /* ---------------------------------------------------------
+     8. DURÉES & EASINGS — langage « coup de pinceau »
+     --------------------------------------------------------- */
+  --dur-fast: 0.4s;
+  --dur-med: 0.8s;
+  --dur-slow: 1.2s;
+  --dur-preload-max: 1.6s;   /* plafond du préchargeur */
+
+  /* Attaque lente, dépôt franc (le pinceau qui pose la matière) */
+  --ease-brush: cubic-bezier(0.6, 0.01, 0.05, 0.95);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---------------------------------------------------------
+     9. Z-INDEX — échelle nommée
+     --------------------------------------------------------- */
+  --z-base: 0;
+  --z-header: 100;
+  --z-cursor: 9000;
+  --z-preloader: 9500;
+  --z-skiplink: 9600;
+  --z-modal: 9800;
+
+  /* ---------------------------------------------------------
+     10. DIVERS
+     --------------------------------------------------------- */
+  --focus-ring: 2px;
+  --focus-offset: 3px;
+  --header-h: clamp(4rem, 3.5rem + 1.6vw, 5.5rem);
+  --hit-target: 44px;   /* cible tactile minimale (WCAG) */
+}

@@ -1,0 +1,207 @@
+/* =============================================================
+   CAMAÏEU — hero.css  (étape 2)
+   Hero plein écran, camaïeu Bleu de Prusse, canvas signature
+   en fond + contenu éditorial lisible (fallback dégradé si
+   canvas/JS KO). Importer APRÈS base.css.
+
+   Contrastes visés (AA) :
+     texte plâtre (--plaster #F0EAE0) sur fond prussian-700
+     (#0E1726) → ~15:1. Kicker ochre-300 sur prussian-700 → ~10:1.
+   ============================================================= */
+
+.hero {
+  /* Réassignation des rôles sémantiques pour la section (camaïeu Prusse) */
+  --bg: var(--prussian-700);
+  --fg: var(--plaster);
+  --accent: var(--ochre-300);
+  --muted: rgba(240, 234, 224, 0.66);
+
+  position: relative;
+  /* Le hero remonte sous le header sticky (plein cadre, header en surimpression).
+     Le contenu garde un padding-top >= header-h pour ne jamais passer dessous. */
+  margin-top: calc(-1 * var(--header-h));
+  min-height: 100svh;          /* svh → gère les barres mobiles */
+  min-height: 100dvh;          /* dvh en surcharge si supporté */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--bg);
+  color: var(--fg);
+  isolation: isolate;
+}
+
+/* --- Fond : fallback dégradé camaïeu (toujours présent) ------ */
+/* Visible immédiatement (SSR-like) ; le canvas se peint par-dessus.
+   Si le canvas échoue, ce dégradé reste et le hero est digne. */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(120% 90% at 78% 18%,
+      color-mix(in srgb, var(--prussian-300) 55%, transparent) 0%,
+      transparent 55%),
+    radial-gradient(90% 80% at 12% 92%,
+      color-mix(in srgb, var(--prussian-500) 70%, transparent) 0%,
+      transparent 60%),
+    linear-gradient(160deg, var(--prussian-700) 0%, var(--prussian-500) 100%);
+}
+
+/* Image pigment optionnelle ([PLACEHOLDER] assets/hero-pigment.jpg).
+   Chargée en <img> above-the-fold (pas de lazy). Masquée par défaut ;
+   hero.js la révèle si elle charge, sinon on garde le dégradé. */
+.hero__img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;                  /* révélée par hero.js si dispo */
+  mix-blend-mode: luminosity;
+  transition: opacity var(--dur-slow) var(--ease-brush);
+}
+.hero.has-hero-img .hero__img { opacity: 0.5; }
+
+/* Canvas signature (décoratif, aria-hidden) */
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;        /* le canvas ne capte pas le clic */
+}
+
+/* Voile de lisibilité : garantit le contraste du texte quel que soit le fond */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--prussian-700) 74%, transparent) 0%,
+    color-mix(in srgb, var(--prussian-700) 30%, transparent) 55%,
+    transparent 100%);
+  pointer-events: none;
+}
+
+/* --- Contenu ------------------------------------------------- */
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding-block: calc(var(--header-h) + var(--space-xl)) var(--space-2xl);
+}
+.hero__content {
+  max-width: 20ch;             /* le H1 tient sur 2 lignes serrées */
+  max-width: min(58rem, 100%);
+}
+
+.hero__kicker {
+  color: var(--accent);
+  margin-bottom: var(--space-md);
+}
+
+.hero__title {
+  font-size: var(--step-6);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-md);
+}
+.hero__title .line { display: block; }
+.hero__title em {
+  font-style: italic;
+  font-weight: var(--weight-medium);
+}
+
+.hero__subtitle {
+  max-width: 46ch;
+  font-size: var(--step-1);
+  color: var(--muted);
+  margin-bottom: var(--space-lg);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+/* Boutons sur fond sombre : inversion du contraste par défaut */
+.hero .btn {
+  --btn-fg: var(--plaster);
+  --btn-line: rgba(240, 234, 224, 0.55);
+}
+.hero .btn:hover {
+  --btn-fg: var(--prussian-700);
+  --btn-bg: var(--plaster);
+  --btn-line: var(--plaster);
+}
+.hero .btn--accent {
+  --btn-fg: var(--prussian-700);
+  --btn-bg: var(--accent);
+  --btn-line: var(--accent);
+}
+.hero .btn--accent:hover {
+  --btn-fg: var(--prussian-700);
+  --btn-bg: var(--plaster);
+  --btn-line: var(--plaster);
+}
+/* Anneau de focus lisible sur fond sombre */
+.hero :focus-visible { outline-color: var(--plaster); }
+
+/* --- Indice de défilement ------------------------------------ */
+.hero__scroll {
+  position: absolute;
+  left: var(--container-pad);
+  bottom: var(--space-lg);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hero__scroll-line {
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: currentColor;
+  transform-origin: top;
+  overflow: hidden;
+  position: relative;
+}
+/* Petite boucle « goutte qui descend » — coupée en reduced-motion */
+.hero__scroll-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: var(--plaster);
+  animation: hero-drip 2.4s var(--ease-in-out) infinite;
+}
+@keyframes hero-drip {
+  0%   { transform: translateY(-100%); }
+  60%  { transform: translateY(250%); }
+  100% { transform: translateY(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll-line::after { animation: none; opacity: 0.4; }
+}
+
+/* --- Responsive ---------------------------------------------- */
+@media (max-width: 768px) {
+  .hero__scrim {
+    /* Sur mobile, voile plus enveloppant (texte par-dessus le pigment) */
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--prussian-700) 55%, transparent) 0%,
+      color-mix(in srgb, var(--prussian-700) 78%, transparent) 100%);
+  }
+  .hero__subtitle { font-size: var(--step-0); }
+  .hero__scroll { display: none; }
+}
