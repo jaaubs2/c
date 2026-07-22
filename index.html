@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atelier Verso — Architecture à Annecy, Haute-Savoie</title>
+  <meta name="description" content="Atelier Verso, cabinet d'architecture à Annecy. Maisons contemporaines, chalets d'architecte et lieux singuliers en Haute-Savoie. Bâtir juste, dans un paysage qui préexiste." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Atelier Verso — Architecture à Annecy" />
+  <meta property="og:description" content="Maisons contemporaines et lieux singuliers. Annecy et Haute-Savoie." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- Fonts : Fraunces (serif éditoriale) + Space Grotesk (grotesque douce) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+  <!-- Curseur personnalisé « Voir » (projets) -->
+  <div class="cursor" aria-hidden="true"><span>Voir</span></div>
+
+  <!-- ============ EN-TÊTE ============ -->
+  <header class="site-header" id="top">
+    <a class="site-header__brand" href="#top" aria-label="Atelier Verso — accueil">Atelier&nbsp;Verso</a>
+    <nav class="site-header__nav" aria-label="Navigation principale">
+      <a class="link-underline" href="#projets">Réalisations</a>
+      <a class="link-underline" href="#atelier">Atelier</a>
+      <a class="link-underline" href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ============ 1 · HERO ============ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__media reveal-img">
+        <!-- IMAGE À COMPLÉTER : maison contemporaine bois + béton clair, paysage de montagne, lumière de fin de journée, légèrement assombrie -->
+        <div class="hero__inner ph ph--hero" data-parallax="0.12" role="img" aria-label="Maison contemporaine en bois et béton clair dans un paysage de montagne, lumière de fin de journée"></div>
+      </div>
+
+      <div class="hero__content">
+        <h1 id="hero-title" class="hero__title" data-lines>
+          <span class="line"><span>Bâtir juste,</span></span>
+          <span class="line"><span>dans un paysage</span></span>
+          <span class="line"><span>qui préexiste.</span></span>
+        </h1>
+        <p class="hero__subtitle reveal" data-delay="0.5">
+          Atelier Verso — maisons contemporaines et lieux singuliers.<br />
+          Annecy et Haute-Savoie.
+        </p>
+        <a class="btn magnetic reveal" data-delay="0.6" href="#projets">
+          <span class="btn__label">Voir nos réalisations</span>
+        </a>
+      </div>
+
+      <div class="hero__foot">
+        <span class="caption">(Le cabinet)</span>
+        <span class="hero__rule" data-rule></span>
+        <span class="caption">Depuis 2014</span>
+      </div>
+    </section>
+
+    <!-- ============ 2 · BANDEAU ============ -->
+    <section class="marquee" aria-label="Domaines d'intervention">
+      <p class="marquee__text reveal">
+        <span>Maisons d'architecte</span>
+        <span class="marquee__dot" aria-hidden="true">·</span>
+        <span>Chalets contemporains</span>
+        <span class="marquee__dot" aria-hidden="true">·</span>
+        <span>Petits programmes tertiaires</span>
+      </p>
+    </section>
+
+    <!-- ============ 3 · CHIFFRES ============ -->
+    <section class="stats" aria-label="Le cabinet en chiffres">
+      <div class="wrap">
+        <ul class="stats__grid">
+          <li class="stats__item reveal">
+            <span class="stats__num" data-count="34">0</span>
+            <span class="caption">projets livrés</span>
+          </li>
+          <li class="stats__item reveal" data-delay="0.1">
+            <span class="stats__num" data-count="11">0</span>
+            <span class="caption">ans de pratique</span>
+          </li>
+          <li class="stats__item reveal" data-delay="0.2">
+            <span class="stats__num" data-count="2">0</span>
+            <span class="caption">associés</span>
+          </li>
+          <li class="stats__item reveal" data-delay="0.3">
+            <span class="stats__num" data-count="74">0</span>
+            <span class="caption">Haute-Savoie</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 4 · MANIFESTE ============ -->
+    <section class="manifesto" id="atelier" aria-labelledby="manifesto-title">
+      <div class="wrap">
+        <h2 id="manifesto-title" class="manifesto__text" data-lines>
+          <span class="line"><span>Ici, le paysage est déjà écrit.</span></span>
+          <span class="line"><span>La montagne, le lac, la lumière du soir :</span></span>
+          <span class="line"><span>rien de tout cela ne nous attendait.</span></span>
+          <span class="line"><span>Notre travail commence par accepter ce qui existe,</span></span>
+          <span class="line"><span>puis chercher le geste le plus court</span></span>
+          <span class="line"><span>pour y ajouter un lieu de vie.</span></span>
+          <span class="line"><span>Construire peu, mais construire juste.</span></span>
+        </h2>
+        <a class="btn btn--ghost magnetic reveal" href="#contact">
+          <span class="btn__label">À propos de l'atelier</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ 5 · SAVOIR-FAIRE ============ -->
+    <section class="skills" aria-labelledby="skills-title">
+      <div class="wrap">
+        <h2 id="skills-title" class="visually-hidden">Nos savoir-faire</h2>
+
+        <div class="skill reveal" data-skill>
+          <span class="skill__rule" data-rule></span>
+          <h3 class="skill__title">Implanter</h3>
+          <p class="skill__desc">Poser une maison sur un terrain sans jamais l'écraser.</p>
+          <div class="skill__media ph ph--s1" aria-hidden="true"></div>
+        </div>
+
+        <div class="skill reveal" data-skill>
+          <span class="skill__rule" data-rule></span>
+          <h3 class="skill__title">Composer</h3>
+          <p class="skill__desc">Des volumes simples, des matériaux durables, une lumière pensée heure par heure.</p>
+          <div class="skill__media ph ph--s2" aria-hidden="true"></div>
+        </div>
+
+        <div class="skill reveal" data-skill>
+          <span class="skill__rule" data-rule></span>
+          <h3 class="skill__title">Transformer</h3>
+          <p class="skill__desc">Réhabiliter chalets et bâtis anciens pour les usages d'aujourd'hui.</p>
+          <div class="skill__media ph ph--s3" aria-hidden="true"></div>
+        </div>
+        <span class="skill__rule skill__rule--last" data-rule></span>
+      </div>
+    </section>
+
+    <!-- ============ 6 · PROJETS ============ -->
+    <section class="projects" id="projets" aria-labelledby="projects-title">
+      <div class="wrap">
+        <div class="projects__head reveal">
+          <span class="caption">Sélection</span>
+          <h2 id="projects-title" class="projects__heading">Réalisations récentes</h2>
+        </div>
+
+        <div class="projects__grid" data-cursor-zone>
+          <a class="project project--a reveal" href="#" data-project>
+            <figure class="project__figure reveal-img">
+              <!-- IMAGE À COMPLÉTER -->
+              <div class="project__img ph ph--p1" role="img" aria-label="Maison Talloires, maison contemporaine au bord du lac d'Annecy"></div>
+              <span class="project__plus" aria-hidden="true">+</span>
+            </figure>
+            <figcaption class="project__meta">
+              <span class="project__name">Maison Talloires</span>
+              <span class="project__info caption">Maison contemporaine · Lac d'Annecy · 2024</span>
+            </figcaption>
+          </a>
+
+          <a class="project project--b reveal" href="#" data-project data-delay="0.1">
+            <figure class="project__figure reveal-img">
+              <div class="project__img ph ph--p2" role="img" aria-label="Chalet Roc Blanc, chalet d'architecte à La Clusaz"></div>
+              <span class="project__plus" aria-hidden="true">+</span>
+            </figure>
+            <figcaption class="project__meta">
+              <span class="project__name">Chalet Roc Blanc</span>
+              <span class="project__info caption">Chalet d'architecte · La Clusaz · 2023</span>
+            </figcaption>
+          </a>
+
+          <a class="project project--c reveal" href="#" data-project>
+            <figure class="project__figure reveal-img">
+              <div class="project__img ph ph--p3" role="img" aria-label="Atelier Semnoz, réhabilitation à Annecy"></div>
+              <span class="project__plus" aria-hidden="true">+</span>
+            </figure>
+            <figcaption class="project__meta">
+              <span class="project__name">Atelier Semnoz</span>
+              <span class="project__info caption">Réhabilitation · Annecy · 2024</span>
+            </figcaption>
+          </a>
+
+          <a class="project project--d reveal" href="#" data-project data-delay="0.1">
+            <figure class="project__figure reveal-img">
+              <div class="project__img ph ph--p4" role="img" aria-label="Villa Perrière, maison neuve à Veyrier-du-Lac"></div>
+              <span class="project__plus" aria-hidden="true">+</span>
+            </figure>
+            <figcaption class="project__meta">
+              <span class="project__name">Villa Perrière</span>
+              <span class="project__info caption">Maison neuve · Veyrier-du-Lac · 2022</span>
+            </figcaption>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7 · CITATION ============ -->
+    <section class="quote" aria-label="Citation du fondateur">
+      <div class="wrap">
+        <blockquote class="quote__text reveal">
+          « On ne construit pas <em>contre</em> un site, on construit <em>avec</em> lui.
+          Le reste — la matière, la lumière, le détail — découle de cette première décision. »
+        </blockquote>
+        <p class="quote__author reveal" data-delay="0.1">
+          <span class="caption">— [Nom à compléter], architecte associé</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 8 · CTA FINAL ============ -->
+    <section class="cta" id="contact" aria-labelledby="cta-title">
+      <div class="wrap">
+        <h2 id="cta-title" class="cta__title" data-lines>
+          <span class="line"><span>Un terrain, une idée ?</span></span>
+          <span class="line"><span>Parlons-en.</span></span>
+        </h2>
+        <p class="cta__sub reveal" data-delay="0.4">Premier échange sans engagement, sur place ou à distance.</p>
+        <a class="btn magnetic reveal" data-delay="0.5" href="mailto:contact@atelierverso.fr">
+          <span class="btn__label">Nous contacter</span>
+        </a>
+        <a class="cta__mail link-underline reveal" data-delay="0.6" href="mailto:contact@atelierverso.fr">contact@atelierverso.fr</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ 9 · FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="wrap site-footer__grid">
+      <div class="site-footer__col">
+        <p class="site-footer__brand">Atelier Verso</p>
+        <p class="caption">Architecture · Annecy</p>
+      </div>
+      <nav class="site-footer__col" aria-label="Plan du site">
+        <p class="caption site-footer__label">Plan du site</p>
+        <a class="link-underline" href="#projets">Réalisations</a>
+        <a class="link-underline" href="#atelier">Atelier</a>
+        <a class="link-underline" href="#contact">Contact</a>
+      </nav>
+      <nav class="site-footer__col" aria-label="Réseaux sociaux">
+        <p class="caption site-footer__label">Réseaux</p>
+        <a class="link-underline" href="#" rel="noopener">Instagram</a>
+        <a class="link-underline" href="#" rel="noopener">LinkedIn</a>
+      </nav>
+    </div>
+    <div class="wrap site-footer__bottom">
+      <span class="caption">© 2026 Atelier Verso</span>
+      <a class="caption link-underline" href="#top">↑ Haut de page</a>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
