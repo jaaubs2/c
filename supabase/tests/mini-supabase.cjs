@@ -73,7 +73,11 @@ async function handleAuth(req, path, url, body) {
       return { status: 200, body: await session(await userRow('id', id)) };
     }
     const u = await userRow('email', (body.email || '').toLowerCase());
-    if (!u || u.encrypted_password !== body.password) return authError(400, 'Invalid login credentials', 'invalid_credentials');
+    // Mot de passe en clair (comptes du simulateur) ou chiffré bcrypt comme dans Supabase (comptes de démo).
+    const good = u && (u.encrypted_password?.startsWith('$2')
+      ? (await db.query('select $1::text = extensions.crypt($2::text, $1::text) as ok', [u.encrypted_password, body.password || ''])).rows[0].ok
+      : u.encrypted_password === body.password);
+    if (!good) return authError(400, 'Invalid login credentials', 'invalid_credentials');
     if (!u.email_confirmed_at) return authError(400, 'Email not confirmed', 'email_not_confirmed');
     return { status: 200, body: await session(u) };
   }

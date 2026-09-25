@@ -36,6 +36,13 @@ L'IA passe toujours par le serveur (fonction `supabase/functions/ai`) : la clé 
 jamais dans l'app, seules les personnes connectées l'utilisent (150 appels par jour au maximum),
 et elle ne reçoit que les notes utiles et le prénom. Elle propose, la personne décide : tout reste modifiable.
 
+## Démo pour le jury
+
+Des comptes de démonstration déjà remplis (Anne et le carnet de Jeanne, la fiche de Claire, la Maison
+des Tilleuls avec Marc, Sandra et 28 résidents) s'installent en collant `supabase/demo/demo-jury.sql`
+dans Supabase ; le relancer remet la démo à zéro. Le déroulé minuté, le plan B et les questions
+probables : [`docs/DEMO-JURY.md`](docs/DEMO-JURY.md).
+
 ## Accessibilité (WCAG 2.1 AA)
 
 - **Réglages → Accessibilité** : texte grand ou très grand (tout l'écran s'agrandit et se remet en page),
@@ -132,6 +139,7 @@ Après les avoir modifiées : `npm run app:icons`.
 | `tests/` | Tests d'accessibilité et de navigation au clavier (mode démo) |
 | `docs/SUPABASE.md` | Guide pas à pas pour créer et relier le projet Supabase |
 | `docs/IA-MISTRAL.md` | Guide pas à pas pour activer l'IA |
+| `docs/DEMO-JURY.md`, `supabase/demo/demo-jury.sql` | Scénario de 5 minutes et comptes de démonstration pré-remplis |
 | `docs/MISE-EN-LIGNE.md` | Guide pas à pas pour mettre l'app en ligne (et les documents légaux) |
 | `statichost.yml`, `.env.production.example` | Réglages de la version en ligne |
 | `src/prototype/legal.jsx` | Politique de confidentialité, conditions d'utilisation, mentions légales |

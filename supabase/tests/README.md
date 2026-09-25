@@ -45,3 +45,13 @@ VITE_SUPABASE_URL=http://127.0.0.1:54321 VITE_SUPABASE_ANON_KEY=<ANON_KEY> \
 npx vite preview --outDir dist-e2e --port 4174 &
 node supabase/tests/e2e.cjs ./captures
 ```
+
+## Données de démonstration (32 vérifications)
+
+`demo.test.cjs` charge `supabase/demo/demo-jury.sql` deux fois (la seconde fois doit tout remettre à zéro
+sans doublon), connecte chaque compte de démo, puis rejoue le scénario du jury (`docs/DEMO-JURY.md`)
+clic par clic. Mêmes prérequis que le scénario complet ci-dessus.
+
+```
+node supabase/tests/demo.test.cjs ./captures-jury
+```

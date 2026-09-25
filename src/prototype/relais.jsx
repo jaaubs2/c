@@ -20,7 +20,8 @@ function RelaisWelcome({payload, onEnter}){
   const personName = payload?.profile?.name || "Jeanne";
   const personFirst = personName.split(" ")[0];
   const personRelation = payload?.profile?.relation ?? "sa mère";
-  const isJeanneRW = window.Who.demo && personFirst === "Jeanne";
+  // Même illustration que celle choisie à la création du carnet (pour « elle »).
+  const isJeanneRW = window.Who.demo ? personFirst === "Jeanne" : window.Who.pronoun !== "il";
   const relationShort = personRelation.replace(/\s*\(.*\)\s*/, "").trim().replace(/^ma\s/i, "sa ").replace(/^mon\s/i, "son ");
   const Sparks = () => <g fill="none" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round"><path d="M196 30v18M187 39h18"/><path d="M336 176v12M330 182h12"/><path d="M52 236v12M46 242h12"/></g>;
   const Medallion = ({children, bg}) => (
@@ -196,7 +197,8 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
   const personName = payload.profile?.name || "Jeanne";
   const personFirst = personName.split(" ")[0];
   const personAge = payload.profile?.age || 86;
-  const isJeanneRH = window.Who.demo && personFirst === "Jeanne";
+  // Même illustration que celle choisie à la création du carnet (pour « elle »).
+  const isJeanneRH = window.Who.demo ? personFirst === "Jeanne" : window.Who.pronoun !== "il";
   const [switcherOpen, setSwitcherOpen] = useSR(false);
   const carnets = window.Who.demo ? (RELAIS_CARNETS_R || []) : [];
   // Avec un vrai lien : les « choses à savoir » relues par l'aidant, sinon tirées des notes.

@@ -73,7 +73,7 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
           <div className="hero" style={{padding:"22px 22px 22px"}}>
             <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
               <button onClick={() => onTab("settings")} aria-label={`Profil de ${W.person}`} style={{width:52, height:52, borderRadius:"50%", background:"var(--ink)", border:"none", padding:0, overflow:"hidden", display:"flex", alignItems:"flex-end", justifyContent:"center", cursor:"pointer"}}>
-                {W.demo ? <JeanneIllustration size={50}/> : <window.Persona name={W.personFull || W.person} size={50} bg="transparent" style={W.pronoun === "il" ? "short" : undefined}/>}
+                {W.demo || W.pronoun !== "il" ? <JeanneIllustration size={50}/> : <window.Persona name={W.personFull || W.person} size={50} bg="transparent" style="short"/>}
               </button>
               <Ring value={filled} max={CATEGORIES.length} size={60} stroke={3}/>
             </div>
