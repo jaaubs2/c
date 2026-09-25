@@ -183,7 +183,10 @@ function AidantCategory({catId, notes, onBack, onOpenCapture, onEdit, onDelete, 
               <button className="btn" style={{marginTop:18}} onClick={onOpenCapture}><IconMic size={18}/> Ajouter une note</button>
             </div></li>
           )}
-          {list.map(n => { const st = onConfirm && isStale(n); return (
+          {list.map(n => { const st = onConfirm && isStale(n); const W = window.Who;
+            const mine = W.demo || !n.authorId || n.authorId === W.userId;
+            const canEdit = mine || W.canManage;
+            const by = !W.demo && n.author && !mine ? ` · par ${n.author}${n.authorRole ? " (" + n.authorRole + ")" : ""}` : ""; return (
             <li key={n.id}>
               {editingId === n.id ? (
                 <div className="note">
@@ -205,8 +208,8 @@ function AidantCategory({catId, notes, onBack, onOpenCapture, onEdit, onDelete, 
                     </div>
                   )}
                   <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10}}>
-                    <span className="when">{n.confirmedAt ? `confirmé ${softDate(n.confirmedAt)}` : `noté ${softDate(n.ts)}`}</span>
-                    <button onClick={() => { setEditingId(n.id); setDraft(n.text); }} style={{border:"none", background:"var(--bg)", borderRadius:999, padding:"0 12px", minHeight:34, font:"700 13px var(--sans)", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:6}}><IconEdit size={14}/> Modifier</button>
+                    <span className="when">{n.confirmedAt ? `confirmé ${softDate(n.confirmedAt)}` : `noté ${softDate(n.ts)}`}{by}</span>
+                    {canEdit && <button onClick={() => { setEditingId(n.id); setDraft(n.text); }} style={{border:"none", background:"var(--bg)", borderRadius:999, padding:"0 12px", minHeight:34, font:"700 13px var(--sans)", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:6}}><IconEdit size={14}/> Modifier</button>}
                   </div>
                 </div>
               )}

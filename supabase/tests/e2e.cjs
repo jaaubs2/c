@@ -213,6 +213,8 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await see(sophie, 'Le carnet de Marthe', 'Sophie arrive dans le carnet de sa mère');
   await sophie.getByText('Ce qui apaise / ce qui angoisse').first().click().catch(() => {});
   await see(sophie, 'chapelet', 'elle lit la note validée de l\'équipe');
+  await see(sophie, 'par Sandra Meyer (Aide-soignante)', 'la note est signée par Sandra');
+  ok(await sophie.getByRole('button', { name: 'Modifier' }).count() === 0, 'Sophie ne peut pas modifier la note de Sandra');
   await shot(sophie, '8-famille.png');
 
   console.log('\n■ Anne supprime son compte');

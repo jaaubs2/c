@@ -95,7 +95,8 @@ function App(){
       const me = account?.membership?.display_name || account?.profile?.display_name || "";
       w.set({ demo:false, aidant:window.Live.first(me), aidantFull:me,
               person:window.Live.first(carnet?.person_name), personFull:carnet?.person_name || "",
-              pronoun:carnet?.pronoun || "elle" });
+              pronoun:carnet?.pronoun || "elle",
+              userId:account?.profile?.id, canManage:["owner", "cadre"].includes(carnet?.my_role) });
     }
   }
 

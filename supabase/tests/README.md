@@ -15,7 +15,7 @@ npm install --no-save pg jose
 node supabase/tests/db.test.cjs
 ```
 
-## Scénario complet dans le navigateur (38 vérifications)
+## Scénario complet dans le navigateur (40 vérifications)
 
 `mini-supabase.cjs` imite les deux services de Supabase utilisés par l'app (comptes et appels
 de fonctions), branchés sur la base locale. `e2e.cjs` joue le parcours complet au format iPhone :
