@@ -195,6 +195,28 @@ async function mkUser(name, email) {
   const big = await rpc(mallory, 'ai_quota_hit', { p_limit: 100000 });
   ok(big.calls === 1, 'la limite demandée est plafonnée côté serveur (pas de quota illimité)');
 
+  console.log('\n■ Accès par la mutuelle');
+  const leoMu = await mkUser('Léa', 'lea@test.fr');
+  await db.query(`select private.mutuelle_code_add('Mutuelle Test', 'mut-test 2026')`);
+  await fails(asUser(leoMu, `select private.mutuelle_code_add('Pirate', 'PIRATE-2026')`), 'une personne connectée crée un code de mutuelle');
+  await fails(asUser(leoMu, 'select * from public.mutuelle_codes'), 'une personne connectée lit la liste des codes');
+  ok((await rpc(leoMu, 'app_bootstrap')).access === null, 'au départ, aucun accès');
+  ok((await rpc(leoMu, 'access_redeem', { p_code: 'FAUX-CODE' })).status === 'invalid', 'un code inconnu est refusé');
+  const red = await rpc(leoMu, 'access_redeem', { p_code: 'MUT-TEST-2026' });
+  ok(red.status === 'ok' && red.access.kind === 'mutuelle' && red.access.mutuelle_name === 'Mutuelle Test', 'le bon code, même écrit autrement (tirets, majuscules), ouvre l\'accès');
+  ok((await rpc(leoMu, 'app_bootstrap')).access.mutuelle_name === 'Mutuelle Test', 'l\'app retrouve l\'accès au démarrage');
+  ok((await rpc(leoMu, 'export_my_data')).acces.mutuelle_name === 'Mutuelle Test', 'l\'accès figure dans l\'export des données');
+  await fails(asUser(leoMu, `update public.access_grants set ends_at = now() where user_id = auth.uid()`).then(r => { if (!r.rowCount) throw new Error('aucune ligne modifiée'); }), 'modifier soi-même son accès');
+  await fails(asUser(mallory, `insert into public.access_grants (user_id, kind) values (auth.uid(), 'mutuelle')`), 's\'attribuer un accès mutuelle sans code');
+  const disc = await rpc(mallory, 'access_start_discovery');
+  ok(disc.kind === 'decouverte' && new Date(disc.ends_at) > new Date(Date.now() + 13 * 864e5), 'sans code : 14 jours de découverte');
+  const disc2 = await rpc(mallory, 'access_start_discovery');
+  ok(disc2.ends_at === disc.ends_at, 'la découverte ne se relance pas indéfiniment');
+  ok((await asUser(anne, 'select count(*)::int n from public.access_grants')).rows[0].n === 0, 'chacun ne voit que son propre accès');
+  for (let i = 0; i < 5; i++) await rpc(mallory, 'access_redeem', { p_code: 'ESSAI' + i + 'XYZ' }).catch(() => {}); // compteur partagé avec les codes soignants
+  await fails(rpc(mallory, 'access_redeem', { p_code: 'MUT-TEST-2026' }), 'après 5 codes faux, même le bon est bloqué 15 minutes');
+  await fails(rpc(null, 'access_redeem', { p_code: 'MUT-TEST-2026' }), 'un visiteur sans compte essaie un code');
+
   console.log('\n■ Départ d\'une soignante');
   await rpc(sandra, 'delete_my_account');
   const left = await rpc(marc, 'org_snapshot');

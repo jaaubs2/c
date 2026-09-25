@@ -960,6 +960,8 @@ function LiveAccountPage({live, onBack}){
       </div>
       <p className="meta" style={{marginTop:14, lineHeight:1.5}}>Pour changer de mot de passe : déconnecte-toi, puis choisis « Mot de passe oublié ». Tu recevras un code par email.</p>
 
+      {(owner || live.access) && <MutuelleCard live={live}/>}
+
       <button className="card card-press" onClick={live.onLogout} style={{marginTop:18, width:"100%", textAlign:"left", cursor:"pointer", padding:"14px 16px", font:"800 15px var(--sans)"}}>Se déconnecter</button>
 
       <p className="kicker" style={{marginTop:26, color:"var(--accent)"}}>Zone sensible</p>
@@ -985,6 +987,50 @@ function LiveAccountPage({live, onBack}){
         </div>
       )}
     </SubPage>
+  );
+}
+
+/* Accès pris en charge par la mutuelle, ou période de découverte. */
+function MutuelleCard({live}){
+  const [code, setCode] = useSSet("");
+  const [msg, setMsg] = useSSet("");
+  const a = window.BUI.useAction();
+  const acc = live.access;
+  const day = (d) => new Date(d).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"});
+  const ended = acc && acc.kind === "decouverte" && new Date(acc.ends_at) < new Date();
+  async function redeem(e){
+    e.preventDefault(); setMsg("");
+    const r = await a.run(() => live.onRedeem(code)).catch(() => null);
+    if(r && r.status !== "ok") setMsg("Ce code ne correspond à aucune mutuelle partenaire. Vérifie-le, lettre par lettre.");
+    if(r && r.status === "ok") setCode("");
+  }
+  return (
+    <>
+      <p className="kicker" style={{marginTop:24}}>Mon accès</p>
+      <div className="card" style={{marginTop:10, padding:16}}>
+        {acc && acc.kind === "mutuelle" ? (
+          <>
+            <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>Pris en charge par {acc.mutuelle_name}</p>
+            <p className="meta" style={{marginTop:4}}>Depuis le {day(acc.since)} · rien à payer</p>
+          </>
+        ) : (
+          <>
+            <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>
+              {acc ? (ended ? "Ta découverte est terminée" : "Découverte en cours") : "Aucune mutuelle enregistrée"}
+            </p>
+            {acc && <p className="meta" style={{marginTop:4}}>{ended ? "Terminée le " : "Jusqu'au "}{day(acc.ends_at)}</p>}
+            <p style={{marginTop:8, fontSize:14, color:"var(--ink-2)", lineHeight:1.5}}>Ta mutuelle propose le carnet vivant ? Ajoute son code : tes notes restent exactement où elles sont.</p>
+            <form onSubmit={redeem} style={{marginTop:12}}>
+              <label htmlFor="mu-code-set" style={{display:"block", font:"600 13px var(--sans)", marginBottom:6}}>Code de ta mutuelle</label>
+              <input id="mu-code-set" value={code} onChange={e => { setCode(e.target.value); setMsg(""); }} autoComplete="off" autoCapitalize="characters" spellCheck={false}
+                     style={{width:"100%", minHeight:48, border:"1px solid var(--line-2)", borderRadius:14, padding:"10px 14px", fontSize:16, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", background:"var(--paper)", color:"var(--ink)"}}/>
+              <window.BUI.FormError msg={msg || a.error}/>
+              <button className="btn" type="submit" style={{marginTop:10, width:"100%"}} disabled={a.busy || code.replace(/[^A-Za-z0-9]/g, "").length < 6}>{a.busy ? "Vérification…" : "Valider mon code"}</button>
+            </form>
+          </>
+        )}
+      </div>
+    </>
   );
 }
 

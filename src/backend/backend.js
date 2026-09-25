@@ -307,6 +307,10 @@ const Backend = {
   acceptStaffCode: (code) => call("staff_invite_accept", { p_code: code }),
   updateMember: (userId, { unitId, perm }) => call("member_update", { p_user: userId, p_unit: unitId || null, p_perm: perm }),
 
+  // ── Accès par la mutuelle (particuliers) ──
+  redeemMutuelleCode: (code) => call("access_redeem", { p_code: code }),
+  startDiscovery: () => call("access_start_discovery"),
+
   // ── IA ──
   ai: {
     available: enabled,

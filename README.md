@@ -52,7 +52,7 @@ probables : [`docs/DEMO-JURY.md`](docs/DEMO-JURY.md).
 - **Clavier** : tout se fait au clavier, avec un contour bien visible ; à chaque nouvel écran, le focus
   va sur son titre (annoncé par les lecteurs d'écran) ; **Échap** revient en arrière.
 - **Saisie vocale** : micro de dictée dans chaque note (et dictée du téléphone partout ailleurs).
-- **Vérifié** avec l'outil axe (règles WCAG 2.1 A et AA) : 98 écrans de démo et 19 écrans du parcours
+- **Vérifié** avec l'outil axe (règles WCAG 2.1 A et AA) : 98 écrans de démo et 21 écrans du parcours
   réel, aucun défaut détecté. Un outil automatique ne voit pas tout : un test avec VoiceOver (iPhone)
   et TalkBack (Android) reste conseillé avant l'ouverture au public.
 
@@ -122,7 +122,11 @@ Après les avoir modifiées : `npm run app:icons`.
   Il devient définitif à la première publication dans les stores : le changer avant si besoin.
 - **Micro** : l'autorisation est déjà déclarée (texte affiché à l'utilisateur :
   « Le micro vous permet de dicter une note au lieu de l'écrire. »).
-- **Abonnements** : vendus dans l'app iPhone, Apple prélève une commission (15 % pour une petite entreprise).
+- **Accès** : pour les particuliers, pris en charge par la mutuelle (code à saisir dans l'app, ou 14 jours de
+  découverte) ; pour les établissements, abonnement hors de l'app. Rien n'est vendu dans l'app : pas d'achat
+  intégré à prévoir a priori (à confirmer lors de la revue Apple, en expliquant que l'accès est financé par la mutuelle).
+  Ajouter le code d'une mutuelle partenaire : `select private.mutuelle_code_add('Nom de la mutuelle', 'CODE-2026');`
+  dans le SQL Editor de Supabase.
 - **Polices** : intégrées à l'app (`src/fonts/`) : aucune requête vers Google, elles marchent
   hors connexion et dans les apps natives.
 

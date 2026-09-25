@@ -8,7 +8,7 @@ const { Toast, DemoPill, TabBar, StatusBar: SBApp } = window.UI;
 const { AidantHome, AidantCarnet, AidantCapture, AidantCategory } = window.Aidant;
 const { AidantTransmettre, AidantSettings } = window.AidantShare;
 const { AidantNotifications, AidantSettingsV2, CaptureConfirmation, AidantCare } = window.AidantExtras;
-const { LaunchScreen, SignupScreen, LoginScreen, RecoveryScreen, VerificationScreen, OnboardingFlow, RelaisLanding, RelaisLiteSignup, ChooseProfileScreen, SubscriptionScreen, PaymentScreen, SubscriptionSuccess } = window.Auth;
+const { LaunchScreen, SignupScreen, LoginScreen, RecoveryScreen, VerificationScreen, OnboardingFlow, RelaisLanding, RelaisLiteSignup, ChooseProfileScreen, AccessScreen } = window.Auth;
 const { SettingsFull } = window.SettingsFull;
 const { RelaisCarnetPicker, RelaisWelcome, RelaisHome, RelaisDiscover, RelaisCategory, RelaisToday, RelaisRespond } = window.Relais;
 const { RelaisSettings } = window.RelaisSettings;
@@ -52,7 +52,6 @@ function App(){
   const [etabRole, setEtabRole] = useStateApp("cadre");
   const [view, setView] = useStateApp("aidant"); // aidant | relais | etab
   const [chosenType, setChosenType] = useStateApp("aidant");
-  const [chosenPlan, setChosenPlan] = useStateApp("monthly");
   const [aidantTab, setAidantTab] = useStateApp("home");
   const [relaisTab, setRelaisTab] = useStateApp("home");
   const [aidantCat, setAidantCat] = useStateApp(null);
@@ -82,7 +81,6 @@ function App(){
   const [signedIn, setSignedIn] = useStateApp(false);
   const [recoveryEmail, setRecoveryEmail] = useStateApp("");
   const [intent, setIntent] = useStateApp("aidant");   // aidant | cadre | soignant
-  const justSignedUp = useRefApp(false);
   const inviteRef = useRefApp(null);
 
   /* Qui est qui, pour les écrans (prénoms, « elle » / « il »). */
@@ -163,7 +161,8 @@ function App(){
       }
       if(meta.intent === "cadre"){ setPhase("etab-signup"); return; }
       if(meta.intent === "soignant"){ setPhase("staff-entry"); return; }
-      setPhase(justSignedUp.current ? "subscription" : "onboarding");
+      // Particulier : d'abord l'accès (code de la mutuelle ou découverte), puis le carnet.
+      setPhase(b.access ? "onboarding" : "access");
     } catch(e){
       setToast(e.message); setPhase("launch");
     }
@@ -173,7 +172,6 @@ function App(){
   async function doSignup({email, password, name}){
     const accountType = intent === "aidant" ? "aidant" : "etab";
     const r = await Backend.signUp({ email, password, displayName:name, accountType, intent });
-    justSignedUp.current = true;
     setSignupEmail(email);
     if(r.needsCode) setPhase("verification"); else await loadAccount();
   }
@@ -184,12 +182,10 @@ function App(){
     if(!res) return;
     await Backend.createCarnet({ name:res.profile.name, age:res.profile.age, since:res.profile.since,
       relation:res.role, avatar:res.profile.avatar, pronoun:res.profile.pronoun, personConsent:res.consent });
-    justSignedUp.current = false;
     await loadAccount();
   }
   async function doEtabSignup(f){
     await Backend.createOrg({ name:f.name, kind:f.type, finess:f.finess, city:f.city, displayName:f.who, jobTitle:f.role, units:f.units });
-    justSignedUp.current = false;
     await loadAccount();
   }
   async function logout(){
@@ -266,6 +262,12 @@ function App(){
     listMembers: () => Backend.listMembers(carnet.id),
     shares,
     onRevoke: (id) => shareLive && shareLive.onRevoke(id),
+    access: account.access || null,
+    onRedeem: async (code) => {
+      const r = await Backend.redeemMutuelleCode(code);
+      if(r.status === "ok") setAccount(a => ({...a, access:r.access}));
+      return r;
+    },
   } : null;
 
   /* ── Notifications (vrais comptes) : les ouvertures de fiches ── */
@@ -485,15 +487,12 @@ function App(){
                                                         onBack={() => setPhase("signup")}
                                                         onVerify={REAL ? doVerify : null}
                                                         onResend={REAL ? () => Backend.resendSignup(signupEmail) : null}
-                                                        onVerified={() => setPhase(chosenType === "aidant" ? "subscription" : "onboarding")}/>}
-      {phase === "subscription" && <SubscriptionScreen onBack={() => setPhase(REAL ? "onboarding" : "verification")}
-                                                        onTrial={() => setPhase("onboarding")}
-                                                        onSubscribe={(p) => {
-                                                          if(REAL){ setToast("Le paiement en ligne arrive bientôt. Profite de l'essai gratuit."); setPhase("onboarding"); return; }
-                                                          setChosenPlan(p); setPhase("payment");
-                                                        }}/>}
-      {phase === "payment" && <PaymentScreen plan={chosenPlan} onBack={() => setPhase("subscription")} onPaid={() => setPhase("subscription-success")}/>}
-      {phase === "subscription-success" && <SubscriptionSuccess plan={chosenPlan} onDone={() => setPhase("onboarding")}/>}
+                                                        onVerified={() => setPhase(chosenType === "aidant" ? "access" : "onboarding")}/>}
+      {phase === "access" && <AccessScreen real={REAL}
+                                            onRedeem={(code) => Backend.redeemMutuelleCode(code)}
+                                            onDiscovery={() => Backend.startDiscovery()}
+                                            onDone={() => setPhase("onboarding")}
+                                            onBack={REAL ? null : () => setPhase("verification")}/>}
       {phase === "signup" && <SignupScreen onBack={() => setPhase(inviteToken ? "invite" : "choose-profile")}
                                             askName={REAL}
                                             onSubmit={REAL ? doSignup : ({email}) => { setSignupEmail(email); setPhase("verification"); }}

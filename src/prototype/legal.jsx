@@ -28,6 +28,7 @@ const DOCS = {
         "Les partages : destinataire, rubriques visibles, date d'expiration, et la date et l'heure de chaque ouverture d'un lien. Nous n'enregistrons pas l'adresse IP de la personne qui ouvre le lien.",
         "Les établissements : nom, unités, membres de l'équipe, leur fonction et leurs droits.",
         "Vos consentements : lesquels, leur date et la version du texte accepté.",
+        "Votre accès : le nom de la mutuelle dont vous avez saisi le code, ou la date de fin de votre période de découverte.",
         "L'aide à la rédaction : le nombre d'utilisations de l'IA par jour (pour limiter les abus), pas le contenu.",
       ]},
       { h: "Pourquoi, et sur quelle base", list: [
@@ -41,6 +42,7 @@ const DOCS = {
         "Nos sous-traitants, tous liés par un accord de traitement des données :",
       ], list: [
         "Supabase : hébergement de la base de données et des comptes, dans l'Union européenne ([[région choisie, par exemple Paris]]).",
+        "Votre mutuelle n'est pas un destinataire : elle finance l'accès, mais ne reçoit ni vos carnets, ni vos notes, ni votre nom.",
         "Mistral AI (France) : aide à la rédaction, uniquement quand vous utilisez la dictée, le rangement automatique ou la rédaction de fiche. Seuls le texte utile et le prénom sont transmis, jamais le nom de famille. Serveurs européens.",
         "[[Service d'envoi d'emails, par exemple Brevo (France)]] : envoi des codes de connexion.",
         "[[Hébergeur de la version web]] : mise à disposition de l'application, sans accès aux carnets.",
@@ -84,8 +86,11 @@ const DOCS = {
       { h: "L'aide à la rédaction (IA)", p: [
         "L'IA propose, vous décidez : une rubrique, une fiche ou une question peuvent être imparfaites. Relisez toujours avant d'enregistrer ou de partager. L'IA ne pose aucun diagnostic.",
       ]},
-      { h: "Prix", p: [
-        "[[Conditions tarifaires : durée de l'essai gratuit, prix de l'abonnement, modalités de paiement et de résiliation. À rédiger quand le paiement sera ouvert.]]",
+      { h: "Accès et prix", list: [
+        "Particuliers : l'accès est pris en charge par votre mutuelle, si elle est partenaire. Elle vous transmet un code à saisir dans l'app ; vous n'avez rien à payer.",
+        "Sans code : une période de découverte de 14 jours, gratuite et sans carte bancaire. [[Ce qui se passe à la fin de la découverte, sans code de mutuelle.]] Dans tous les cas, vos notes restent à vous : vous pouvez toujours les consulter, les exporter ou les supprimer.",
+        "Proches invités et relais qui reçoivent une fiche : toujours gratuit.",
+        "Établissements : abonnement selon le contrat conclu avec l'établissement. [[Conditions du contrat établissement.]]",
       ]},
       { h: "Arrêter", p: [
         "Vous pouvez supprimer votre compte à tout moment, depuis les réglages. Si nous devions arrêter le service, nous vous préviendrions [[délai, par exemple trois mois]] à l'avance pour que vous puissiez exporter vos carnets.",

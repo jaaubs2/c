@@ -4,7 +4,7 @@ Une histoire, trois points de vue, une seule idée : **le savoir humain sur Jean
 quand quelqu'un d'autre prend le relais.**
 
 Tout ce qui est montré est **réel** : vrais comptes, vraies données enregistrées sur le serveur, vraie IA.
-Le parcours ci-dessous a été répété automatiquement, clic par clic (32 vérifications, toutes réussies).
+Le parcours ci-dessous a été répété automatiquement, clic par clic (33 vérifications, toutes réussies).
 
 ---
 
@@ -12,7 +12,7 @@ Le parcours ci-dessous a été répété automatiquement, clic par clic (32 vér
 
 | Qui | Rôle | Identifiant |
 |---|---|---|
-| **Anne** | Aidante de sa mère **Jeanne**, 86 ans | `anne@demo.lecarnetvivant.fr` |
+| **Anne** | Aidante de sa mère **Jeanne**, 86 ans, prise en charge par sa mutuelle | `anne@demo.lecarnetvivant.fr` |
 | **Claire** | Sa sœur, vient le mercredi | pas de compte : un **lien** |
 | **Marc Aubry** | Cadre de santé, Maison des Tilleuls | `marc@demo.lecarnetvivant.fr` |
 | **Sandra Meyer** | Aide-soignante, Unité B | `sandra@demo.lecarnetvivant.fr` |
@@ -23,7 +23,9 @@ Mot de passe de tous les comptes : **`CarnetVivant-2026`** (modifiable en haut d
 
 Ce qui est déjà en place : les 21 notes de Jeanne dans les 7 rubriques ; une fiche pour Claire,
 **déjà ouverte 2 fois** ; une ancienne fiche désactivée ; la Maison des Tilleuls avec 3 unités,
-6 soignants, 28 résidents ; **2 notes qui attendent le visa de Marc**.
+6 soignants, 28 résidents ; **2 notes qui attendent le visa de Marc** ; une mutuelle fictive
+(« Mutuelle Exemple (démo) », code **`DEMO-2026`**) qui prend Anne en charge. Si on te demande de montrer
+l'inscription, crée un compte en direct et saisis ce code.
 
 ---
 
@@ -135,7 +137,7 @@ joue la démo en entier → garde la vidéo sur le bureau (et sur une clé USB).
 **J-7**
 - [ ] Supabase, IA et mise en ligne faits (`SUPABASE.md`, `IA-MISTRAL.md`, `MISE-EN-LIGNE.md`).
 - [ ] Démo installée, parcours joué une fois en entier, chronométré.
-- [ ] Prix identiques dans l'app et dans le pitch (l'app affiche aujourd'hui **20 €/mois ou 180 €/an**).
+- [ ] Le pitch parle bien du financement par la **mutuelle** (particuliers) et de l'**abonnement établissement**.
 
 **La veille**
 - [ ] Vidéo de secours enregistrée.
@@ -165,22 +167,33 @@ et le prénom, jamais le nom de famille. C'est Mistral, une IA française, sur d
 
 **« Les données sont-elles en sécurité ? »**
 Base de données en Europe (Supabase, région Paris), échanges chiffrés, règles d'accès vérifiées par le
-serveur (et testées automatiquement : 81 vérifications). Les liens de partage sont uniques, stockés sous
+serveur (et testées automatiquement : 95 vérifications). Les liens de partage sont uniques, stockés sous
 forme d'empreinte, expirent, se désactivent, et chaque ouverture est inscrite dans un journal.
 
 **« C'est vraiment fonctionnel ? »**
 Oui : comptes, carnets, notes, partage, établissement, IA, export et suppression des données.
 Plus de 200 vérifications automatiques couvrent la sécurité, l'IA, l'accessibilité et les parcours complets.
-Pas encore en place : le paiement en ligne, et la publication sur l'App Store et Google Play.
+Y compris l'accès par la mutuelle : le code est vérifié par le serveur. Pas encore en place : la publication
+sur l'App Store et Google Play, et les contrats avec de vraies mutuelles.
 
 **« Combien ça coûte à faire tourner ? »**
 Hébergement européen gratuit au départ ; base de données gratuite, puis 25 $ par mois ; l'IA coûte moins
 d'un centime par note ou par fiche. Comptes développeur : 99 $ par an (Apple), 25 $ une fois (Google).
 
 **« Qui paie ? »**
-L'aidant principal (abonnement), et l'établissement pour ses équipes. Les relais, eux, n'ont jamais besoin
-de payer ni de créer un compte. *(À ajuster à ton modèle économique.)*
+Pour les familles, **la mutuelle** : elle offre le carnet à ses adhérents aidants, qui saisissent un code dans
+l'app. L'aidant n'a rien à payer, et la mutuelle ne voit jamais le contenu du carnet. Sans code, 14 jours de
+découverte, sans carte bancaire. Pour les **établissements**, un abonnement pour leurs équipes. Les proches
+invités et les relais n'ont jamais rien à payer ni de compte à créer.
+
+**« Pourquoi une mutuelle paierait ? »**
+Parce que soutenir les aidants, c'est de la prévention : un aidant moins isolé et mieux relayé s'épuise moins.
+*(Appuie-toi ici sur les chiffres de ton pitch.)*
+
+**« La mutuelle peut-elle voir les notes ? »**
+Non. Elle finance l'accès, c'est tout : aucune donnée du carnet, aucun nom ne lui est transmis. C'est écrit
+dans la politique de confidentialité, et c'est vrai techniquement : il n'existe aucun accès prévu pour elle.
 
 **« La suite ? »**
-Un pilote avec un établissement et une vingtaine d'aidants ; la publication sur les stores ; le paiement ;
+Un pilote avec une mutuelle, un établissement et une vingtaine d'aidants ; la publication sur les stores ;
 un audit d'accessibilité avec des personnes utilisatrices ; la relecture juridique des documents.

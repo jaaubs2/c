@@ -2,7 +2,7 @@
 
 Pour les développeurs (ou le Claude de VS Code). Rien de tout cela n'est nécessaire pour utiliser l'app.
 
-## Sécurité de la base (81 vérifications)
+## Sécurité de la base (95 vérifications)
 
 Rejoue de vrais scénarios avec les droits de chaque personne (aidante, proche invité, inconnue,
 cadre, soignants, famille) : chacun ne voit et ne fait que ce qu'il a le droit.
@@ -25,12 +25,12 @@ prénom seul envoyé, notes en attente ou hors rubriques jamais envoyées, dict�
 node supabase/tests/ai.test.mjs      # Node 22 ou plus récent
 ```
 
-## Scénario complet dans le navigateur (54 vérifications)
+## Scénario complet dans le navigateur (59 vérifications)
 
 `mini-supabase.cjs` imite les deux services de Supabase utilisés par l'app (comptes et appels
 de fonctions), branchés sur la base locale. `e2e.cjs` joue le parcours complet au format iPhone :
 Anne crée un carnet et un lien, Claire l'ouvre sans compte, Marc crée son établissement,
-Sandra entre avec son code, Sophie rejoint le carnet de sa mère, Anne supprime son compte.
+Anne saisit le code de sa mutuelle (un faux code est refusé), Sandra entre avec son code, Sophie rejoint le carnet de sa mère, Anne supprime son compte.
 Côté IA (faux Mistral intégré à `mini-supabase.cjs`, micro simulé) : dictée d'une note, rubrique
 proposée, fiche rédigée puis corrigée, affichage chez le relais, carte « Garder le carnet vivant ».
 Accessibilité : chaque écran capturé (et l'inscription, le code, la politique de confidentialité)
@@ -46,7 +46,7 @@ npx vite preview --outDir dist-e2e --port 4174 &
 node supabase/tests/e2e.cjs ./captures
 ```
 
-## Données de démonstration (32 vérifications)
+## Données de démonstration (33 vérifications)
 
 `demo.test.cjs` charge `supabase/demo/demo-jury.sql` deux fois (la seconde fois doit tout remettre à zéro
 sans doublon), connecte chaque compte de démo, puis rejoue le scénario du jury (`docs/DEMO-JURY.md`)

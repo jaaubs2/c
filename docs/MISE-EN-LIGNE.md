@@ -97,7 +97,7 @@ Les passages surlignés **« À compléter »** attendent tes informations. Ils 
 - email de contact pour les données personnelles ;
 - région Supabase choisie (Paris), service d'emails (Brevo), hébergeur (statichost.eu, Union européenne) ;
 - durée de conservation des comptes inactifs ;
-- prix et conditions de l'abonnement, médiateur de la consommation ;
+- ce qui se passe à la fin de la découverte sans code, conditions du contrat établissement, médiateur de la consommation ;
 - délai de préavis si le service s'arrêtait.
 
 Ces textes sont une **base sérieuse, pas un avis juridique** : fais-les relire (incubateur,

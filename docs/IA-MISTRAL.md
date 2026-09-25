@@ -46,6 +46,8 @@ Sans ces réglages, l'app marche quand même : le micro, la rubrique proposée e
 
 ## 3. Mettre à jour la base de données
 
+(Si tu as déjà lancé tous les fichiers du dossier `supabase/migrations/` en suivant `SUPABASE.md`, passe directement à l'étape 4.)
+
 1. Dans Supabase : **SQL Editor** → **New query**.
 2. Ouvre `supabase/migrations/20260926000000_ai.sql` dans VS Code, copie **tout**, colle, **Run**.
 3. Tu dois voir **Success. No rows returned**.

@@ -9,7 +9,8 @@
 --    • Claire, sa sœur : ouvre la fiche par un lien, sans compte ;
 --    • la Maison des Tilleuls : Marc (cadre de santé), 5 soignants, 28 résidents,
 --      2 notes qui attendent le visa de Marc ;
---    • Sophie, fille de Marthe (résidente) : contribue au carnet de sa mère.
+--    • Sophie, fille de Marthe (résidente) : contribue au carnet de sa mère ;
+--    • une mutuelle fictive, « Mutuelle Exemple (démo) », code DEMO-2026, qui prend Anne en charge.
 --
 --  REJOUABLE : relancer ce fichier efface les comptes de démo et les recrée à neuf
 --  (pratique juste avant le jury). Les vrais comptes ne sont jamais touchés :
@@ -47,6 +48,7 @@ begin
   delete from public.carnets k
    where k.owner_id in (select id from auth.users where email like '%' || v_domain);
   delete from auth.users where email like '%' || v_domain;
+  delete from public.mutuelle_codes where mutuelle_name = 'Mutuelle Exemple (démo)';
 
   -- ─── 2. Comptes (mot de passe chiffré comme par Supabase) ──────────
   for who in
@@ -99,6 +101,11 @@ begin
   -- Les notes reçoivent ici leurs vraies dates et leurs auteurs : on suspend le temps de
   -- l'insertion la règle qui les impose à « maintenant » et à « la personne connectée ».
   alter table public.notes disable trigger notes_before_write;
+
+  -- ─── Accès : Anne est prise en charge par une mutuelle (fictive) ────
+  v_id := private.mutuelle_code_add('Mutuelle Exemple (démo)', 'DEMO-2026');
+  insert into public.access_grants (user_id, kind, mutuelle_name, code_id, created_at)
+  values ((u->>'anne')::uuid, 'mutuelle', 'Mutuelle Exemple (démo)', v_id, v_now - interval '200 days');
 
   -- ─── 3. Le carnet de Jeanne, tenu par Anne ──────────────────────────
   insert into public.carnets (owner_id, person_name, person_age, since_label, owner_relation, avatar, pronoun,
@@ -261,7 +268,8 @@ begin
     (4, 'Soignante : Sandra (Unité B, notes à valider)', 'sandra' || v_domain),
     (5, 'Famille : Sophie (carnet de sa mère Marthe)', 'sophie' || v_domain),
     (6, 'Cercle : Léo (petit-fils de Jeanne)', 'leo' || v_domain),
-    (7, 'Autres soignants', 'karim, lucie, theo, ines' || v_domain);
+    (7, 'Autres soignants', 'karim, lucie, theo, ines' || v_domain),
+    (8, 'Code de la mutuelle de démo (pour un nouveau compte)', 'DEMO-2026');
 end
 $demo$;
 

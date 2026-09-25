@@ -70,6 +70,13 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   // Faux micro (son de synthèse) pour tester la dictée.
   const browser = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
 
+  // Une mutuelle partenaire, créée comme le ferait l'éditrice dans Supabase.
+  const { Client } = require('pg');
+  const pg = new Client({ host: '127.0.0.1', user: 'postgres', password: 'postgres', database: 'carnet' });
+  await pg.connect();
+  await pg.query(`select private.mutuelle_code_add('Mutuelle des Tests', 'MUTUELLE-E2E-2026')`);
+  await pg.end();
+
   console.log('\n■ Anne crée son compte et le carnet de Paul');
   const anne = await newPage(browser, 'Anne');
   await anne.goto(APP);
@@ -77,7 +84,16 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await axeCheck(anne, 'accueil');
   await anne.getByRole('button', { name: 'Créer mon carnet' }).click();
   await signup(anne, { role: 'Un·e aidant·e', name: 'Anne', email: 'anne@e2e.fr', legal: true });
-  await anne.getByRole('button', { name: 'Essayer 14 jours gratuitement' }).click();
+  await see(anne, 'Ton accès est pris en charge par ta mutuelle.', 'après l\'inscription, l\'accès par la mutuelle est proposé');
+  await shot(anne, '12-acces-mutuelle.png');
+  await anne.locator('#mu-code').fill('MAUVAIS-CODE');
+  await anne.getByRole('button', { name: 'Valider mon code' }).click();
+  await see(anne, 'Ce code ne correspond à aucune mutuelle partenaire', 'un code faux est refusé par le serveur');
+  await anne.locator('#mu-code').fill('mutuelle e2e 2026');
+  await anne.getByRole('button', { name: 'Valider mon code' }).click();
+  await see(anne, 'Mutuelle des Tests t\'offre le carnet vivant.', 'le bon code (même écrit autrement) : pris en charge par la mutuelle');
+  await shot(anne, '13-mutuelle-ok.png');
+  await anne.getByRole('button', { name: 'Créer le carnet' }).click();
   await anne.getByRole('button', { name: 'Commencer' }).click();
   await anne.getByRole('button', { name: 'Continuer' }).click();
   await anne.locator('#op-name').fill('Paul');
@@ -266,6 +282,7 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   const sc = await code('sophie@e2e.fr');
   for (let i = 0; i < 6; i++) await sophie.getByLabel(`Chiffre ${i + 1}`).fill(sc[i]);
   await see(sophie, 'Le carnet de Marthe', 'Sophie arrive dans le carnet de sa mère');
+  await absent(sophie, 'pris en charge par ta mutuelle', 'une proche invitée n\'a pas à passer par la mutuelle');
   await sophie.getByText('Ce qui apaise / ce qui angoisse').first().click().catch(() => {});
   await see(sophie, 'chapelet', 'elle lit la note validée de l\'équipe');
   await see(sophie, 'par Sandra Meyer (Aide-soignante)', 'la note est signée par Sandra');
@@ -275,6 +292,7 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   console.log('\n■ Anne supprime son compte');
   await anne.getByRole('button', { name: 'Retour' }).click();
   await anne.getByText('Mon compte').click();
+  await see(anne, 'Pris en charge par Mutuelle des Tests', 'Réglages → Mon compte : l\'accès par la mutuelle est affiché');
   await anne.getByRole('button', { name: 'Supprimer mon compte' }).click();
   await anne.getByRole('button', { name: 'Supprimer', exact: true }).click();
   await see(anne, 'Créer mon carnet', 'Anne revient à l\'écran d\'accueil');

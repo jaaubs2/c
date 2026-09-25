@@ -77,6 +77,7 @@ const see = async (page, text, label) => {
   await see(anne, 'Le carnet de Jeanne', 'Anne arrive dans le carnet de Jeanne');
   await see(anne, '21 notes', 'avec ses 21 notes');
   await see(anne, 'Aux côtés de Jeanne', '« Aux côtés de Jeanne »');
+  ok(val('Code de la mutuelle') === 'DEMO-2026', 'la mutuelle de démo et son code sont créés');
 
   console.log('\n■ Claire ouvre la fiche, sans compte');
   const claire = await (await browser.newContext({ ...devices['iPhone 14'] })).newPage();

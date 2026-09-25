@@ -986,38 +986,68 @@ function ChooseProfileScreen({onBack, onPick}){
 }
 
 /* ─────────────────────────────────────────────────────────────
-   SUBSCRIPTION — 20€/mois pour l'aidant principal
+   ACCÈS — pris en charge par la mutuelle (particuliers)
+   La mutuelle partenaire donne un code à ses adhérents. Sans code : découverte.
    ───────────────────────────────────────────────────────────── */
-function SubscriptionScreen({onSubscribe, onTrial, onBack}){
-  const [plan, setPlan] = useSAuth("monthly");
+const ACCESS_FEATURES = [
+  "Le carnet de la personne que tu accompagnes, sans limite",
+  "Dictée et rangement des notes par l'IA",
+  "Fiches partagées par lien sécurisé, pour les relais",
+  "Ton cercle d'aidants peut contribuer, gratuitement",
+  "Données chiffrées, hébergées en Europe",
+];
 
-  const PLANS = [
-    {
-      id:"monthly", price:"20", per:"mois",
-      title:"Mensuel", body:"Sans engagement, annulable à tout moment.",
-      tag:null
-    },
-    {
-      id:"yearly", price:"180", per:"an",
-      title:"Annuel", body:"Soit 15 €/mois — deux mois offerts.",
-      tag:"-25%"
-    }
-  ];
+function AccessScreen({real, onRedeem, onDiscovery, onDone, onBack}){
+  const [code, setCode] = useSAuth("");
+  const [step, setStep] = useSAuth("code");   // code | none | ok
+  const [mutuelle, setMutuelle] = useSAuth("");
+  const [err, setErr] = useSAuth("");
+  const [busy, setBusy] = useSAuth(false);
+  const clean = code.replace(/[^A-Za-z0-9]/g, "");
 
-  const FEATURES = [
-    "Carnet illimité pour une personne accompagnée",
-    "Capture vocale + rangement intelligent",
-    "Partage par lien sécurisé, durée ajustable",
-    "Cercle d'aidants (proches qui contribuent)",
-    "Sauvegarde chiffrée, hébergement français",
-    "Aide & support humain (lundi–vendredi)"
-  ];
+  async function redeem(e){
+    e && e.preventDefault();
+    if(clean.length < 6 || busy) return;
+    setBusy(true); setErr("");
+    try {
+      if(!real){ setMutuelle("Mutuelle Exemple"); setStep("ok"); return; }
+      const r = await onRedeem(code);
+      if(r.status !== "ok"){ setErr("Ce code ne correspond à aucune mutuelle partenaire. Vérifie-le, lettre par lettre."); return; }
+      setMutuelle(r.access.mutuelle_name); setStep("ok");
+    } catch(x){ setErr(x.message); }
+    finally { setBusy(false); }
+  }
+  async function discover(){
+    setBusy(true); setErr("");
+    try { if(real) await onDiscovery(); onDone(); }
+    catch(x){ setErr(x.message); }
+    finally { setBusy(false); }
+  }
+
+  if(step === "ok") return (
+    <div className="screen fade-enter">
+      <SBAuth/>
+      <div className="scroll" style={{padding:"40px 22px 24px", display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
+        <div style={{width:110, height:110, marginTop:30, borderRadius:"50%", background:"var(--c-gouts)", color:"var(--c-gouts-ink)", display:"flex", alignItems:"center", justifyContent:"center"}}>
+          <IconCheckAuth size={46} sw={2}/>
+        </div>
+        <p className="kicker" style={{marginTop:28}}>C'est pris en charge</p>
+        <h1 className="serif" role="status" style={{marginTop:10, fontSize:28, letterSpacing:"-.02em", lineHeight:1.15}}>
+          {mutuelle} t'offre le carnet vivant.
+        </h1>
+        <p style={{marginTop:14, fontSize:15.5, color:"var(--ink-2)", lineHeight:1.55, maxWidth:320}}>
+          Tu n'as rien à payer. Ta mutuelle ne voit jamais ce que tu écris dans le carnet.
+        </p>
+        <button className="btn" style={{marginTop:28, width:"100%"}} onClick={onDone}>Créer le carnet</button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="screen fade-enter">
       <SBAuth/>
       <div className="topbar">
-        <button className="iconbtn" aria-label="Retour" onClick={onBack}><IconBackAuth size={20}/></button>
+        {onBack ? <button className="iconbtn" aria-label="Retour" onClick={step === "none" ? () => setStep("code") : onBack}><IconBackAuth size={20}/></button> : <span style={{width:44}}/>}
         <BrandLogo size={20}/>
         <span style={{width:44}}/>
       </div>
@@ -1026,206 +1056,59 @@ function SubscriptionScreen({onSubscribe, onTrial, onBack}){
         <div style={{margin:"4px auto 0", width:60, height:60, borderRadius:18, background:"var(--c-gouts)", display:"flex", alignItems:"center", justifyContent:"center", color:"var(--c-gouts-ink)"}}>
           <IconSparkleAuth size={28}/>
         </div>
-        <p className="kicker" style={{marginTop:18, textAlign:"center"}}>Le carnet vivant — accompagnement</p>
-        <h1 className="serif" style={{fontSize:30, marginTop:10, textAlign:"center", letterSpacing:"-.02em", lineHeight:1.1}}>
-          Un soutien pour ce que tu fais déjà au quotidien.
+        <h1 className="serif" style={{fontSize:28, marginTop:16, textAlign:"center", letterSpacing:"-.02em", lineHeight:1.15}}>
+          Ton accès est pris en charge par ta mutuelle.
         </h1>
-        <p style={{marginTop:14, fontSize:15.5, color:"var(--ink-2)", textAlign:"center", lineHeight:1.55, maxWidth:330, marginInline:"auto"}}>
-          On garde le carnet, on le sécurise, on l'enrichit avec une IA douce. Tu prends soin d'elle, on s'occupe du reste.
+        <p style={{marginTop:12, fontSize:15.5, color:"var(--ink-2)", textAlign:"center", lineHeight:1.55, maxWidth:340, marginInline:"auto"}}>
+          Le carnet vivant est offert aux adhérents des mutuelles partenaires, pour soutenir ce que tu fais déjà au quotidien.
         </p>
 
-        {/* Plan picker */}
-        <div role="radiogroup" aria-label="Formule" style={{marginTop:24, display:"grid", gap:10}}>
-          {PLANS.map(p => {
-            const on = plan === p.id;
-            return (
-              <button key={p.id} role="radio" aria-checked={on}
-                      onClick={() => setPlan(p.id)}
-                      style={{
-                        width:"100%", textAlign:"left", position:"relative",
-                        background: on ? "var(--ink)" : "var(--card)",
-                        color: on ? "var(--paper)" : "var(--ink)",
-                        border: "1px solid " + (on ? "var(--ink)" : "var(--line)"),
-                        borderRadius:20, padding:"18px 18px",
-                        cursor:"pointer", display:"flex", gap:14, alignItems:"center", minHeight:80
-                      }}>
-                {p.tag && (
-                  <span className="mono" style={{
-                    position:"absolute", top:-9, right:14,
-                    fontSize:10.5, padding:"3px 8px", borderRadius:6,
-                    background:"var(--accent)", color:"var(--paper)", letterSpacing:".08em"
-                  }}>{p.tag}</span>
-                )}
-                <span style={{flex:1, minWidth:0}}>
-                  <span style={{display:"block", fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:18, letterSpacing:"-.01em"}}>{p.title}</span>
-                  <span style={{display:"block", marginTop:4, fontSize:13.5, opacity:.75, lineHeight:1.4}}>{p.body}</span>
-                </span>
-                <span style={{textAlign:"right", flexShrink:0}}>
-                  <span style={{display:"block", fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:28, letterSpacing:"-.02em", lineHeight:1}}>{p.price}&thinsp;€</span>
-                  <span style={{display:"block", marginTop:2, fontSize:11, opacity:.7, textTransform:"uppercase", letterSpacing:".08em"}}>/ {p.per}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        {step === "code" ? (
+          <form onSubmit={redeem} style={{marginTop:22}}>
+            <FormField label="Code de ta mutuelle" htmlFor="mu-code"
+                       hint="Ta mutuelle te l'a transmis : courrier, email ou espace adhérent.">
+              <input id="mu-code" value={code} onChange={e => { setCode(e.target.value); setErr(""); }}
+                     autoComplete="off" autoCapitalize="characters" spellCheck={false} placeholder="MUTUELLE-2026"
+                     aria-invalid={!!err} aria-describedby={err ? "mu-err" : undefined}
+                     style={{width:"100%", minHeight:52, border:"1px solid var(--line-2)", background:"var(--paper)", borderRadius:14,
+                             padding:"12px 14px", fontSize:18, fontFamily:"var(--sans)", fontWeight:700, letterSpacing:".06em", color:"var(--ink)", textTransform:"uppercase"}}/>
+            </FormField>
+            <div id="mu-err"><window.BUI.FormError msg={err}/></div>
+            <button type="submit" className="btn" style={{marginTop:18, width:"100%"}} disabled={clean.length < 6 || busy}>
+              {busy ? "Vérification…" : "Valider mon code"}
+            </button>
+            <button type="button" className="btn soft" style={{marginTop:10, width:"100%"}} onClick={() => { setStep("none"); setErr(""); }}>
+              Je n'ai pas de code
+            </button>
+          </form>
+        ) : (
+          <div className="card slide-up" style={{marginTop:22, padding:18}}>
+            <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17}}>Commence tout de suite.</p>
+            <p style={{marginTop:8, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.55}}>
+              Tu as <strong style={{color:"var(--ink)"}}>14 jours de découverte</strong>, sans rien payer ni donner de carte bancaire.
+              Pendant ce temps, demande à ta mutuelle si elle propose le carnet vivant : tu pourras ajouter son code plus tard, dans les réglages.
+            </p>
+            <p style={{marginTop:8, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.55}}>Quoi qu'il arrive, tes notes restent à toi.</p>
+            <window.BUI.FormError msg={err}/>
+            <button className="btn" style={{marginTop:16, width:"100%"}} disabled={busy} onClick={discover}>
+              {busy ? "Un instant…" : "Commencer la découverte"}
+            </button>
+          </div>
+        )}
 
-        {/* Features */}
-        <p className="kicker" style={{marginTop:24}}>Ce qui est inclus</p>
+        <p className="kicker" style={{marginTop:26}}>Ce qui est inclus</p>
         <ul style={{listStyle:"none", padding:0, margin:"12px 0 0", display:"grid", gap:8}}>
-          {FEATURES.map((f, i) => (
+          {ACCESS_FEATURES.map((f, i) => (
             <li key={i} style={{display:"flex", gap:12, alignItems:"flex-start"}}>
-              <span aria-hidden="true" style={{
-                width:22, height:22, borderRadius:7, flexShrink:0, marginTop:1,
-                background:"var(--c-gouts)", color:"var(--c-gouts-ink)",
-                display:"flex", alignItems:"center", justifyContent:"center"
-              }}>
+              <span aria-hidden="true" style={{width:22, height:22, borderRadius:7, flexShrink:0, marginTop:1, background:"var(--c-gouts)", color:"var(--c-gouts-ink)", display:"flex", alignItems:"center", justifyContent:"center"}}>
                 <IconCheckAuth size={14} sw={2.5}/>
               </span>
               <span style={{fontSize:14.5, color:"var(--ink)", lineHeight:1.5}}>{f}</span>
             </li>
           ))}
         </ul>
-
-        <button className="btn" style={{marginTop:26, width:"100%"}}
-                onClick={() => onSubscribe(plan)}>
-          S'abonner — {plan === "monthly" ? "20 €/mois" : "180 €/an"}
-        </button>
-
-        <button className="btn soft" style={{marginTop:10, width:"100%"}} onClick={onTrial}>
-          Essayer 14 jours gratuitement
-        </button>
-
         <p className="meta" style={{marginTop:16, textAlign:"center", lineHeight:1.55}}>
-          Annulable à tout moment. Pas de prélèvement avant la fin de l'essai. Les proches-soignants restent gratuits.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Payment step ─── */
-function PaymentScreen({plan, onBack, onPaid}){
-  const [card, setCard] = useSAuth({number:"", exp:"", cvc:"", name:""});
-  const [processing, setProcessing] = useSAuth(false);
-  const total = plan === "monthly" ? "20,00 €" : "180,00 €";
-
-  function pay(){
-    setProcessing(true);
-    setTimeout(() => { setProcessing(false); onPaid(); }, 1200);
-  }
-
-  function fmtCard(v){
-    return v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
-  }
-  function fmtExp(v){
-    const d = v.replace(/\D/g,"").slice(0,4);
-    if(d.length < 3) return d;
-    return d.slice(0,2) + "/" + d.slice(2);
-  }
-
-  const canPay = card.number.replace(/\s/g,"").length >= 13 && card.exp.length >= 4 && card.cvc.length >= 3 && card.name.trim();
-
-  return (
-    <div className="screen fade-enter">
-      <SBAuth/>
-      <div className="topbar">
-        <button className="iconbtn" aria-label="Retour" onClick={onBack}><IconBackAuth size={20}/></button>
-        <BrandLogo size={20}/>
-        <span style={{width:44}}/>
-      </div>
-
-      <div className="scroll" style={{padding:"6px 22px 24px"}}>
-        <p className="kicker" style={{marginTop:8}}>Paiement sécurisé</p>
-        <h1 className="serif" style={{fontSize:28, marginTop:10, letterSpacing:"-.02em"}}>Tu y es presque.</h1>
-
-        {/* Summary */}
-        <div className="card" style={{marginTop:18, padding:16}}>
-          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-            <span style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>Carnet vivant · {plan === "monthly" ? "Mensuel" : "Annuel"}</span>
-            <span style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:20, letterSpacing:"-.01em"}}>{total}</span>
-          </div>
-          <p className="meta" style={{marginTop:6}}>
-            {plan === "monthly" ? "Renouvelé chaque mois — annulable à tout moment." : "Renouvelé chaque année — 2 mois offerts."}
-          </p>
-        </div>
-
-        {/* OAuth-style quick pay */}
-        <div style={{display:"grid", gap:8, marginTop:18}}>
-          <button onClick={onPaid}
-                  className="btn" style={{width:"100%", minHeight:52, background:"#000", color:"#FFF", letterSpacing:".02em", fontWeight:600}}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.3 12.7c0-2.6 2.1-3.8 2.2-3.9-1.2-1.7-3-2-3.7-2-1.6-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3 0 1.8-.8 3.4-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.2-2.5.7-.9 1.2-1.9 1.5-3-3.1-1.2-3.2-4.6-3.2-4.9zM14.8 3.4c.7-.8 1.2-2 1-3.2-1.1.1-2.4.7-3.1 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.4-.6 3.2-1.5z"/></svg>
-            Apple&nbsp;Pay
-          </button>
-          <button onClick={onPaid}
-                  className="btn soft" style={{width:"100%", minHeight:52}}>
-            Google&nbsp;Pay
-          </button>
-        </div>
-
-        {/* divider */}
-        <div style={{display:"flex", alignItems:"center", gap:12, margin:"22px 0 4px"}} aria-hidden="true">
-          <div style={{flex:1, height:1, background:"var(--line-2)"}}/>
-          <span className="kicker">ou par carte</span>
-          <div style={{flex:1, height:1, background:"var(--line-2)"}}/>
-        </div>
-
-        <FormField label="Nom sur la carte" htmlFor="cp-name">
-          <Field id="cp-name" value={card.name} onChange={v => setCard({...card, name:v})} placeholder="Anne Charpentier" autoComplete="cc-name"/>
-        </FormField>
-
-        <FormField label="Numéro de carte" htmlFor="cp-num">
-          <Field id="cp-num" value={card.number} onChange={v => setCard({...card, number:fmtCard(v)})}
-                 placeholder="1234 5678 9012 3456" autoComplete="cc-number"/>
-        </FormField>
-
-        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:10}}>
-          <FormField label="Expiration" htmlFor="cp-exp">
-            <Field id="cp-exp" value={card.exp} onChange={v => setCard({...card, exp:fmtExp(v)})}
-                   placeholder="MM/AA" autoComplete="cc-exp"/>
-          </FormField>
-          <FormField label="CVC" htmlFor="cp-cvc">
-            <Field id="cp-cvc" value={card.cvc} onChange={v => setCard({...card, cvc:v.replace(/\D/g,"").slice(0,4)})}
-                   placeholder="123" autoComplete="cc-csc"/>
-          </FormField>
-        </div>
-
-        <button className="btn" style={{marginTop:22, width:"100%"}}
-                disabled={!canPay || processing} onClick={pay}>
-          {processing ? "Paiement en cours…" : `Payer ${total}`}
-        </button>
-
-        <div style={{marginTop:14, display:"flex", alignItems:"center", gap:8, justifyContent:"center", color:"var(--ink-2)"}}>
-          <IconLockAuth size={14}/>
-          <span style={{fontSize:12.5}}>Paiement chiffré · Stripe · 3D Secure</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Success ─── */
-function SubscriptionSuccess({plan, onDone}){
-  useEAuth(() => {
-    const t = setTimeout(onDone, 2400);
-    return () => clearTimeout(t);
-  }, []);
-  return (
-    <div className="screen fade-enter">
-      <SBAuth/>
-      <div className="scroll" style={{padding:"40px 22px 24px", display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
-        <div style={{position:"relative", width:120, height:120, marginTop:30}}>
-          <span aria-hidden="true" style={{position:"absolute", inset:0, borderRadius:"50%", background:"var(--c-gouts)", animation:"spark 1.4s ease-out"}}/>
-          <span aria-hidden="true" style={{position:"absolute", inset:-12, borderRadius:"50%", border:"1.5px solid var(--accent)", opacity:.3, animation:"pulse 1.4s ease-out"}}/>
-          <span style={{position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", color:"var(--c-gouts-ink)"}}>
-            <IconCheckAuth size={50} sw={2}/>
-          </span>
-        </div>
-        <p className="kicker" style={{marginTop:28}}>Bienvenue à bord</p>
-        <h1 className="serif" style={{marginTop:10, fontSize:30, letterSpacing:"-.02em", lineHeight:1.1}}>
-          Ton abonnement est actif.
-        </h1>
-        <p style={{marginTop:14, fontSize:15.5, color:"var(--ink-2)", lineHeight:1.55, maxWidth:320}}>
-          Tu peux maintenant créer le carnet — on est avec toi.
+          Les proches que tu invites et les relais qui reçoivent une fiche n'ont jamais rien à payer.
         </p>
       </div>
     </div>
@@ -1235,5 +1118,5 @@ function SubscriptionSuccess({plan, onDone}){
 window.Auth = {
   LaunchScreen, SignupScreen, LoginScreen, RecoveryScreen, VerificationScreen,
   OnboardingFlow, RelaisLanding, RelaisLiteSignup, BrandLogo, ChooseProfileScreen,
-  SubscriptionScreen, PaymentScreen, SubscriptionSuccess
+  AccessScreen
 };
