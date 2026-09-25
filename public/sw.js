@@ -1,9 +1,9 @@
 // Service worker de la version web.
 // Stratégie « réseau d'abord » : on sert toujours la version la plus récente quand
 // la connexion marche, et la dernière copie connue sinon.
-// Seuls les fichiers de l'app et les polices sont mis en cache. Les données des
-// carnets (qui viendront d'un autre serveur) ne le seront jamais.
-const CACHE = "carnet-vivant-v1";
+// Seuls les fichiers de l'app sont mis en cache (polices comprises, elles sont intégrées).
+// Les données des carnets, qui viennent d'un autre serveur, ne le sont jamais.
+const CACHE = "carnet-vivant-v2";
 
 self.addEventListener("install", () => self.skipWaiting());
 
@@ -23,8 +23,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   const sameOrigin = url.origin === self.location.origin;
-  const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
-  if (!sameOrigin && !isFont) return;
+  if (!sameOrigin) return;
 
   event.respondWith(
     (async () => {

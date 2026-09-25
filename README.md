@@ -88,8 +88,8 @@ Après les avoir modifiées : `npm run app:icons`.
 - **Micro** : l'autorisation est déjà déclarée (texte affiché à l'utilisateur :
   « Le micro vous permet de dicter une note au lieu de l'écrire. »).
 - **Abonnements** : vendus dans l'app iPhone, Apple prélève une commission (15 % pour une petite entreprise).
-- **Polices** : elles sont chargées depuis Google Fonts. Pour le RGPD, il faudra les héberger
-  nous-mêmes (Google reçoit sinon l'adresse IP de chaque utilisateur).
+- **Polices** : intégrées à l'app (`src/fonts/`) : aucune requête vers Google, elles marchent
+  hors connexion et dans les apps natives.
 
 ## Organisation des fichiers
 

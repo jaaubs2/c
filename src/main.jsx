@@ -11,7 +11,8 @@ import "./device.js";
 import "./backend/backend.js";
 import "./backend/live.js";
 
-// 2) Styles : ceux du prototype, puis les réglages plein écran
+// 2) Polices intégrées, styles du prototype, puis réglages plein écran
+import "./fonts/fonts.css";
 import "./prototype/styles.css";
 import "./device.css";
 
