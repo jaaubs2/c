@@ -168,6 +168,9 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
           </div>
         ); })()}
 
+        {/* Garder le carnet vivant (IA, vrais comptes) */}
+        {!W.demo && <div style={{...pad, paddingTop:14}}><window.BUI.ReviewCard carnetId={W.carnetId} onOpenCat={onOpenCat} onOpenCapture={onOpenCapture}/></div>}
+
         {/* Enrichment prompt */}
         <div style={{...pad, paddingTop:14}}>
           <div className="card" style={{background:"var(--ink)", color:"#fff", padding:20}}>

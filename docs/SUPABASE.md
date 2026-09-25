@@ -25,6 +25,8 @@ Tant que ce n'est pas fait, l'app reste en **mode démo** (données d'exemple).
 2. Ouvre le fichier `supabase/migrations/20260925000000_init.sql` du projet (dans VS Code),
    copie **tout** son contenu, et colle-le dans l'éditeur Supabase.
 3. Clique **Run**. Tu dois voir **Success. No rows returned**.
+4. Fais pareil avec le second fichier, `supabase/migrations/20260926000000_ai.sql`
+   (nouvelle requête, tout coller, **Run**). Il prépare l'IA.
 
 C'est cette étape qui crée les tables, les règles d'accès (chacun ne voit que ce qui le
 concerne) et les fonctions utilisées par l'app.
@@ -111,6 +113,10 @@ Le fichier `.env.local` n'est jamais envoyé sur GitHub (il est ignoré volontai
 3. Crée le carnet d'une personne, ajoute une note, puis *Transmettre* → crée un lien.
 4. Ouvre ce lien dans une fenêtre de navigation privée : la fiche s'affiche, sans compte.
 5. Dans Supabase, **Table Editor** → `notes` : ta note y est.
+
+## 8. Ensuite : activer l'IA
+
+Suis [`IA-MISTRAL.md`](IA-MISTRAL.md) : compte Mistral, clé, et envoi de la fonction IA sur Supabase.
 
 ## Bon à savoir
 

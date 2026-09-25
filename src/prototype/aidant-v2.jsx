@@ -70,8 +70,8 @@ function AidantCarnet({notes, onOpenCat}){
 // Avec un vrai compte : vraie saisie (clavier ou dictée du clavier). En démo : dictée simulée.
 function AidantCapture(props){
   if(!window.Who.demo){
-    return <window.BUI.NoteComposer subject={`Pour ${window.Who.person}`} onClose={props.onClose}
-                                    onSave={({text, catId}) => props.onSave(text, catId)}/>;
+    return <window.BUI.NoteComposer subject={`Pour ${window.Who.person}`} hints={[window.Who.person]} onClose={props.onClose}
+                                    onSave={(n) => props.onSave(n)}/>;
   }
   return <CaptureDemo {...props}/>;
 }

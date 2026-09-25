@@ -847,7 +847,7 @@ function EtabLive({onToast, onLogout}){
     updateMember: (s, next) => run(() => window.Backend.updateMember(s.id, { unitId:next.unit, perm:next.perm }), "Droits mis à jour."),
     decide: (id, status) => run(() => window.Backend.validateNote(id, status === "published"), status === "published" ? "Note publiée. La famille la reçoit." : "Note refusée."),
     createCode: (f) => window.Backend.createStaffCode({ name:f.name.trim(), jobTitle:f.role, unitId:f.unit, perm:f.perm }).then(async r => { await refresh(); return r; }),
-    addNote: (r, {text, catId}) => run(() => window.Backend.addNote(r.id, {text, catId}),
+    addNote: (r, n) => run(() => window.Backend.addNote(r.id, n),
       me.perm === "validate" ? `Envoyée à ${first(ORG.cadreName)} pour validation.` : `Note publiée${r.sharedBy ? `. ${r.sharedBy} la reçoit` : ""}.`),
     createResident: async (f) => {
       const k = await window.Backend.createResident({ name:f.name.trim(), age:f.age, room:f.room.trim(), unitId:f.unit });
@@ -896,7 +896,7 @@ function EtabAppInner({jeanneNotes, onToast, onLogout, initialRole="cadre", live
 
   let screen;
   if(r && cat) screen = <RelaisCategory catId={cat} notes={notesOf(r)} onBack={() => setCat(null)}/>;
-  else if(r && adding && live) screen = <window.BUI.NoteComposer subject={`Pour ${first(r.profile.name)}`} needsVisa={me.perm === "validate"}
+  else if(r && adding && live) screen = <window.BUI.NoteComposer subject={`Pour ${first(r.profile.name)}`} needsVisa={me.perm === "validate"} hints={[first(r.profile.name)]}
         onClose={() => setAdding(false)} onSave={async (n) => { await live.addNote(r, n); setAdding(false); }}/>;
   else if(r && adding) screen = <AddNote resident={r} needsVisa={me.perm === "validate"} onClose={() => setAdding(false)}
         onSave={({text, catId}) => {

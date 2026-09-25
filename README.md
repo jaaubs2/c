@@ -12,7 +12,9 @@ Un seul code, deux portes d'entrée :
 > avec de vraies données : aidant, relais par lien sécurisé, et équipe d'établissement.
 > Il reste à **créer le projet Supabase** et à le relier à l'app : suivre
 > [`docs/SUPABASE.md`](docs/SUPABASE.md) (30 à 45 minutes, sans rien installer).
-> Prochaine étape : la vraie IA (dictée vocale et rangement automatique des notes).
+> **IA (Mistral, serveur européen)** : dictée vocale, rubrique proposée, fiche de transmission
+> rédigée, repérage des infos à vérifier. À activer avec [`docs/IA-MISTRAL.md`](docs/IA-MISTRAL.md)
+> (20 à 30 minutes) ; sans cela, l'app marche sans les fonctions IA.
 
 ## Deux modes
 
@@ -27,6 +29,10 @@ Un seul code, deux portes d'entrée :
 - **Mode démo** (sans configuration, ou avec `?demo` dans l'adresse) : les données d'exemple
   (Jeanne, Anne, la Maison des Tilleuls) et le sélecteur « Proche / Aidant / Équipe »,
   pour présenter les trois espaces.
+
+L'IA passe toujours par le serveur (fonction `supabase/functions/ai`) : la clé Mistral n'est
+jamais dans l'app, seules les personnes connectées l'utilisent (150 appels par jour au maximum),
+et elle ne reçoit que les notes utiles et le prénom. Elle propose, la personne décide : tout reste modifiable.
 
 Tout ce qui touche aux données est vérifié par le serveur (règles d'accès de la base), pas
 seulement masqué à l'écran. Les consentements sont enregistrés et datés ; chacun peut exporter
@@ -99,8 +105,10 @@ Après les avoir modifiées : `npm run app:icons`.
 | `src/prototype/backend-ui.jsx` | Écrans liés aux comptes : chargement, lien expiré, invitation, lien à partager, saisie d'une note |
 | `src/backend/` | Connexion à Supabase (`backend.js`) et « qui est qui » + contenus tirés des vraies notes (`live.js`) |
 | `supabase/migrations/` | La base de données : tables, règles d'accès, fonctions |
+| `supabase/functions/ai/` | Fonction serveur de l'IA (Mistral) : dictée, rangement, fiche, relecture |
 | `supabase/tests/` | Tests de sécurité de la base et scénario complet (pour les développeurs) |
 | `docs/SUPABASE.md` | Guide pas à pas pour créer et relier le projet Supabase |
+| `docs/IA-MISTRAL.md` | Guide pas à pas pour activer l'IA |
 | `src/main.jsx` | Point de départ : assemble les écrans dans l'ordre |
 | `src/device.js`, `src/device.css` | Plein écran sur téléphone, cadre sur ordinateur |
 | `src/pwa.js`, `public/sw.js`, `public/manifest.webmanifest` | Version web installable |

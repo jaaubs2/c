@@ -4,7 +4,7 @@
 (() => {
 const { useState, useEffect, useRef } = React;
 const { StatusBar } = window.UI;
-const { IconBack, IconClose, IconCheck, IconCopy, IconShare, IconLink, IconLock, IconChevron } = window.Icons;
+const { IconBack, IconClose, IconCheck, IconCopy, IconShare, IconLink, IconLock, IconChevron, IconMic } = window.Icons;
 const { CATEGORIES, CAT_BY_ID, classify } = window.AppData;
 
 const Circle = ({Icon, size=44, bg="var(--ink)", color="#fff", isize=20}) => (
@@ -194,17 +194,98 @@ function LinkBox({url, expiresAt, shareText="Le carnet vivant"}){
   );
 }
 
-/* ── Rédiger une note (vraie saisie, dictée par le clavier) ── */
-function NoteComposer({subject, needsVisa, onClose, onSave}){
+/* ── Micro : enregistrement dans le navigateur ou l'app ── */
+const MAX_SECONDS = 180;
+function useRecorder(){
+  const [state, setState] = useState("idle"); // idle | recording
+  const [secs, setSecs] = useState(0);
+  const rec = useRef(null), chunks = useRef([]), stream = useRef(null), timer = useRef(null);
+  const supported = typeof navigator !== "undefined" && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && typeof window.MediaRecorder !== "undefined";
+  function cleanup(){
+    clearInterval(timer.current);
+    if(stream.current) stream.current.getTracks().forEach(t => t.stop());
+    stream.current = null; rec.current = null;
+    const phone = document.querySelector(".phone"); phone && phone.removeAttribute("data-listening");
+    setState("idle");
+  }
+  async function start(){
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.current = s;
+    const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"]
+      .find(t => window.MediaRecorder.isTypeSupported && window.MediaRecorder.isTypeSupported(t));
+    const r = new window.MediaRecorder(s, mime ? { mimeType: mime } : undefined);
+    chunks.current = [];
+    r.ondataavailable = e => { if(e.data && e.data.size) chunks.current.push(e.data); };
+    r.start(1000);
+    rec.current = r; setSecs(0); setState("recording");
+    const phone = document.querySelector(".phone"); phone && phone.setAttribute("data-listening", "1");
+    timer.current = setInterval(() => setSecs(v => v + 1), 1000);
+  }
+  function stop(){
+    return new Promise(resolve => {
+      const r = rec.current;
+      if(!r){ resolve(null); return; }
+      r.onstop = () => { const blob = new Blob(chunks.current, { type: r.mimeType || "audio/webm" }); cleanup(); resolve(blob); };
+      r.stop();
+    });
+  }
+  useEffect(() => () => { try { rec.current && rec.current.stop(); } catch(_e){} cleanup(); }, []);
+  return { supported, state, secs, start, stop };
+}
+const mmss = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
+
+/* ── Rédiger une note : écrire ou dicter ; l'IA propose une rubrique, l'humain décide ── */
+function NoteComposer({subject, needsVisa, hints = [], onClose, onSave}){
   const [text, setText] = useState("");
   const [picked, setPicked] = useState(null);
   const [picking, setPicking] = useState(false);
+  const [inputMode, setInputMode] = useState("text");
+  const [aiSug, setAiSug] = useState(null);       // { category, reason } proposé par l'IA
+  const [transcribing, setTranscribing] = useState(false);
+  const [micError, setMicError] = useState("");
   const a = useAction();
-  const suggested = React.useMemo(() => (classify(text)[0] || {}).cat || null, [text]);
-  const c = picked || suggested || CAT_BY_ID.habitudes;
-  async function save(){
-    try { await a.run(() => onSave({text:text.trim(), catId:c.id})); } catch {}
+  const mic = useRecorder();
+  const ai = window.Backend.ai;
+  const askId = useRef(0);
+
+  // Suggestion instantanée par mots-clés, remplacée par celle de l'IA dès qu'elle arrive.
+  const keyword = React.useMemo(() => (classify(text)[0] || {}).cat || null, [text]);
+  useEffect(() => {
+    const t = text.trim();
+    if(!ai || !ai.available || picked || t.length < 12) return;
+    const id = ++askId.current;
+    const timer = setTimeout(() => {
+      ai.classify(t).then(r => { if(id === askId.current && r && CAT_BY_ID[r.category]) setAiSug(r); }).catch(() => {});
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [text, picked]);
+  useEffect(() => { if(mic.state === "recording" && mic.secs >= MAX_SECONDS) finishRecording(); }, [mic.secs]);
+
+  const c = picked || (aiSug && CAT_BY_ID[aiSug.category]) || keyword || CAT_BY_ID.habitudes;
+  const label = picking ? "Choisis la rubrique" : picked ? "Rubrique choisie · appuie pour changer"
+    : aiSug ? `Proposée par l'IA${aiSug.reason ? " · " + aiSug.reason : ""}` : "Rubrique proposée · appuie pour changer";
+
+  async function startRecording(){
+    setMicError("");
+    try { await mic.start(); }
+    catch(e){ setMicError(e && e.name === "NotAllowedError" ? "Le micro n'est pas autorisé. Autorise-le dans les réglages, ou utilise le micro du clavier." : "Impossible d'utiliser le micro sur cet appareil. Utilise le micro du clavier."); }
   }
+  async function finishRecording(){
+    const blob = await mic.stop();
+    if(!blob || !blob.size) return;
+    setTranscribing(true); setMicError("");
+    try {
+      const said = await ai.transcribe(blob, hints);
+      if(said){ setText(t => (t.trim() ? t.trim() + " " : "") + said); setInputMode("voice"); }
+      else setMicError("Je n'ai rien entendu. Réessaie, un peu plus près du micro.");
+    } catch(e){ setMicError(e.message); }
+    finally { setTranscribing(false); }
+  }
+  async function save(){
+    try { await a.run(() => onSave({ text:text.trim(), catId:c.id, inputMode, aiCategory:aiSug ? aiSug.category : null })); } catch {}
+  }
+  const canDictate = mic.supported && ai && ai.available;
+
   return (
     <div className="screen fade-enter" style={{background:"var(--ink)", color:"#fff"}}>
       <StatusBar/>
@@ -214,23 +295,40 @@ function NoteComposer({subject, needsVisa, onClose, onSave}){
         <span style={{width:44}}/>
       </div>
       <div className="scroll" style={{padding:"8px 22px 28px", display:"flex", flexDirection:"column"}}>
-        <label htmlFor="note-text" className="kicker" style={{color:"rgba(255,255,255,.6)", marginTop:8}}>Ce que tu veux transmettre</label>
-        <textarea id="note-text" value={text} onChange={e => setText(e.target.value)} autoFocus rows={6} maxLength={4000}
+        {canDictate && (
+          <div style={{display:"flex", flexDirection:"column", alignItems:"center", marginTop:6, flexShrink:0}}>
+            {mic.state === "recording" && <div className="wave" aria-hidden="true" style={{marginBottom:10}}>{Array.from({length:10}).map((_,i) => <span key={i} style={{background:"#fff"}}/>)}</div>}
+            <button onClick={mic.state === "recording" ? finishRecording : startRecording} disabled={transcribing}
+                    aria-pressed={mic.state === "recording"}
+                    aria-label={mic.state === "recording" ? "Terminer la dictée" : "Dicter la note"}
+                    style={{width:84, height:84, borderRadius:"50%", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
+                            background: mic.state === "recording" ? "#E5484D" : "var(--accent-2)", color:"#fff",
+                            boxShadow: mic.state === "recording" ? "0 0 0 10px rgba(229,72,77,.25)" : "0 12px 26px -10px rgba(0,0,0,.6)"}}>
+              {mic.state === "recording" ? <span style={{width:26, height:26, borderRadius:6, background:"#fff"}}/> : <IconMic size={34}/>}
+            </button>
+            <p role="status" aria-live="polite" style={{marginTop:10, font:"700 14px var(--sans)", opacity:.8}}>
+              {transcribing ? "Je transcris…" : mic.state === "recording" ? `J'écoute · ${mmss(mic.secs)} · touche pour terminer` : "Touche pour dicter"}
+            </p>
+          </div>
+        )}
+        {micError && <p role="alert" style={{marginTop:10, padding:"10px 12px", borderRadius:12, background:"rgba(229,72,77,.18)", font:"700 13.5px var(--sans)", lineHeight:1.45}}>{micError}</p>}
+        <label htmlFor="note-text" className="kicker" style={{color:"rgba(255,255,255,.6)", marginTop:16}}>Ce que tu veux transmettre</label>
+        <textarea id="note-text" value={text} onChange={e => { setText(e.target.value); if(!e.target.value.trim()) setAiSug(null); }} rows={5} maxLength={4000}
                   placeholder={`Une habitude, ce qui ${window.Who.g("l'apaise", "l'apaise")}, comment lui parler…`}
-                  style={{marginTop:10, background:"transparent", color:"#fff", boxShadow:"none", border:"none", outline:"none", padding:0, font:"700 22px var(--sans)", lineHeight:1.4, letterSpacing:"-.01em", minHeight:170}}/>
-        <p style={{marginTop:8, fontSize:13, fontWeight:600, opacity:.6, lineHeight:1.45}}>Pour dicter, touche le micro de ton clavier.</p>
+                  style={{marginTop:10, flexShrink:0, background:"transparent", color:"#fff", boxShadow:"none", border:"none", outline:"none", padding:0, font:"700 22px var(--sans)", lineHeight:1.4, letterSpacing:"-.01em", minHeight:140}}/>
+        {!canDictate && <p style={{marginTop:8, fontSize:13, fontWeight:600, opacity:.6, lineHeight:1.45}}>Pour dicter, touche le micro de ton clavier.</p>}
         <div style={{flex:1}}/>
-        <button onClick={() => setPicking(v => !v)} aria-expanded={picking} className="card-press" style={{marginTop:18, width:"100%", border:"none", cursor:"pointer", borderRadius:"var(--r-xl)", padding:"16px 18px", background:c.bg, color:c.ink, textAlign:"left", display:"flex", gap:14, alignItems:"center"}}>
+        <button onClick={() => setPicking(v => !v)} aria-expanded={picking} className="card-press" style={{marginTop:18, width:"100%", flexShrink:0, border:"none", cursor:"pointer", borderRadius:"var(--r-xl)", padding:"16px 18px", background:c.bg, color:c.ink, textAlign:"left", display:"flex", gap:14, alignItems:"center"}}>
           <Circle Icon={c.Icon} size={44} isize={20}/>
           <span style={{flex:1, minWidth:0}}>
             <span style={{display:"block", font:"800 17px var(--sans)", letterSpacing:"-.02em"}}>{c.title}</span>
-            <span style={{display:"block", marginTop:2, fontSize:13, fontWeight:600, opacity:.8}}>{picking ? "Choisis la rubrique" : picked ? "Rubrique choisie · appuie pour changer" : "Rubrique proposée · appuie pour changer"}</span>
+            <span style={{display:"block", marginTop:2, fontSize:13, fontWeight:600, opacity:.8}}>{label}</span>
           </span>
           <IconChevron size={18}/>
         </button>
         {picking && <div className="slide-up" style={{display:"flex", flexWrap:"wrap", gap:8, marginTop:10}}>{CATEGORIES.map(x => <button key={x.id} onClick={() => { setPicked(x); setPicking(false); }} className="chip" aria-pressed={x.id === c.id} style={{background:x.bg, color:x.ink, boxShadow:"none", minHeight:44}}><x.Icon size={15} sw={1.8}/> {x.title}</button>)}</div>}
         <FormError msg={a.error}/>
-        <button className="btn" style={{marginTop:12, width:"100%", background:"#fff", color:"var(--ink)"}} disabled={!text.trim() || a.busy} onClick={save}>
+        <button className="btn" style={{marginTop:12, width:"100%", flexShrink:0, background:"#fff", color:"var(--ink)"}} disabled={!text.trim() || a.busy || transcribing || mic.state === "recording"} onClick={save}>
           <IconCheck size={20}/> {a.busy ? "Enregistrement…" : needsVisa ? "Envoyer au cadre" : "Enregistrer"}
         </button>
         {needsVisa !== undefined && <p style={{marginTop:12, textAlign:"center", fontSize:12.5, fontWeight:600, opacity:.55}}>{needsVisa ? "Publiée après validation par le cadre de santé." : "Visible tout de suite par l'équipe et la famille."}</p>}
@@ -239,5 +337,40 @@ function NoteComposer({subject, needsVisa, onClose, onSave}){
   );
 }
 
-window.BUI = { FormError, useAction, BootScreen, FicheStatus, NewPasswordScreen, ProcheInfo, InviteScreen, LinkBox, NoteComposer };
+/* ── Garder le carnet vivant : l'IA relit le carnet et pose quelques questions ── */
+function ReviewCard({carnetId, onOpenCat, onOpenCapture}){
+  const [res, setRes] = useState(null);
+  const a = useAction();
+  const ai = window.Backend.ai;
+  if(!ai || !ai.available || !carnetId) return null;
+  const W = window.Who;
+  async function run(){
+    try { setRes(await a.run(() => ai.review({ carnetId, person:{ name:W.person, pronoun:W.pronoun } }))); } catch {}
+  }
+  return (
+    <div className="card" style={{padding:18, background:"var(--c-histoire)", color:"var(--c-histoire-ink)"}}>
+      <p className="kicker" style={{color:"inherit", opacity:.8}}>Garder le carnet vivant</p>
+      {!res && <p style={{marginTop:8, font:"700 15px var(--sans)", lineHeight:1.45}}>L'IA relit le carnet de {W.person} et te pose quelques questions sur ce qui a pu changer.</p>}
+      {res && res.items.length === 0 && <p style={{marginTop:8, font:"700 15px var(--sans)"}}>Rien à signaler : le carnet est à jour.</p>}
+      {res && res.items.length > 0 && (
+        <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:8}}>
+          {res.items.map((it, i) => { const cat = CAT_BY_ID[it.category]; return (
+            <li key={i} style={{background:"rgba(255,255,255,.6)", borderRadius:14, padding:"12px 14px"}}>
+              <p style={{font:"700 14.5px var(--sans)", lineHeight:1.45, color:"var(--ink)"}}>{it.question}</p>
+              <div style={{display:"flex", gap:8, marginTop:8, flexWrap:"wrap"}}>
+                <button className="chip" style={{minHeight:36}} onClick={() => onOpenCat(it.category)}>{cat ? cat.title : "Voir"}</button>
+                <button className="chip" style={{minHeight:36}} onClick={onOpenCapture}>Répondre</button>
+              </div>
+            </li>
+          ); })}
+        </ul>
+      )}
+      <FormError msg={a.error}/>
+      <button className="btn" style={{marginTop:12, minHeight:46}} disabled={a.busy} onClick={run}>{a.busy ? "Lecture en cours…" : res ? "Relire à nouveau" : "Relire avec l'IA"}</button>
+      <p style={{marginTop:8, fontSize:12, fontWeight:600, opacity:.75}}>Suggestions de l'IA : c'est toi qui décides.</p>
+    </div>
+  );
+}
+
+window.BUI = { FormError, useAction, BootScreen, FicheStatus, NewPasswordScreen, ProcheInfo, InviteScreen, LinkBox, NoteComposer, ReviewCard };
 })();

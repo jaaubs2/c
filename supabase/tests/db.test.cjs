@@ -178,6 +178,23 @@ async function mkUser(name, email) {
   const ef = await rpc(null, 'open_share', { p_token: esh.token });
   ok(ef.notes.length === 1 && ef.notes[0].id === pn.id, 'la fiche transmise par le cadre ne contient que les notes validées');
 
+  console.log('\n■ IA : traçabilité, fiche relue, quota');
+  const vn = await rpc(sophie, 'note_add', { p_carnet: marthe.id, p_category: 'gouts', p_body: 'Adore les madeleines trempées dans le thé.', p_input_mode: 'voice', p_ai_category: 'gouts' });
+  ok(vn.input_mode === 'voice' && vn.ai_category === 'gouts', 'une note dictée garde la trace de la dictée et de la rubrique proposée par l\'IA');
+  await fails(rpc(sophie, 'note_add', { p_carnet: marthe.id, p_category: 'gouts', p_body: 'x', p_input_mode: 'telepathie' }), 'un mode de saisie inconnu');
+  const sum = { essentials: [ { category: 'apaise', text: 'Le chapelet dans la poche gauche la calme.' }, { category: 'sante', text: 'Ne doit pas apparaître.' } ] };
+  const ssh = await rpc(marc, 'create_share', { p_carnet: marthe.id, p_recipient_type: 'pro', p_recipient_name: 'Remplaçante', p_categories: ['apaise'], p_ai_summary: sum });
+  const sf = await rpc(null, 'open_share', { p_token: ssh.token });
+  ok(sf.share.essentials.length === 1 && sf.share.essentials[0].category === 'apaise', 'la fiche ne renvoie que les « choses à savoir » des rubriques partagées');
+  await fails(rpc(marc, 'create_share', { p_carnet: marthe.id, p_recipient_type: 'pro', p_recipient_name: '', p_categories: ['apaise'], p_ai_summary: { essentials: [ { category: 'diagnostic', text: 'x' } ] } }), 'un résumé avec une rubrique inconnue');
+  await fails(rpc(marc, 'create_share', { p_carnet: marthe.id, p_recipient_type: 'pro', p_recipient_name: '', p_categories: ['apaise'], p_ai_summary: { essentials: [ { category: 'apaise', text: 'x'.repeat(301) } ] } }), 'un résumé trop long');
+  let q; for (let i = 0; i < 3; i++) q = await rpc(sophie, 'ai_quota_hit', { p_limit: 3 });
+  ok(q.calls === 3, 'le compteur d\'appels à l\'IA avance');
+  await fails(rpc(sophie, 'ai_quota_hit', { p_limit: 3 }), 'au-delà de la limite du jour, l\'IA est refusée');
+  await fails(rpc(null, 'ai_quota_hit', {}), 'un visiteur sans compte appelle l\'IA');
+  const big = await rpc(mallory, 'ai_quota_hit', { p_limit: 100000 });
+  ok(big.calls === 1, 'la limite demandée est plafonnée côté serveur (pas de quota illimité)');
+
   console.log('\n■ Départ d\'une soignante');
   await rpc(sandra, 'delete_my_account');
   const left = await rpc(marc, 'org_snapshot');

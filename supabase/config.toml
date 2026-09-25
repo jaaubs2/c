@@ -1,0 +1,4 @@
+# Réglages Supabase utilisés au déploiement des fonctions serveur.
+[functions.ai]
+# Seules les personnes connectées peuvent appeler l'IA.
+verify_jwt = true

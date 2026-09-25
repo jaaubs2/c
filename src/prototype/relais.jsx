@@ -199,7 +199,9 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
   const isJeanneRH = window.Who.demo && personFirst === "Jeanne";
   const [switcherOpen, setSwitcherOpen] = useSR(false);
   const carnets = window.Who.demo ? (RELAIS_CARNETS_R || []) : [];
-  const essentials = window.Who.demo ? TOP_THREE : window.Live.topThree(notes);
+  // Avec un vrai lien : les « choses à savoir » relues par l'aidant, sinon tirées des notes.
+  const essentials = window.Who.demo ? TOP_THREE
+    : (payload.essentials && payload.essentials.length ? payload.essentials : window.Live.topThree(notes));
   const hasMultiple = carnets.length > 1;
 
   return (
@@ -306,6 +308,9 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
                   })}
                 </ul>
               </div>
+            )}
+            {!window.Who.demo && payload.recipient && payload.recipient.intro && (
+              <p style={{marginTop:14, fontSize:15.5, fontWeight:600, lineHeight:1.5, color:"var(--ink)"}}>{payload.recipient.intro}</p>
             )}
             <p style={{marginTop:16, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontStyle:"normal", fontSize:15, color:"var(--ink-2)", lineHeight:1.5}}>
               « Le reste, {window.Who.g("elle", "il")} te le dira à sa façon. »

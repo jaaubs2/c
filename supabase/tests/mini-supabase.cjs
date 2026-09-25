@@ -98,6 +98,57 @@ async function handleAuth(req, path, url, body) {
   return authError(404, 'Not found', 'not_found');
 }
 
+// ─── Fonction serveur « ai » : le vrai code (supabase/functions/ai/handler.ts), branché sur un faux Mistral ───
+const path = require('path');
+const { pathToFileURL } = require('url');
+let aiHandler = null;
+const aiCalls = { transcriptions: 0, classement: 0, fiche: 0, revue: 0 };
+const ANON = { key: '' };
+
+function fakeMistral(pathname, raw, headers) {
+  if (pathname.endsWith('/v1/audio/transcriptions')) {
+    aiCalls.transcriptions++;
+    const okForm = (headers['content-type'] || '').startsWith('multipart/form-data') && raw.length > 100
+      && raw.includes('name="model"') && raw.includes('voxtral') && raw.includes('name="language"');
+    if (!okForm) return { status: 400, body: { message: 'formulaire invalide' } };
+    return { status: 200, body: { model: 'voxtral-mini-latest', text: 'Le soir, il aime écouter Brassens avant de dormir.', language: 'fr', usage: {} } };
+  }
+  if (pathname.endsWith('/v1/chat/completions')) {
+    const req = JSON.parse(raw);
+    const kind = req.response_format.json_schema.name;
+    aiCalls[kind]++;
+    const data = JSON.parse(req.messages[1].content);
+    let out;
+    if (kind === 'classement') {
+      const t = data.note.toLowerCase();
+      const category = /brassens|musique|chanson|aime/.test(t) ? 'gouts' : /matin|café/.test(t) ? 'habitudes'
+        : /parler|appeler/.test(t) ? 'parler' : /calme|apaise/.test(t) ? 'apaise' : 'histoire';
+      out = { category, moment: /soir|dormir/.test(t) ? 'soir' : /matin/.test(t) ? 'matin' : 'aucun', reason: 'D\'après les mots de la note.' };
+    } else if (kind === 'fiche') {
+      const name = (req.messages[0].content.match(/s'appelle (\S+)/) || [])[1] || 'la personne';
+      const seen = new Set(), essentials = [];
+      for (const n of data.notes) if (!seen.has(n.category) && essentials.length < 3) { seen.add(n.category); essentials.push({ category: n.category, text: n.text }); }
+      out = { intro: `Voici l'essentiel pour bien accompagner ${name}.`, essentials };
+    } else {
+      const n = data.notes[data.notes.length - 1];
+      out = { items: [{ kind: 'stale', noteId: n.id, category: n.category, question: `« ${n.text.slice(0, 40)} » : est-ce toujours d'actualité ?` }] };
+    }
+    return { status: 200, body: { choices: [{ message: { role: 'assistant', content: JSON.stringify(out) } }] } };
+  }
+  return { status: 404, body: {} };
+}
+
+async function handleFunction(req, url, rawBuf) {
+  if (!aiHandler) aiHandler = await import(pathToFileURL(path.join(__dirname, '../functions/ai/handler.ts')).href);
+  const env = { MISTRAL_API_KEY: 'cle-de-test', MISTRAL_BASE_URL: `http://127.0.0.1:${PORT}/fake-mistral`,
+                SUPABASE_URL: `http://127.0.0.1:${PORT}`, SUPABASE_ANON_KEY: ANON.key };
+  const request = new Request(`http://127.0.0.1:${PORT}${url.pathname}`, {
+    method: req.method, headers: req.headers, body: ['GET', 'HEAD', 'OPTIONS'].includes(req.method) ? undefined : rawBuf });
+  const res = await aiHandler.handle(request, env);
+  const text = await res.text();
+  return { status: res.status, raw: text, headers: Object.fromEntries(res.headers) };
+}
+
 const PG_STATUS = { '42501': 403, '23505': 409, 'P0001': 400, '22023': 400, '23514': 400, '54000': 400 };
 
 async function handleRpc(req, fn, body) {
@@ -125,11 +176,19 @@ http.createServer(async (req, res) => {
                  'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS', 'access-control-expose-headers': '*' };
   if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
   const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
-  let raw = ''; for await (const chunk of req) raw += chunk;
-  let body = {}; try { body = raw ? JSON.parse(raw) : {}; } catch {}
+  const parts = []; for await (const chunk of req) parts.push(chunk);
+  const rawBuf = Buffer.concat(parts), raw = rawBuf.toString('latin1');
+  let body = {}; try { body = raw ? JSON.parse(rawBuf.toString('utf8')) : {}; } catch {}
   let out;
   try {
-    if (url.pathname.startsWith('/auth/v1')) out = await handleAuth(req, url.pathname.slice(8), url, body);
+    if (url.pathname.startsWith('/functions/v1/')) {
+      const r = await handleFunction(req, url, rawBuf);
+      res.writeHead(r.status, { ...r.headers, ...cors });
+      return res.end(r.status === 204 ? undefined : r.raw);
+    }
+    if (url.pathname.startsWith('/fake-mistral/')) out = fakeMistral(url.pathname, url.pathname.endsWith('/chat/completions') ? rawBuf.toString('utf8') : raw, req.headers);
+    else if (url.pathname === '/test/ai-calls') out = { status: 200, body: aiCalls };
+    else if (url.pathname.startsWith('/auth/v1')) out = await handleAuth(req, url.pathname.slice(8), url, body);
     else if (url.pathname.startsWith('/rest/v1/rpc/')) out = await handleRpc(req, url.pathname.slice(13), body);
     else if (url.pathname === '/test/code') out = { status: 200, body: codes.get((url.searchParams.get('email') || '').toLowerCase()) || null };
     else out = { status: 404, body: { message: 'not found' } };
@@ -139,5 +198,6 @@ http.createServer(async (req, res) => {
   res.end(JSON.stringify(out.body));
 }).listen(PORT, '127.0.0.1', async () => {
   console.log(`mini-supabase prêt sur http://127.0.0.1:${PORT}`);
-  console.log('ANON_KEY=' + await sign({ role: 'anon' }, 3600 * 24 * 365));
+  ANON.key = await sign({ role: 'anon' }, 3600 * 24 * 365);
+  console.log('ANON_KEY=' + ANON.key);
 });

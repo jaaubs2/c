@@ -96,7 +96,7 @@ function App(){
       w.set({ demo:false, aidant:window.Live.first(me), aidantFull:me,
               person:window.Live.first(carnet?.person_name), personFull:carnet?.person_name || "",
               pronoun:carnet?.pronoun || "elle",
-              userId:account?.profile?.id, canManage:["owner", "cadre"].includes(carnet?.my_role) });
+              userId:account?.profile?.id, canManage:["owner", "cadre"].includes(carnet?.my_role), carnetId:carnet?.id });
     }
   }
 
@@ -202,7 +202,7 @@ function App(){
     const text = typeof a === "object" ? a.text : a, catId = typeof a === "object" ? a.catId : b;
     const title = CATS_APP.find(c => c.id === catId)?.title || "le carnet";
     if(REAL){
-      const n = await Backend.addNote(carnet.id, {text, catId});
+      const n = await Backend.addNote(carnet.id, {text, catId, inputMode:a.inputMode, aiCategory:a.aiCategory});
       setNotes(prev => [n, ...prev]);
       setAidantTab("home");
       setToast(`Rangé dans « ${title} ».`);
@@ -245,6 +245,9 @@ function App(){
     shares,
     canShare: ["owner", "cadre"].includes(carnet.my_role),
     onCreate: async (opts) => { const r = await Backend.createShare({ carnetId:carnet.id, ...opts }); await refreshShares(); return r; },
+    onDraft: Backend.ai.available
+      ? (opts) => Backend.ai.fiche({ carnetId:carnet.id, ...opts, person:{ name:window.Who.person, pronoun:window.Who.pronoun } })
+      : null,
     onRevoke: (id) => remote(async () => { await Backend.revokeShare(id); await refreshShares(); }, "Lien désactivé. Plus personne ne peut l'ouvrir."),
   } : null;
   const lastShare = shares.find(s => !s.revokedAt && s.expiresAt > Date.now());
@@ -308,6 +311,7 @@ function App(){
       recipient: { id:sh.recipient_type, title:RECIPIENT_TITLES[sh.recipient_type], include:sh.categories,
                    intro: sh.intro || `Voici ce qu'il faut savoir pour passer un bon moment avec ${first}.` },
       included: sh.categories,
+      essentials: (sh.essentials || []).map(e => ({ catId:e.category, title:e.text, body:"" })),
       name: sh.recipient_name || "",
       fromName: guest.from_name,
       createdAt: Date.parse(sh.created_at),

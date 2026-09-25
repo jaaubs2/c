@@ -43,11 +43,13 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
   const [step, setStep] = useStateAS("list");
   const [recipientId, setRecipientId] = useStateAS("proche");
   const [included, setIncluded] = useStateAS(null);
+  const [draft, setDraft] = useStateAS(null); // fiche rédigée avec l'IA, relue par l'aidant
   const recipient = RECIPIENTS_AS.find(r => r.id === recipientId);
 
   function startNew(){
     setRecipientId("proche");
     setIncluded(null);
+    setDraft(null);
     setStep("choose");
   }
   function generate(){
@@ -120,7 +122,7 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
           {(!live || live.canShare) && <p className="label" style={{marginTop:28}}>Modèles</p>}
           {(!live || live.canShare) && <div style={{marginTop:10, display:"grid", gap:10}}>
             {RECIPIENTS_AS.map(r => (
-              <button key={r.id} onClick={() => { setRecipientId(r.id); setIncluded(new Set(r.include)); setStep("preview"); }}
+              <button key={r.id} onClick={() => { setRecipientId(r.id); setIncluded(new Set(r.include)); setDraft(null); setStep("preview"); }}
                       style={{
                         width:"100%", textAlign:"left",
                         background:"var(--paper)", border:"1px solid var(--line)",
@@ -148,7 +150,7 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
       {step === "choose" && (
         <ChooseRecipient
           recipientId={recipientId} setRecipientId={setRecipientId}
-          onNext={generate}
+          onNext={() => { setDraft(null); generate(); }}
         />
       )}
 
@@ -163,6 +165,7 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
             setIncluded(next);
           }}
           onNext={goShare}
+          draft={draft} setDraft={setDraft} onDraft={live ? live.onDraft : null}
         />
       )}
 
@@ -172,6 +175,7 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
           included={Array.from(included)}
           onSend={send}
           onCreate={live ? live.onCreate : null}
+          draft={draft}
         />
       )}
     </div>
@@ -299,7 +303,50 @@ function ChooseRecipient({recipientId, setRecipientId, onNext}){
   );
 }
 
-function PreviewFiche({notes, recipient, included, onToggle, onNext}){
+/* Fiche rédigée avec l'IA : l'aidant relit et modifie avant de créer le lien. */
+function AiDraft({recipient, included, draft, setDraft, onDraft}){
+  const [busy, setBusy] = useStateAS(false);
+  const [err, setErr] = useStateAS("");
+  async function write(){
+    setBusy(true); setErr("");
+    try {
+      const r = await onDraft({ recipientType:recipient.id, categories:Array.from(included) });
+      setDraft({ intro:r.intro || "", essentials:(r.essentials || []).map(e => ({ category:e.category, text:e.text })) });
+    } catch(e){ setErr(e.message); }
+    finally { setBusy(false); }
+  }
+  const up = (i, text) => setDraft({ ...draft, essentials:draft.essentials.map((e, k) => k === i ? {...e, text} : e) });
+  const field = { width:"100%", border:"1px solid var(--line)", borderRadius:14, padding:"10px 12px", font:"600 14.5px/1.45 var(--sans)", color:"var(--ink)", background:"#fff", resize:"vertical" };
+  return (
+    <div className="card" style={{marginTop:12, padding:16, background:"var(--c-parler)", color:"var(--c-parler-ink)"}}>
+      <p className="kicker" style={{color:"inherit", opacity:.85}}>Rédaction avec l'IA</p>
+      {!draft && <p style={{marginTop:8, font:"700 14.5px var(--sans)", lineHeight:1.45}}>L'IA prépare une introduction et les 3 choses à savoir, dans le ton qui convient. Tu relis et modifies tout avant l'envoi.</p>}
+      {draft && (<>
+        <label style={{display:"block", marginTop:10}}><span style={{display:"block", font:"800 12.5px var(--sans)", marginBottom:6}}>Introduction</span>
+          <textarea rows={3} maxLength={300} value={draft.intro} onChange={e => setDraft({...draft, intro:e.target.value})} style={field}/></label>
+        <p style={{font:"800 12.5px var(--sans)", marginTop:12}}>Les choses à savoir</p>
+        <ul style={{listStyle:"none", padding:0, margin:"6px 0 0", display:"grid", gap:8}}>
+          {draft.essentials.map((e, i) => (
+            <li key={i} style={{display:"grid", gap:4}}>
+              <span style={{fontSize:12, fontWeight:700}}>{(CBY_AS[e.category] || {}).title}</span>
+              <div style={{display:"flex", gap:6, alignItems:"flex-start"}}>
+                <textarea rows={2} maxLength={300} value={e.text} onChange={ev => up(i, ev.target.value)} style={field} aria-label={`Chose à savoir ${i + 1}`}/>
+                <button className="iconbtn" aria-label={`Retirer la chose à savoir ${i + 1}`} onClick={() => setDraft({...draft, essentials:draft.essentials.filter((_, k) => k !== i)})} style={{width:40, height:40, minWidth:40}}>×</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p style={{marginTop:10, fontSize:12.5, fontWeight:700, opacity:.85}}>Rédigé avec l'IA : relis, corrige ou retire ce qui ne convient pas.</p>
+      </>)}
+      <window.BUI.FormError msg={err}/>
+      <button className="btn" style={{marginTop:12, minHeight:46}} disabled={busy || included.size === 0} onClick={write}>
+        {busy ? "Rédaction en cours…" : draft ? "Rédiger à nouveau" : "Rédiger avec l'IA"}
+      </button>
+    </div>
+  );
+}
+
+function PreviewFiche({notes, recipient, included, onToggle, onNext, draft, setDraft, onDraft}){
   const byCat = useMemoAS(() => {
     const m = {};
     for(const n of notes) (m[n.catId] = m[n.catId] || []).push(n);
@@ -310,6 +357,7 @@ function PreviewFiche({notes, recipient, included, onToggle, onNext}){
   return (
     <div className="scroll" style={{padding:"6px 22px 24px"}}>
       <p className="label">Étape 2 sur 3 · Aperçu pour {recipient.title.toLowerCase()}</p>
+      {onDraft && <AiDraft recipient={recipient} included={included} draft={draft} setDraft={setDraft} onDraft={onDraft}/>}
 
       <article style={{
         marginTop:12, background:"var(--paper)", border:"1px solid var(--line)",
@@ -317,7 +365,7 @@ function PreviewFiche({notes, recipient, included, onToggle, onNext}){
       }}>
         <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:12, color:"var(--ink-3)", textTransform:"uppercase", letterSpacing:".18em"}}>L'essentiel à savoir</p>
         <h2 className="serif" style={{fontSize:26, marginTop:6}}>{window.Who.person}</h2>
-        <p style={{marginTop:10, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>{recipient.intro}</p>
+        <p style={{marginTop:10, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>{(draft && draft.intro.trim()) || recipient.intro}</p>
 
         {visibleCats.map(c => {
           const list = (byCat[c.id]||[]).sort((a,b) => b.ts - a.ts).slice(0, recipient.id === "etab" ? 5 : 3);
@@ -363,7 +411,7 @@ function PreviewFiche({notes, recipient, included, onToggle, onNext}){
   );
 }
 
-function ShareCompose({recipient, included, onSend, onCreate}){
+function ShareCompose({recipient, included, onSend, onCreate, draft}){
   const real = !!onCreate;
   const [name, setName] = useStateAS(real ? "" : recipient.id === "proche" ? "Claire" : recipient.id === "pro" ? "Sandra (AVS)" : "Maison des Tilleuls");
   const [consent, setConsent] = useStateAS(!real);
@@ -378,7 +426,11 @@ function ShareCompose({recipient, included, onSend, onCreate}){
 
   async function create(){
     setBusy(true); setErr("");
-    try { setCreated(await onCreate({ recipientType:recipient.id, recipientName:name.trim(), categories:included, days, intro:recipient.intro })); }
+    const essentials = draft ? draft.essentials.filter(e => e.text.trim() && included.includes(e.category))
+                                  .map(e => ({ category:e.category, text:e.text.trim().slice(0, 300) })) : [];
+    try { setCreated(await onCreate({ recipientType:recipient.id, recipientName:name.trim(), categories:included, days,
+                                      intro:(draft && draft.intro.trim()) || recipient.intro,
+                                      aiSummary:essentials.length ? { essentials } : null })); }
     catch(e){ setErr(e.message); }
     finally { setBusy(false); }
   }

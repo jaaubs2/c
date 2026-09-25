@@ -12,7 +12,7 @@ const code = async (email) => (await (await fetch(`${API}/test/code?email=${enco
 const errors = [];
 
 async function newPage(browser, who) {
-  const ctx = await browser.newContext({ ...devices['iPhone 14'], acceptDownloads: true });
+  const ctx = await browser.newContext({ ...devices['iPhone 14'], acceptDownloads: true, permissions: ['microphone'] });
   const page = await ctx.newPage();
   page.on('pageerror', e => errors.push(`${who} · ${e.message}`));
   page.setDefaultTimeout(8000);
@@ -43,7 +43,8 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  // Faux micro (son de synthèse) pour tester la dictée.
+  const browser = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
 
   console.log('\n■ Anne crée son compte et le carnet de Paul');
   const anne = await newPage(browser, 'Anne');
@@ -86,10 +87,28 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await see(anne, 'Le carnet de Paul', 'après rechargement, Anne est toujours connectée');
   await see(anne, '3 notes', 'et ses 3 notes sont bien enregistrées sur le serveur');
 
+  console.log('\n■ Anne dicte une note (IA)');
+  await anne.getByRole('button', { name: 'Ajouter une note' }).first().click();
+  await anne.getByRole('button', { name: 'Dicter la note' }).click();
+  await see(anne, "J'écoute", 'le micro enregistre');
+  await anne.waitForTimeout(2500);
+  await anne.getByRole('button', { name: 'Terminer la dictée' }).click();
+  await see(anne, 'Je transcris', 'l\'enregistrement part en transcription');
+  await anne.waitForFunction(() => document.querySelector('#note-text').value.includes('Brassens'), null, { timeout: 10000 }).then(() => ok(true, 'le texte dicté apparaît, modifiable')).catch(() => ok(false, 'le texte dicté apparaît, modifiable'));
+  await see(anne, "Proposée par l'IA", 'la rubrique est proposée par l\'IA, avec sa raison');
+  await shot(anne, '9-dictee.png');
+  await anne.getByRole('button', { name: /Enregistrer/ }).click();
+  await see(anne, 'Rangé dans « Goûts et plaisirs »', 'la note dictée est rangée dans « Goûts et plaisirs »');
+
   console.log('\n■ Anne crée un lien pour Claire');
   await anne.getByText('Transmettre à un relais').click();
   await anne.getByRole('button', { name: /Nouvelle transmission/ }).click();
   await anne.getByRole('button', { name: 'Préparer la fiche' }).click();
+  await anne.getByRole('button', { name: "Rédiger avec l'IA" }).click();
+  await anne.getByLabel('Chose à savoir 1', { exact: true }).waitFor();
+  ok((await anne.locator('textarea').first().inputValue()).includes('Paul'), 'l\'IA rédige une introduction pour Paul');
+  await anne.getByLabel('Chose à savoir 1', { exact: true }).fill("Toujours l'appeler Paul, jamais « Monsieur ».");
+  await shot(anne, '10-fiche-ia.png');
   await anne.getByRole('button', { name: /Créer le lien de partage/ }).click();
   await anne.locator('#to-name').fill('Claire');
   await anne.getByRole('checkbox').click();
@@ -108,6 +127,8 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await claire.getByRole('button', { name: 'Passer' }).click();
   await see(claire, 'Paul', 'Claire voit la fiche de Paul');
   await see(claire, 'Parler lentement', 'avec ce qui a été partagé');
+  await see(claire, "Toujours l'appeler Paul", 'et les « choses à savoir » telles qu\'Anne les a corrigées');
+  await see(claire, "Voici l'essentiel pour bien accompagner Paul.", 'avec l\'introduction rédigée pour elle');
   await absent(claire, 'Appareil auditif', 'mais pas la santé (non incluse pour un proche)');
   await absent(claire, 'Roger', 'et aucun carnet de démonstration');
   await shot(claire, '4-relais-fiche.png');
@@ -122,6 +143,12 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await claire.goto('about:blank'); await claire.goto(shareUrl);
   await see(claire, 'Ce lien a été désactivé.', 'Claire ne peut plus ouvrir la fiche');
 
+  console.log('\n■ Garder le carnet vivant (IA)');
+  await anne.locator('.tabbar').getByRole('button', { name: 'Accueil' }).click();
+  await anne.getByRole('button', { name: "Relire avec l'IA" }).click();
+  await see(anne, "est-ce toujours d'actualité ?", 'l\'IA relit le carnet et pose une question');
+  await shot(anne, '11-carnet-vivant.png');
+
   console.log('\n■ Confidentialité et consentements');
   await anne.locator('.tabbar').getByRole('button', { name: 'Réglages' }).click();
   await anne.getByText('Confidentialité & données').click();
@@ -129,7 +156,9 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await see(anne, 'Conditions et politique de confidentialité', 'les conditions acceptées aussi, avec leur date');
   const [download] = await Promise.all([anne.waitForEvent('download'), anne.getByRole('button', { name: 'Exporter toutes mes données' }).click()]);
   const exported = JSON.parse(require('fs').readFileSync(await download.path(), 'utf8'));
-  ok(exported.carnets[0].notes.length === 3 && exported.consentements.length === 3, 'l\'export contient le carnet, les 3 notes et les consentements');
+  ok(exported.carnets[0].notes.length === 4 && exported.consentements.length === 3, 'l\'export contient le carnet, les 4 notes et les consentements');
+  const dictated = exported.carnets[0].notes.find((n) => n.body.includes('Brassens'));
+  ok(dictated && dictated.input_mode === 'voice' && dictated.ai_category === 'gouts', 'la note dictée est tracée (dictée, rubrique proposée par l\'IA)');
   await shot(anne, '5-aidant-confidentialite.png');
 
   console.log('\n■ Marc crée son établissement');

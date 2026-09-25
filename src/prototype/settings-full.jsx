@@ -1135,7 +1135,9 @@ function LivePrivacyPage({live, onBack, onGo}){
         <LiveRow label="Hébergement" value="Union européenne"/>
         <LiveRow label="Chiffrement" value="Au repos et en transit"/>
         <LiveRow label="Liens partagés" value="Expirent, révocables"/>
+        <LiveRow label="Aide à la rédaction (IA)" value="Mistral AI, France"/>
       </ul>
+      <p className="meta" style={{marginTop:10, lineHeight:1.55}}>L'IA est facultative : elle ne sert que quand tu dictes, ranges une note ou prépares une fiche. Elle ne reçoit que le texte utile et le prénom, jamais le nom de famille, et ne pose aucun diagnostic.</p>
       <p className="kicker" style={{marginTop:22}}>Consentements enregistrés</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
         {consents === null && <li className="meta">Chargement…</li>}

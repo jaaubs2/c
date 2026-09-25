@@ -7,5 +7,7 @@ export PGPASSWORD=postgres
 psql -h 127.0.0.1 -U postgres -q -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = 'carnet' and pid <> pg_backend_pid()" >/dev/null
 psql -h 127.0.0.1 -U postgres -q -c 'drop database if exists carnet' -c 'create database carnet'
 psql -h 127.0.0.1 -U postgres -q -v ON_ERROR_STOP=1 -d carnet -f "$DIR/supabase-stub.sql"
-psql -h 127.0.0.1 -U postgres -q -v ON_ERROR_STOP=1 -d carnet -f "$DIR/../migrations/20260925000000_init.sql"
+for f in "$DIR"/../migrations/*.sql; do
+  psql -h 127.0.0.1 -U postgres -q -v ON_ERROR_STOP=1 -d carnet -f "$f"
+done
 echo "Base « carnet » prête."

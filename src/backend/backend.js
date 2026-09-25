@@ -96,6 +96,22 @@ const mapNote = (n) => ({
   archivedAt: ts(n.archived_at),
 });
 
+// ─── IA (fonction serveur « ai » : la clé Mistral reste sur le serveur) ───
+async function invokeAi(body) {
+  const { data, error } = await sb.functions.invoke("ai", { body });
+  if (!error) return data;
+  let message = "", code = "";
+  try { const j = await error.context.json(); message = j.error || ""; code = j.code || ""; } catch (_e) { /* pas de corps */ }
+  if (code === "not_configured") Backend.ai.available = false;
+  const e = new Error(message || (error.name === "FunctionsFetchError"
+    ? "Pas de connexion au serveur. Vérifie ta connexion internet."
+    : "L'IA n'a pas pu répondre. Réessaie dans un instant."));
+  e.code = code;
+  throw e;
+}
+const audioName = (type = "") =>
+  type.includes("mp4") || type.includes("aac") ? "note.m4a" : type.includes("ogg") ? "note.ogg" : "note.webm";
+
 function download(filename, text) {
   const blob = new Blob([text], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -196,8 +212,11 @@ const Backend = {
   async listNotes(carnetId) {
     return (await call("notes_list", { p_carnet: carnetId })).map(mapNote);
   },
-  async addNote(carnetId, { text, catId }) {
-    return mapNote(await call("note_add", { p_carnet: carnetId, p_category: catId, p_body: text }));
+  async addNote(carnetId, { text, catId, inputMode, aiCategory }) {
+    return mapNote(await call("note_add", {
+      p_carnet: carnetId, p_category: catId, p_body: text,
+      p_input_mode: inputMode === "voice" ? "voice" : "text", p_ai_category: aiCategory || null,
+    }));
   },
   async updateNote(id, { text, catId }) {
     return mapNote(await call("note_update", { p_note: id, p_body: text, p_category: catId || null }));
@@ -214,7 +233,7 @@ const Backend = {
   },
 
   // ── Partage par lien ──
-  async createShare({ carnetId, recipientType, recipientName, categories, days = 7, intro }) {
+  async createShare({ carnetId, recipientType, recipientName, categories, days = 7, intro, aiSummary }) {
     const r = await call("create_share", {
       p_carnet: carnetId,
       p_recipient_type: recipientType,
@@ -222,6 +241,7 @@ const Backend = {
       p_categories: categories,
       p_expires_in_days: days,
       p_intro: intro || null,
+      p_ai_summary: aiSummary && aiSummary.essentials && aiSummary.essentials.length ? aiSummary : null,
     });
     return { id: r.id, url: shareUrl(r.token), expiresAt: ts(r.expires_at) };
   },
@@ -286,6 +306,22 @@ const Backend = {
     call("staff_invite_create", { p_display_name: name, p_job_title: jobTitle, p_unit: unitId || null, p_perm: perm }),
   acceptStaffCode: (code) => call("staff_invite_accept", { p_code: code }),
   updateMember: (userId, { unitId, perm }) => call("member_update", { p_user: userId, p_unit: unitId || null, p_perm: perm }),
+
+  // ── IA ──
+  ai: {
+    available: enabled,
+    /** Transcrit un enregistrement du micro. hints : prénoms à bien reconnaître. */
+    async transcribe(blob, hints = []) {
+      const form = new FormData();
+      form.append("audio", blob, audioName(blob.type));
+      hints.filter(Boolean).forEach((h) => form.append("hint", h));
+      return ((await invokeAi(form)) || {}).text || "";
+    },
+    classify: (text) => invokeAi({ action: "classify", text }),
+    fiche: ({ carnetId, recipientType, categories, person }) =>
+      invokeAi({ action: "fiche", carnetId, recipientType, categories, person }),
+    review: ({ carnetId, person }) => invokeAi({ action: "review", carnetId, person }),
+  },
 
   // ── RGPD ──
   myConsents: () => call("my_consents"),
