@@ -8,35 +8,38 @@ const {
 const { CATEGORIES: CATS_AS, CAT_BY_ID: CBY_AS, softDate: softDate_AS } = window.AppData;
 const { StatusBar: SB_AS } = window.UI;
 
-const RECIPIENTS_AS = [
+const RECIPIENTS_BASE = [
   {
     id:"proche", title:"Un proche",
     blurb:"Famille, ami qui prend le relais ce week-end.",
     tone:"chaleureux, tutoiement",
     include:["histoire","habitudes","apaise","parler","gouts","proches"],
-    intro:"Voici ce qu'il faut savoir pour passer un bon moment avec Jeanne."
+    intro:(W) => `Voici ce qu'il faut savoir pour passer un bon moment avec ${W.person}.`
   },
   {
     id:"pro", title:"Un professionnel",
     blurb:"Auxiliaire de vie, aide à domicile, infirmière.",
     tone:"clair, vouvoiement, précis",
     include:["habitudes","apaise","parler","sante","gouts"],
-    intro:"L'essentiel pour bien accompagner Jeanne au quotidien."
+    intro:(W) => `L'essentiel pour bien accompagner ${W.person} au quotidien.`
   },
   {
     id:"etab", title:"Un établissement",
     blurb:"Accueil court ou long séjour, à remettre à l'équipe.",
     tone:"institutionnel, structuré",
     include:["histoire","habitudes","apaise","parler","gouts","sante","proches"],
-    intro:"Fiche de connaissance — Madame Jeanne C., remise à l'équipe d'accueil."
+    intro:(W) => W.demo ? "Fiche de connaissance — Madame Jeanne C., remise à l'équipe d'accueil."
+                        : `Fiche de connaissance — ${W.g("Madame", "Monsieur")} ${W.personFull || W.person}, remise à l'équipe d'accueil.`
   }
 ];
+const recipientsAS = () => RECIPIENTS_BASE.map(r => ({...r, intro: r.intro(window.Who)}));
 
 /* ─────────────────────────────────────────────────────────────
    Transmettre — tab landing → flow
    ───────────────────────────────────────────────────────────── */
-function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClose}){
+function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClose, live}){
   // sub-step: list | choose | preview | share
+  const RECIPIENTS_AS = recipientsAS();
   const [step, setStep] = useStateAS("list");
   const [recipientId, setRecipientId] = useStateAS("proche");
   const [included, setIncluded] = useStateAS(null);
@@ -56,7 +59,7 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
     setStep("share");
   }
   function send({name}){
-    setSharePayload({
+    if(!live) setSharePayload({
       recipient, included:Array.from(included), name, fromName:"Anne",
       token:"4f7c-2a9e", createdAt:Date.now()
     });
@@ -83,7 +86,13 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
             Une fiche claire et chaleureuse, adaptée à qui prend le relais.
           </p>
 
-          <button onClick={startNew}
+          {live && !live.canShare && (
+            <div className="card" style={{marginTop:20, padding:16}}>
+              <p style={{font:"800 15px var(--sans)"}}>Seule la personne qui tient le carnet crée les liens.</p>
+              <p className="meta" style={{marginTop:6, lineHeight:1.5}}>Demande-lui de transmettre la fiche au relais.</p>
+            </div>
+          )}
+          {(!live || live.canShare) && <button onClick={startNew}
                   style={{
                     marginTop:20, width:"100%", textAlign:"left",
                     background:"var(--ink)", color:"var(--paper)", border:"none",
@@ -97,15 +106,19 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
               <span style={{display:"block", fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:20}}>Nouvelle transmission</span>
               <span style={{display:"block", marginTop:4, fontSize:13.5, opacity:.75}}>Choisir le destinataire, ajuster ce qui est visible, envoyer.</span>
             </span>
-          </button>
+          </button>}
 
+          {(!live || live.canShare) && <>
           <p className="label" style={{marginTop:28}}>Fiches en cours</p>
           <div style={{marginTop:10, display:"grid", gap:10}}>
-            <ShareCard payload={sharePayload}/>
+            {!live && <ShareCard payload={sharePayload}/>}
+            {live && live.shares.length === 0 && <div className="card" style={{padding:16}}><p className="meta">Aucune fiche partagée pour l'instant.</p></div>}
+            {live && live.shares.map(sh => <LiveShareCard key={sh.id} share={sh} onRevoke={live.onRevoke}/>)}
           </div>
+          </>}
 
-          <p className="label" style={{marginTop:28}}>Modèles</p>
-          <div style={{marginTop:10, display:"grid", gap:10}}>
+          {(!live || live.canShare) && <p className="label" style={{marginTop:28}}>Modèles</p>}
+          {(!live || live.canShare) && <div style={{marginTop:10, display:"grid", gap:10}}>
             {RECIPIENTS_AS.map(r => (
               <button key={r.id} onClick={() => { setRecipientId(r.id); setIncluded(new Set(r.include)); setStep("preview"); }}
                       style={{
@@ -128,7 +141,7 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
                 <IconChevronAS size={18} sw={1.7}/>
               </button>
             ))}
-          </div>
+          </div>}
         </div>
       )}
 
@@ -158,6 +171,7 @@ function AidantTransmettre({notes, sharePayload, setSharePayload, onSent, onClos
           recipient={recipient}
           included={Array.from(included)}
           onSend={send}
+          onCreate={live ? live.onCreate : null}
         />
       )}
     </div>
@@ -192,7 +206,46 @@ function ShareCard({payload}){
   );
 }
 
+function LiveShareCard({share:s, onRevoke}){
+  const [confirm, setConfirm] = useStateAS(false);
+  const now = Date.now();
+  const state = s.revokedAt ? "revoked" : s.expiresAt <= now ? "expired" : "active";
+  const days = Math.max(1, Math.ceil((s.expiresAt - now) / 86400000));
+  const cat = CBY_AS[s.included[0]] || CBY_AS.habitudes;
+  const who = { proche:"un proche", pro:"un professionnel", etab:"un établissement" }[s.recipientType];
+  const chip = {minHeight:32, padding:"4px 12px", fontSize:12, background:"var(--paper)"};
+  return (
+    <div className="card" style={{display:"flex", gap:12, alignItems:"flex-start", opacity: state === "active" ? 1 : .7}}>
+      <span style={{width:42, height:42, borderRadius:13, flexShrink:0, background:cat.bg, color:cat.ink, display:"flex", alignItems:"center", justifyContent:"center"}} aria-hidden="true">
+        <IconShareAS size={18} sw={1.7}/>
+      </span>
+      <div style={{flex:1, minWidth:0}}>
+        <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16, color:"var(--ink)"}}>Pour {s.name || who}</p>
+        <p className="meta" style={{marginTop:4}}>{who} · {s.included.length} rubrique{s.included.length > 1 ? "s" : ""} · créée {softDate_AS(s.createdAt)}</p>
+        <div style={{display:"flex", gap:8, marginTop:10, flexWrap:"wrap"}}>
+          <span className="chip" style={chip}>{state === "active" ? `Valable encore ${days} jour${days > 1 ? "s" : ""}` : state === "expired" ? "Expirée" : "Désactivée"}</span>
+          <span className="chip" style={chip}>
+            {s.openCount > 0 && <span style={{width:6, height:6, borderRadius:"50%", background:"#3F7A57", display:"inline-block"}}/>}
+            {s.openCount > 0 ? `Ouverte ${s.openCount} fois` : "Pas encore ouverte"}
+          </span>
+        </div>
+        {state === "active" && (
+          <div style={{display:"flex", gap:8, marginTop:10, flexWrap:"wrap"}}>
+            {!confirm
+              ? <button className="chip" style={{...chip, color:"#8C1D18"}} onClick={() => setConfirm(true)}>Désactiver le lien</button>
+              : <>
+                  <button className="chip" style={{...chip, background:"#8C1D18", color:"#fff"}} onClick={() => onRevoke(s.id)}>Oui, désactiver</button>
+                  <button className="chip" style={chip} onClick={() => setConfirm(false)}>Annuler</button>
+                </>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ChooseRecipient({recipientId, setRecipientId, onNext}){
+  const RECIPIENTS_AS = recipientsAS();
   const recipient = RECIPIENTS_AS.find(r => r.id === recipientId);
   return (
     <div className="scroll" style={{padding:"6px 22px 24px"}}>
@@ -263,7 +316,7 @@ function PreviewFiche({notes, recipient, included, onToggle, onNext}){
         borderRadius:24, padding:"22px 18px"
       }}>
         <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:12, color:"var(--ink-3)", textTransform:"uppercase", letterSpacing:".18em"}}>L'essentiel à savoir</p>
-        <h2 className="serif" style={{fontSize:26, marginTop:6}}>Jeanne</h2>
+        <h2 className="serif" style={{fontSize:26, marginTop:6}}>{window.Who.person}</h2>
         <p style={{marginTop:10, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>{recipient.intro}</p>
 
         {visibleCats.map(c => {
@@ -310,12 +363,39 @@ function PreviewFiche({notes, recipient, included, onToggle, onNext}){
   );
 }
 
-function ShareCompose({recipient, included, onSend}){
-  const [name, setName] = useStateAS(recipient.id === "proche" ? "Claire" : recipient.id === "pro" ? "Sandra (AVS)" : "Maison des Tilleuls");
-  const [consent, setConsent] = useStateAS(true);
+function ShareCompose({recipient, included, onSend, onCreate}){
+  const real = !!onCreate;
+  const [name, setName] = useStateAS(real ? "" : recipient.id === "proche" ? "Claire" : recipient.id === "pro" ? "Sandra (AVS)" : "Maison des Tilleuls");
+  const [consent, setConsent] = useStateAS(!real);
   const [copied, setCopied] = useStateAS(false);
+  const [days, setDays] = useStateAS(7);
+  const [created, setCreated] = useStateAS(null);
+  const [busy, setBusy] = useStateAS(false);
+  const [err, setErr] = useStateAS("");
   const link = "carnet.vivant/j/4f7c-2a9e";
   const includedSet = new Set(included);
+  const W = window.Who;
+
+  async function create(){
+    setBusy(true); setErr("");
+    try { setCreated(await onCreate({ recipientType:recipient.id, recipientName:name.trim(), categories:included, days, intro:recipient.intro })); }
+    catch(e){ setErr(e.message); }
+    finally { setBusy(false); }
+  }
+
+  if(created) return (
+    <div className="scroll" key="share-created" style={{padding:"6px 22px 24px"}}>
+      <p className="label">C'est prêt</p>
+      <h1 className="serif" style={{marginTop:6, fontSize:28}}>Le lien {name.trim() ? `pour ${name.trim().split(" ")[0]}` : ""} est prêt</h1>
+      <p style={{marginTop:10, fontSize:15.5, color:"var(--ink-2)", lineHeight:1.5}}>
+        Envoie-le par SMS, email ou message. Il ne montre que <strong style={{color:"var(--ink)"}}>{included.length} rubrique{included.length > 1 ? "s" : ""}</strong>, et tu peux le désactiver à tout moment depuis « Transmettre ».
+      </p>
+      <div style={{marginTop:20}}>
+        <window.BUI.LinkBox url={created.url} expiresAt={created.expiresAt} shareText={`${W.aidant ? W.aidant + " te partage" : "Voici"} la fiche de ${W.person}`}/>
+      </div>
+      <button className="btn primary" style={{marginTop:24, width:"100%"}} onClick={() => onSend({name})}><IconCheckAS size={20}/> Terminé</button>
+    </div>
+  );
 
   function copy(){
     try{ navigator.clipboard.writeText(link); }catch{}
@@ -333,10 +413,21 @@ function ShareCompose({recipient, included, onSend}){
 
       <div style={{marginTop:22}}>
         <label htmlFor="to-name" className="label">Pour</label>
-        <input id="to-name" type="text" value={name} onChange={e => setName(e.target.value)} style={{marginTop:8}} aria-label="Nom du destinataire"/>
+        <input id="to-name" type="text" value={name} onChange={e => setName(e.target.value)} style={{marginTop:8}} aria-label="Nom du destinataire"
+               placeholder={recipient.id === "etab" ? "Nom de l'établissement" : "Son prénom"}/>
       </div>
 
-      <div style={{marginTop:22, background:"var(--paper)", border:"1px solid var(--line)", borderRadius:22, padding:"16px 18px"}}>
+      {real && (
+        <div style={{marginTop:22}}>
+          <p className="label">Durée du lien</p>
+          <div role="radiogroup" aria-label="Durée du lien" style={{display:"flex", gap:8, marginTop:8}}>
+            {[3, 7, 30].map(d => <button key={d} role="radio" aria-checked={days === d} aria-pressed={days === d} className="chip" onClick={() => setDays(d)}>{d} jours</button>)}
+          </div>
+          <p className="meta" style={{marginTop:8}}>Passé ce délai, la fiche ne s'ouvre plus.</p>
+        </div>
+      )}
+
+      {!real && <div style={{marginTop:22, background:"var(--paper)", border:"1px solid var(--line)", borderRadius:22, padding:"16px 18px"}}>
         <div style={{display:"flex", alignItems:"center", gap:10}}>
           <span style={{width:32, height:32, borderRadius:11, background:"var(--c-proches)", color:"var(--c-proches-ink)", display:"flex", alignItems:"center", justifyContent:"center"}} aria-hidden="true">
             <IconLinkAS size={16}/>
@@ -360,7 +451,7 @@ function ShareCompose({recipient, included, onSend}){
             Imprimer (PDF)
           </button>
         </div>
-      </div>
+      </div>}
 
       <p className="label" style={{marginTop:24}}>Visibilité</p>
       <p style={{marginTop:4, fontSize:13, color:"var(--ink-3)"}}>
@@ -403,15 +494,24 @@ function ShareCompose({recipient, included, onSend}){
           {consent && <IconCheckAS size={12} sw={2.5}/>}
         </span>
         <span style={{fontSize:13.5, color:"var(--ink-2)", lineHeight:1.5}}>
-          Je confirme avoir l'accord de Jeanne (ou de ses représentants) pour transmettre ces informations. Je peux révoquer ce lien à tout moment.
+          Je confirme avoir l'accord de {W.person} (ou de ses représentants) pour transmettre ces informations. Je peux révoquer ce lien à tout moment.
         </span>
       </button>
 
-      <button className="btn primary" style={{marginTop:20, width:"100%"}}
-              disabled={!consent || includedSet.size === 0}
-              onClick={() => onSend({name})}>
-        <IconShareAS size={20}/> Envoyer à {name.split(" ")[0]}
-      </button>
+      <window.BUI.FormError msg={err}/>
+      {real ? (
+        <button className="btn primary" style={{marginTop:20, width:"100%"}}
+                disabled={!consent || includedSet.size === 0 || busy}
+                onClick={create}>
+          <IconLinkAS size={20}/> {busy ? "Création du lien…" : "Créer le lien sécurisé"}
+        </button>
+      ) : (
+        <button className="btn primary" style={{marginTop:20, width:"100%"}}
+                disabled={!consent || includedSet.size === 0}
+                onClick={() => onSend({name})}>
+          <IconShareAS size={20}/> Envoyer à {name.split(" ")[0]}
+        </button>
+      )}
     </div>
   );
 }

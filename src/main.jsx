@@ -7,6 +7,10 @@
 import "./setup-globals.js";
 import "./device.js";
 
+// 1 bis) Connexion au serveur et « qui est qui » (mode démo si non configuré)
+import "./backend/backend.js";
+import "./backend/live.js";
+
 // 2) Styles : ceux du prototype, puis les réglages plein écran
 import "./prototype/styles.css";
 import "./device.css";
@@ -17,6 +21,7 @@ import "./prototype/icons.jsx";
 import "./prototype/persona.jsx";
 import "./prototype/data.jsx";
 import "./prototype/ui.jsx";
+import "./prototype/backend-ui.jsx";
 import "./prototype/tabbar-v2.jsx";
 import "./prototype/aidant.jsx";
 import "./prototype/aidant-home-v2.jsx";

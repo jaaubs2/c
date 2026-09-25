@@ -15,20 +15,20 @@ const { StatusBar: SBR, SearchBar: SearchBarR, Avatar: AvatarR, momentNow } = wi
    ───────────────────────────────────────────────────────────── */
 function RelaisWelcome({payload, onEnter}){
   const [step, setStep] = useSR(0);
-  const name = (payload?.name || "Claire").split(" ")[0];
+  const name = ((payload?.name ?? "Claire") || "").split(" ")[0];
   const from = payload?.fromName || "Anne";
   const personName = payload?.profile?.name || "Jeanne";
   const personFirst = personName.split(" ")[0];
-  const personRelation = payload?.profile?.relation || "sa mère";
-  const isJeanneRW = personFirst === "Jeanne";
+  const personRelation = payload?.profile?.relation ?? "sa mère";
+  const isJeanneRW = window.Who.demo && personFirst === "Jeanne";
   const relationShort = personRelation.replace(/\s*\(.*\)\s*/, "").trim().replace(/^ma\s/i, "sa ").replace(/^mon\s/i, "son ");
   const Sparks = () => <g fill="none" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round"><path d="M196 30v18M187 39h18"/><path d="M336 176v12M330 182h12"/><path d="M52 236v12M46 242h12"/></g>;
   const Medallion = ({children, bg}) => (
     <div style={{position:"absolute", left:"50%", top:"50%", transform:"translate(-50%,-50%)", width:128, height:128, borderRadius:"50%", background:bg, border:"6px solid var(--bg)", overflow:"hidden", display:"flex", alignItems:"flex-end", justifyContent:"center", boxShadow:"0 18px 40px -16px rgba(0,0,0,.35)"}}>{children}</div>
   );
   const slides = [
-    { kicker:"Un carnet partagé", title:`Bonjour ${name}.`,
-      lede:`${from} te partage le carnet de ${personName}, ${relationShort}, pour t'aider à passer un beau moment avec ${isJeanneRW ? "elle" : "lui"}.`,
+    { kicker:"Un carnet partagé", title: name ? `Bonjour ${name}.` : "Bonjour.",
+      lede:`${from} te partage le carnet de ${personName}${relationShort ? ", " + relationShort : ""}, pour t'aider à passer un beau moment avec ${window.Who.demo ? (isJeanneRW ? "elle" : "lui") : window.Who.g("elle", "lui")}.`,
       art: (<>
         <svg viewBox="0 0 380 300" width="100%" aria-hidden="true" style={{display:"block"}}>
           <path d="M40 120c10-50 70-80 120-60 40 16 46 60 30 96-14 34-48 54-88 50-44-4-70-42-62-86z" fill="var(--c-habitudes)"/>
@@ -37,7 +37,7 @@ function RelaisWelcome({payload, onEnter}){
           <circle cx="292" cy="94" r="24" fill="#fff" fillOpacity=".92"/><Sparks/>
         </svg>
         <Medallion bg={isJeanneRW ? "var(--c-habitudes)" : "var(--c-parler)"}>
-          {isJeanneRW ? <JIR size={120}/> : <window.Persona name={personName} size={120} bg="transparent"/>}
+          {isJeanneRW ? <JIR size={120}/> : <window.Persona name={personName} size={120} bg="transparent" style={!window.Who.demo && window.Who.pronoun === "il" ? "short" : undefined}/>}
         </Medallion>
       </>) },
     { kicker:"Ce que c'est", title:"Pas un dossier.\nUn carnet humain.",
@@ -196,9 +196,10 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
   const personName = payload.profile?.name || "Jeanne";
   const personFirst = personName.split(" ")[0];
   const personAge = payload.profile?.age || 86;
-  const isJeanneRH = personFirst === "Jeanne";
+  const isJeanneRH = window.Who.demo && personFirst === "Jeanne";
   const [switcherOpen, setSwitcherOpen] = useSR(false);
-  const carnets = RELAIS_CARNETS_R || [];
+  const carnets = window.Who.demo ? (RELAIS_CARNETS_R || []) : [];
+  const essentials = window.Who.demo ? TOP_THREE : window.Live.topThree(notes);
   const hasMultiple = carnets.length > 1;
 
   return (
@@ -206,10 +207,10 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
       <SBR/>
       <div className="topbar">
         <div style={{display:"flex", alignItems:"center", gap:10}}>
-          <AvatarR name="Claire" size={40} tone="sage"/>
+          <AvatarR name={payload.name || "Toi"} size={40} tone="sage"/>
           <div>
             <p style={{fontSize:13, color:"var(--ink-3)", lineHeight:1.2}}>Bonjour</p>
-            <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>{payload.name.split(" ")[0]}</p>
+            <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>{(payload.name || "").split(" ")[0] || "et bienvenue"}</p>
           </div>
         </div>
         <button className="iconbtn" aria-label="Confidentialité"><IconLockR size={18}/></button>
@@ -232,7 +233,7 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
               <div style={{width:74, height:74, borderRadius:20, background: isJeanneRH ? "var(--c-habitudes)" : "var(--c-parler)", overflow:"hidden", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}>
                 {isJeanneRH
                   ? <JIR size={74}/>
-                  : <window.Persona name={personName} size={74} bg="transparent"/>
+                  : <window.Persona name={personName} size={74} bg="transparent" style={!window.Who.demo && window.Who.pronoun === "il" ? "short" : undefined}/>
                 }
               </div>
               <div style={{flex:1, minWidth:0}}>
@@ -307,7 +308,7 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
               </div>
             )}
             <p style={{marginTop:16, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontStyle:"normal", fontSize:15, color:"var(--ink-2)", lineHeight:1.5}}>
-              « Le reste, elle te le dira à sa façon. »
+              « Le reste, {window.Who.g("elle", "il")} te le dira à sa façon. »
             </p>
           </div>
         </div>
@@ -322,7 +323,8 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
             </span>
           </div>
           <ul style={{listStyle:"none", padding:0, margin:"12px 0 0", display:"grid", gap:10}}>
-            {TOP_THREE.map((t, i) => {
+            {essentials.length === 0 && <li className="card" style={{padding:16}}><p className="meta">Aucun repère partagé pour l'instant.</p></li>}
+            {essentials.map((t, i) => {
               const cat = CBR[t.catId];
               return (
                 <li key={i}>
@@ -553,10 +555,11 @@ function RelaisCategory({catId, notes, onBack}){
 /* ─────────────────────────────────────────────────────────────
    3. Relais Aujourd'hui — contextual tips
    ───────────────────────────────────────────────────────────── */
-function RelaisToday({onOpenCat}){
+function RelaisToday({onOpenCat, notes}){
   const [moment, setMoment] = useSR(momentNow());
-  const block = TIPS_BY_MOMENT.find(b => b.id === moment) || TIPS_BY_MOMENT[0];
-  const idx = TIPS_BY_MOMENT.findIndex(b => b.id === moment);
+  const TIPS = window.Who.demo ? TIPS_BY_MOMENT : window.Live.tipsByMoment(notes);
+  const block = TIPS.find(b => b.id === moment) || TIPS[0];
+  const idx = TIPS.findIndex(b => b.id === moment);
 
   // Time-of-day gradient
   const momentGradient = {
@@ -580,7 +583,7 @@ function RelaisToday({onOpenCat}){
       <div className="scroll" style={{padding:"6px 18px 24px"}}>
         {/* Time-of-day moment selector — horizontal pills */}
         <div className="seg" role="tablist" aria-label="Moment de la journée" style={{margin:"6px 0 18px"}}>
-          {TIPS_BY_MOMENT.map((b) => {
+          {TIPS.map((b) => {
             const on = moment === b.id;
             const labels = {matin:"Matin", midi:"Midi", aprem:"Aprem", soir:"Soir"};
             return <button key={b.id} role="tab" className={on ? "on" : ""} aria-selected={on} onClick={() => setMoment(b.id)} style={{whiteSpace:"nowrap", padding:"0 6px"}}>{labels[b.id]}</button>;
@@ -588,7 +591,8 @@ function RelaisToday({onOpenCat}){
         </div>
 
         {/* Big moment hero */}
-        {(() => { const c0 = CBR[block.items[0].catId]; const I0 = c0.Icon; return (
+        {block.items.length === 0 && <div className="card" style={{padding:"22px 20px", textAlign:"center"}}><p style={{font:"800 16px var(--sans)"}}>Rien de particulier noté pour ce moment.</p><p className="meta" style={{marginTop:6}}>Regarde les rubriques de l'accueil pour l'essentiel.</p></div>}
+        {block.items.length > 0 && (() => { const c0 = CBR[block.items[0].catId]; const I0 = c0.Icon; return (
         <button onClick={() => onOpenCat(block.items[0].catId)} className="card-press" style={{width:"100%", textAlign:"left", border:"none", cursor:"pointer", borderRadius:"var(--r-xl)", padding:"22px 20px", background:c0.bg, color:c0.ink}}>
           <span style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
             <span style={{width:44, height:44, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center"}} aria-hidden="true"><I0 size={20} sw={1.8}/></span>
@@ -599,7 +603,7 @@ function RelaisToday({onOpenCat}){
         </button>); })()}
 
         {/* Timeline of other tips for this moment */}
-        <p className="kicker" style={{marginTop:24}}>Aussi à garder en tête</p>
+        {block.items.length > 1 && <p className="kicker" style={{marginTop:24}}>Aussi à garder en tête</p>}
         <ul style={{listStyle:"none", padding:0, margin:"12px 0 0"}}>
           {block.items.slice(1).map((item, i) => {
             const cat = CBR[item.catId];

@@ -67,7 +67,15 @@ function AidantCarnet({notes, onOpenCat}){
 }
 
 /* ── CAPTURE — un geste : parler, c'est enregistré ─────────── */
-function AidantCapture({onClose, onSave}){
+// Avec un vrai compte : vraie saisie (clavier ou dictée du clavier). En démo : dictée simulée.
+function AidantCapture(props){
+  if(!window.Who.demo){
+    return <window.BUI.NoteComposer subject={`Pour ${window.Who.person}`} onClose={props.onClose}
+                                    onSave={({text, catId}) => props.onSave(text, catId)}/>;
+  }
+  return <CaptureDemo {...props}/>;
+}
+function CaptureDemo({onClose, onSave}){
   const [text, setText] = useState("");
   const [cat, setCat] = useState(null);
   const [done, setDone] = useState(false);
@@ -164,7 +172,7 @@ function AidantCategory({catId, notes, onBack, onOpenCapture, onEdit, onDelete, 
         {stale.length > 0 && (
           <div className="card" style={{marginTop:12, padding:14, display:"flex", gap:12, alignItems:"center", background:"var(--c-histoire)", color:"var(--c-histoire-ink)"}}>
             <Circle Icon={IconSparkle} size={36} isize={16}/>
-            <p style={{fontSize:13.5, fontWeight:700, lineHeight:1.45}}>{stale.length} note{stale.length>1?"s ont":" a"} plus de trois mois. Jeanne change, le carnet aussi. Toujours d'actualité&nbsp;?</p>
+            <p style={{fontSize:13.5, fontWeight:700, lineHeight:1.45}}>{stale.length} note{stale.length>1?"s ont":" a"} plus de trois mois. {window.Who.person} change, le carnet aussi. Toujours d'actualité&nbsp;?</p>
           </div>
         )}
         <ul style={{listStyle:"none", padding:0, margin:"16px 0 0", display:"grid", gap:10}}>

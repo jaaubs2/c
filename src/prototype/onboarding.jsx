@@ -26,7 +26,7 @@ function RolePicker({onBack, onPick}){
     { id:"aidant", t:"Un·e aidant·e", b:"Tu accompagnes un proche. Tu crées et tiens son carnet.", bg:"var(--c-parler)", ink:"var(--c-parler-ink)", who:"Anne C" },
     { id:"proche", t:"Un proche invité", b:"Quelqu'un t'a envoyé un lien. Pas de compte à créer.", bg:"var(--c-sante)", ink:"var(--c-sante-ink)", who:"Claire Martin" },
     { id:"etab", t:"Un établissement ou un service", b:"EHPAD, SSIAD, accueil de jour. Tu ouvres un carnet par résident, ton équipe le tient.", bg:"var(--c-habitudes)", ink:"var(--c-habitudes-ink)", who:"Marc Aubry" },
-    { id:"soignant", t:"Un·e soignant·e", b:"Ton cadre t'a donné un code. Entre-le, c'est tout.", bg:"var(--c-histoire)", ink:"var(--c-histoire-ink)", who:"Sandra Meyer" },
+    { id:"soignant", t:"Un·e soignant·e", b:window.Who.demo ? "Ton cadre t'a donné un code. Entre-le, c'est tout." : "Ton cadre t'a donné un code. Crée ton compte, puis entre-le.", bg:"var(--c-histoire)", ink:"var(--c-histoire-ink)", who:"Sandra Meyer" },
   ];
   return (
     <div className="screen fade-enter">
@@ -51,8 +51,20 @@ function RolePicker({onBack, onPick}){
 
 /* 2. Création d'une structure (3 étapes) */
 function EtabSignup({onBack, onDone}){
+  const real = !window.Who.demo;
   const [step, setStep] = useState(1);
-  const [f, setF] = useState({ name:"Maison des Tilleuls", type:"EHPAD", finess:"", city:"Lyon", who:"Marc Aubry", role:"Cadre de santé", email:"", units:["Unité A","Unité B"] });
+  const [f, setF] = useState(real
+    ? { name:"", type:"EHPAD", finess:"", city:"", who:window.Who.aidantFull || "", role:"Cadre de santé", email:"", units:["Unité A","Unité B"] }
+    : { name:"Maison des Tilleuls", type:"EHPAD", finess:"", city:"Lyon", who:"Marc Aubry", role:"Cadre de santé", email:"", units:["Unité A","Unité B"] });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  async function create(){
+    if(!real){ onDone(f); return; }
+    setBusy(true); setErr("");
+    try { await onDone({...f, units:f.units.map(u => u.trim()).filter(Boolean)}); }
+    catch(e){ setErr(e.message); }
+    finally { setBusy(false); }
+  }
   const [checking, setChecking] = useState(false);
   const [verified, setVerified] = useState(false);
   const up = (k, v) => setF(p => ({...p, [k]:v}));
@@ -67,17 +79,18 @@ function EtabSignup({onBack, onDone}){
           <h1 style={{fontSize:28, marginTop:8}}>Ta structure.</h1>
           <p className="meta" style={{marginTop:8}}>Le numéro FINESS nous permet de vérifier qu'il s'agit bien d'un établissement autorisé. Aucune donnée de résident n'est demandée.</p>
           <div style={{display:"grid", gap:14, marginTop:20}}>
-            <Field label="Nom de l'établissement" value={f.name} onChange={e => up("name", e.target.value)}/>
+            <Field label="Nom de l'établissement" value={f.name} onChange={e => up("name", e.target.value)} placeholder={real ? "Ex. Résidence les Tilleuls" : undefined}/>
+            {real && <Field label="Ville" value={f.city} onChange={e => up("city", e.target.value)}/>}
             <div>
               <span style={{display:"block", font:"800 13px var(--sans)", color:"var(--ink-2)", marginBottom:8}}>Type</span>
               <div style={{display:"flex", flexWrap:"wrap", gap:8}}>{TYPES.map(t => <button key={t} className="chip" aria-pressed={f.type === t} onClick={() => up("type", t)}>{t}</button>)}</div>
             </div>
-            <Field label="Numéro FINESS" value={f.finess} onChange={e => { up("finess", e.target.value.replace(/\D/g,"").slice(0,9)); setVerified(false); }} inputMode="numeric" placeholder="9 chiffres" hint="Sur ton arrêté d'autorisation ou sur finess.esante.gouv.fr"/>
-            {f.finess.length === 9 && !verified && <button className="btn soft" onClick={verify} disabled={checking}>{checking ? "Vérification…" : "Vérifier le numéro"}</button>}
-            {verified && <div className="card slide-up" style={{padding:14, display:"flex", gap:12, alignItems:"center", background:"var(--c-sante)", color:"var(--c-sante-ink)"}}><Circle Icon={IconCheck} size={36} isize={16}/><p style={{fontSize:13.5, fontWeight:700, lineHeight:1.4}}>{f.name} · {f.type} · {f.city}. Établissement reconnu.</p></div>}
+            <Field label={real ? "Numéro FINESS (facultatif)" : "Numéro FINESS"} value={f.finess} onChange={e => { up("finess", e.target.value.replace(/\D/g,"").slice(0,9)); setVerified(false); }} inputMode="numeric" placeholder="9 chiffres" hint={real ? "Sur ton arrêté d'autorisation ou sur finess.esante.gouv.fr. Il sera vérifié par notre équipe." : "Sur ton arrêté d'autorisation ou sur finess.esante.gouv.fr"}/>
+            {!real && f.finess.length === 9 && !verified && <button className="btn soft" onClick={verify} disabled={checking}>{checking ? "Vérification…" : "Vérifier le numéro"}</button>}
+            {!real && verified && <div className="card slide-up" style={{padding:14, display:"flex", gap:12, alignItems:"center", background:"var(--c-sante)", color:"var(--c-sante-ink)"}}><Circle Icon={IconCheck} size={36} isize={16}/><p style={{fontSize:13.5, fontWeight:700, lineHeight:1.4}}>{f.name} · {f.type} · {f.city}. Établissement reconnu.</p></div>}
           </div>
           <div style={{flex:1}}/>
-          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={!verified} onClick={() => setStep(2)}>Continuer</button>
+          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={real ? !f.name.trim() || (f.finess && f.finess.length !== 9) : !verified} onClick={() => setStep(2)}>Continuer</button>
         </>)}
         {step === 2 && (<>
           <h1 style={{fontSize:28, marginTop:8}}>Et toi.</h1>
@@ -85,10 +98,10 @@ function EtabSignup({onBack, onDone}){
           <div style={{display:"grid", gap:14, marginTop:20}}>
             <Field label="Prénom et nom" value={f.who} onChange={e => up("who", e.target.value)}/>
             <Field label="Fonction" value={f.role} onChange={e => up("role", e.target.value)} placeholder="Cadre de santé, directeur·rice, IDEC…"/>
-            <Field label="Email professionnel" type="email" value={f.email} onChange={e => up("email", e.target.value)} placeholder={"prenom@" + f.name.toLowerCase().replace(/[^a-z]/g,"") + ".fr"} hint="Un code de connexion t'y sera envoyé. Pas de mot de passe."/>
+            {!real && <Field label="Email professionnel" type="email" value={f.email} onChange={e => up("email", e.target.value)} placeholder={"prenom@" + f.name.toLowerCase().replace(/[^a-z]/g,"") + ".fr"} hint="Un code de connexion t'y sera envoyé. Pas de mot de passe."/>}
           </div>
           <div style={{flex:1}}/>
-          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={!f.who.trim() || !f.email.includes("@")} onClick={() => setStep(3)}>Continuer</button>
+          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={!f.who.trim() || (!real && !f.email.includes("@"))} onClick={() => setStep(3)}>Continuer</button>
         </>)}
         {step === 3 && (<>
           <h1 style={{fontSize:28, marginTop:8}}>Tes unités.</h1>
@@ -102,7 +115,8 @@ function EtabSignup({onBack, onDone}){
             <p className="meta" style={{fontSize:13, lineHeight:1.45}}>Ensuite, un carnet par résident, tenu par l'équipe. Les familles peuvent être invitées à y contribuer.</p>
           </div>
           <div style={{flex:1}}/>
-          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={f.units.length === 0} onClick={() => onDone(f)}>Créer {f.name}</button>
+          {err && <p role="alert" style={{marginTop:14, padding:"12px 14px", borderRadius:14, background:"#FBE3E1", color:"#8C1D18", font:"700 14px var(--sans)"}}>{err}</p>}
+          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={f.units.filter(u => u.trim()).length === 0 || busy} onClick={create}>{busy ? "Création…" : `Créer ${f.name}`}</button>
         </>)}
       </div>
     </div>
@@ -111,13 +125,31 @@ function EtabSignup({onBack, onDone}){
 
 /* 3. Entrée soignant·e par code */
 function StaffEntry({onBack, onDone}){
+  const real = !window.Who.demo;
   const [step, setStep] = useState(1);
   const [code, setCode] = useState("");
   const [pin, setPin] = useState("");
   const [pin2, setPin2] = useState("");
   const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [live, setLive] = useState(null);
   const found = code.length === 6;
-  const me = { name:"Sandra Meyer", role:"Aide-soignante", unit:"Unité B", etab:"Maison des Tilleuls", cadre:"Marc Aubry", perm:"À valider" };
+  const PERM_TEXT = { read:"Lecture · tu consultes les carnets", validate:"À valider · tes notes sont publiées après visa du cadre", write:"Notes · tes notes sont publiées tout de suite" };
+  const me = live || { name:"Sandra Meyer", role:"Aide-soignante", unit:"Unité B", etab:"Maison des Tilleuls", cadre:"Marc Aubry", perm:"À valider" };
+  async function checkCode(){
+    if(!real){ setStep(2); return; }
+    setBusy(true); setErr("");
+    try{
+      const r = await window.Backend.acceptStaffCode(code);
+      if(r.status !== "ok"){ setErr("Ce code n'est pas valide ou a expiré. Vérifie-le avec ton cadre."); setCode(""); return; }
+      const snap = await window.Backend.orgSnapshot();
+      const cadre = snap.members.find(m => m.role === "cadre");
+      setLive({ name:snap.me.display_name, role:snap.me.job_title, unit:(snap.units.find(u => u.id === snap.me.unit_id) || {}).name || "Sans unité",
+                etab:snap.org.name, cadre:cadre ? cadre.display_name : "", perm:PERM_TEXT[snap.me.perm] });
+      setStep(2);
+    } catch(e){ setErr(e.message); setCode(""); }
+    finally { setBusy(false); }
+  }
   const Keypad = ({value, onChange, max}) => (
     <div style={{display:"grid", gridTemplateColumns:"repeat(3,minmax(0,1fr))", gap:8, marginTop:18}}>
       {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((k,i) => k === "" ? <span key={i}/> : (
@@ -129,15 +161,16 @@ function StaffEntry({onBack, onDone}){
   return (
     <div className="screen fade-enter">
       <StatusBar/>
-      <Head onBack={() => step > 1 ? setStep(step - 1) : onBack()} step={step} total={3}/>
+      <Head onBack={() => step > 1 && !real ? setStep(step - 1) : onBack()} step={step} total={real ? 2 : 3}/>
       <div className="scroll" style={{padding:"8px 20px 24px", display:"flex", flexDirection:"column"}}>
         {step === 1 && (<>
           <h1 style={{fontSize:28, marginTop:8}}>Ton code d'équipe.</h1>
-          <p className="meta" style={{marginTop:8}}>Six chiffres, donnés par ton cadre. Pas d'email, pas de mot de passe.</p>
+          <p className="meta" style={{marginTop:8}}>{real ? "Six chiffres, donnés par ton cadre. Valable 48 heures." : "Six chiffres, donnés par ton cadre. Pas d'email, pas de mot de passe."}</p>
           <Dots len={code.length} max={6} wide/>
-          <Keypad value={code} onChange={setCode} max={6}/>
+          <Keypad value={code} onChange={v => { setErr(""); setCode(v); }} max={6}/>
+          {err && <p role="alert" style={{marginTop:14, padding:"12px 14px", borderRadius:14, background:"#FBE3E1", color:"#8C1D18", font:"700 14px var(--sans)"}}>{err}</p>}
           <div style={{flex:1}}/>
-          <button className="btn" style={{marginTop:16, width:"100%"}} disabled={!found} onClick={() => setStep(2)}>Continuer</button>
+          <button className="btn" style={{marginTop:16, width:"100%"}} disabled={!found || busy} onClick={checkCode}>{busy ? "Vérification…" : "Continuer"}</button>
         </>)}
         {step === 2 && (<>
           <h1 style={{fontSize:28, marginTop:8}}>C'est bien toi ?</h1>
@@ -146,11 +179,16 @@ function StaffEntry({onBack, onDone}){
             <div style={{flex:1, minWidth:0}}><p style={{font:"800 20px var(--sans)", letterSpacing:"-.02em"}}>{me.name}</p><p style={{marginTop:4, fontSize:13.5, fontWeight:600, opacity:.85}}>{me.role} · {me.unit}</p></div>
           </div>
           <ul style={{listStyle:"none", padding:0, margin:"12px 0 0", display:"grid", gap:8}}>
-            {[["Établissement", me.etab],["Ajoutée par", me.cadre],["Tes droits", me.perm + " · tes notes sont publiées après visa du cadre"]].map(([k,v]) => <li key={k} className="card" style={{padding:"12px 16px", display:"flex", justifyContent:"space-between", gap:12}}><span style={{font:"800 13.5px var(--sans)", whiteSpace:"nowrap"}}>{k}</span><span className="meta" style={{fontSize:13, textAlign:"right"}}>{v}</span></li>)}
+            {[["Établissement", me.etab],["Ajoutée par", me.cadre],["Tes droits", live ? me.perm : me.perm + " · tes notes sont publiées après visa du cadre"]].filter(([, v]) => v).map(([k,v]) => <li key={k} className="card" style={{padding:"12px 16px", display:"flex", justifyContent:"space-between", gap:12}}><span style={{font:"800 13.5px var(--sans)", whiteSpace:"nowrap"}}>{k}</span><span className="meta" style={{fontSize:13, textAlign:"right"}}>{v}</span></li>)}
           </ul>
           <div style={{flex:1}}/>
-          <button className="btn" style={{marginTop:16, width:"100%"}} onClick={() => setStep(3)}>Oui, c'est moi</button>
-          <button className="btn soft" style={{marginTop:8, width:"100%"}} onClick={() => { setCode(""); setStep(1); }}>Non, ce n'est pas moi</button>
+          {real ? (<>
+            <button className="btn" style={{marginTop:16, width:"100%"}} onClick={() => onDone(me)}>C'est parti</button>
+            <p className="meta" style={{marginTop:10, textAlign:"center", lineHeight:1.5}}>Ce n'est pas toi ? Préviens ton cadre. Tu te connecteras ensuite avec ton email et ton mot de passe.</p>
+          </>) : (<>
+            <button className="btn" style={{marginTop:16, width:"100%"}} onClick={() => setStep(3)}>Oui, c'est moi</button>
+            <button className="btn soft" style={{marginTop:8, width:"100%"}} onClick={() => { setCode(""); setStep(1); }}>Non, ce n'est pas moi</button>
+          </>)}
         </>)}
         {step === 3 && (<>
           <h1 style={{fontSize:28, marginTop:8}}>{pin.length < 4 ? "Choisis un code à 4 chiffres." : "Encore une fois."}</h1>

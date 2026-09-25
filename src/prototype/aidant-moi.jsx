@@ -54,7 +54,9 @@ function Breath(){
 function AidantMoi({notes=[], onOpenShare, onToast}){
   const st = load();
   const [moods, setMoods] = useState(st.moods || [2,2,3,1,2,3,null]);
-  const [plan, setPlan] = useState(st.plan || { on:false, seuil:"orange", who:"Léo", auto:true });
+  const W = window.Who;
+  const RELAYS = W.demo ? ["Léo","Claire","Auxiliaire"] : ["Un proche","Un voisin","Auxiliaire"];
+  const [plan, setPlan] = useState(st.plan || { on:false, seuil:"orange", who:RELAYS[0], auto:true });
   const [triggered, setTriggered] = useState(st.triggered || false);
   const [lastRelayDays, setLastRelayDays] = useState(st.lastRelayDays ?? 9);
   const [mine, setMine] = useState(st.mine || [
@@ -81,19 +83,21 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
 
   function pickMood(v){ const next = [...moods.slice(0,6), v]; setMoods(next); persist({moods:next}); }
   function fire(){ setTriggered(true); persist({triggered:true}); onToast && onToast(`${plan.who} a reçu ton message et le carnet.`); }
-  function relayed(){ setLastRelayDays(0); setTriggered(false); persist({lastRelayDays:0, triggered:false}); onToast && onToast("Relais noté. Bon repos, Anne."); }
+  function relayed(){ setLastRelayDays(0); setTriggered(false); persist({lastRelayDays:0, triggered:false}); onToast && onToast(`Relais noté. Bon repos${W.aidant ? ", " + W.aidant : ""}.`); }
   function startRec(){
     setRecording(true); const t = "Chanter dans la voiture, fort, sur le parking avant de rentrer."; let i = 0;
     const id = setInterval(() => { i += 3; setDraft(t.slice(0,i)); if(i >= t.length){ clearInterval(id); setTimeout(() => { const n = {id:"m"+Date.now(), text:t, ts:Date.now()}; const next = [n, ...mine]; setMine(next); persist({mine:next}); setRecording(false); setDraft(""); onToast && onToast("Ajouté à ton carnet à toi."); }, 500); } }, 60);
   }
-  const msg = `Léo, j'ai besoin que tu prennes le relais auprès de Maman ${charge.zone === "rouge" ? "dès demain" : "ce week-end"}. Je t'envoie le carnet : tout y est. Merci d'être là. — Anne`;
+  const msg = W.demo
+    ? `Léo, j'ai besoin que tu prennes le relais auprès de Maman ${charge.zone === "rouge" ? "dès demain" : "ce week-end"}. Je t'envoie le carnet : tout y est. Merci d'être là. — Anne`
+    : `${["Un proche", "Un voisin", "Auxiliaire"].includes(plan.who) ? "J" : plan.who + ", j"}'ai besoin que tu prennes le relais auprès de ${W.person} ${charge.zone === "rouge" ? "dès demain" : "ce week-end"}. Je t'envoie le carnet : tout y est. Merci d'être là. — ${W.aidant}`;
 
   return (
     <div className="screen fade-enter">
       <StatusBar/>
       <div className="topbar" style={{padding:"8px 20px 4px"}}>
-        <div style={{flex:1, minWidth:0}}><h1 style={{fontSize:28}}>Et toi, Anne&nbsp;?</h1><p className="meta" style={{marginTop:2}}>Ce que le carnet sait de ta charge, pas seulement de Jeanne.</p></div>
-        <Avatar name="Anne C" size={46} tone="cool"/>
+        <div style={{flex:1, minWidth:0}}><h1 style={{fontSize:28}}>Et toi{W.aidant ? `, ${W.aidant}` : ""}&nbsp;?</h1><p className="meta" style={{marginTop:2}}>Ce que le carnet sait de ta charge, pas seulement de {W.person}.</p></div>
+        <Avatar name={W.aidantFull || W.aidant || "Toi"} size={46} tone="cool"/>
       </div>
       <div className="scroll">
 
@@ -143,11 +147,11 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
                 </div>
                 <p className="kicker" style={{marginTop:16}}>Qui prend le relais</p>
                 <div style={{display:"flex", gap:8, marginTop:8, flexWrap:"wrap"}}>
-                  {["Léo","Claire","Auxiliaire"].map(w => <button key={w} className="chip" aria-pressed={plan.who === w} onClick={() => { const p = {...plan, who:w}; setPlan(p); persist({plan:p}); }}>{w}</button>)}
+                  {RELAYS.map(w => <button key={w} className="chip" aria-pressed={plan.who === w} onClick={() => { const p = {...plan, who:w}; setPlan(p); persist({plan:p}); }}>{w}</button>)}
                 </div>
                 <p className="kicker" style={{marginTop:16}}>Ce qui part automatiquement</p>
                 <ul style={{listStyle:"none", padding:0, margin:"8px 0 0", display:"grid", gap:6}}>
-                  {["Un message écrit par toi, à l'avance", "Le carnet de Jeanne, en accès 7 jours", "Une pause de notifications pour toi, 48 h"].map(t => <li key={t} style={{display:"flex", gap:10, alignItems:"center", fontSize:14, fontWeight:600}}><span style={{width:22, height:22, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><IconCheck size={12} sw={2.6}/></span>{t}</li>)}
+                  {["Un message écrit par toi, à l'avance", `Le carnet de ${W.person}, en accès 7 jours`, "Une pause de notifications pour toi, 48 h"].map(t => <li key={t} style={{display:"flex", gap:10, alignItems:"center", fontSize:14, fontWeight:600}}><span style={{width:22, height:22, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><IconCheck size={12} sw={2.6}/></span>{t}</li>)}
                 </ul>
                 <button className={"btn" + (plan.on ? " soft" : "")} style={{marginTop:16, width:"100%"}} onClick={() => { const p = {...plan, on:!plan.on}; setPlan(p); persist({plan:p}); onToast && onToast(p.on ? "Plan de relais activé." : "Plan de relais désactivé."); }}>{plan.on ? "Désactiver le plan" : "Activer mon plan de relais"}</button>
               </div>
@@ -185,7 +189,7 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
         </Pad>
 
         {/* ── Mon carnet à moi ── */}
-        <H2 t="Mon carnet à moi" s="Ce qui te recharge, dicté comme pour Jeanne. Pour ne pas l'oublier les jours où tout s'efface."/>
+        <H2 t="Mon carnet à moi" s={`Ce qui te recharge, dicté comme pour ${W.person}. Pour ne pas l'oublier les jours où tout s'efface.`}/>
         <Pad>
           <button onClick={startRec} disabled={recording} className="card-press" style={{width:"100%", border:"none", cursor:"pointer", borderRadius:"var(--r-xl)", padding:18, background:"var(--c-parler)", color:"var(--c-parler-ink)", textAlign:"left", display:"flex", gap:14, alignItems:"center"}}>
             <Circle Icon={IconMic} size={48} isize={22}/>
@@ -197,9 +201,9 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
           <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
             {mine.map(n => <li key={n.id} className="card" style={{padding:"12px 14px", font:"600 14px var(--sans)", lineHeight:1.45}}>{n.text}</li>)}
           </ul>
-          <button onClick={() => { setMineShared(v => !v); persist({mineShared:!mineShared}); onToast && onToast(!mineShared ? "Léo sait maintenant comment prendre soin de toi." : "Carnet à toi de nouveau privé."); }} className="card card-press" style={{marginTop:8, width:"100%", textAlign:"left", cursor:"pointer", display:"flex", gap:12, alignItems:"center", padding:14, background: mineShared ? "var(--c-proches)" : "var(--card)", color: mineShared ? "var(--c-proches-ink)" : "var(--ink)"}}>
+          <button onClick={() => { setMineShared(v => !v); persist({mineShared:!mineShared}); onToast && onToast(!mineShared ? `${plan.who} sait maintenant comment prendre soin de toi.` : "Carnet à toi de nouveau privé."); }} className="card card-press" style={{marginTop:8, width:"100%", textAlign:"left", cursor:"pointer", display:"flex", gap:12, alignItems:"center", padding:14, background: mineShared ? "var(--c-proches)" : "var(--card)", color: mineShared ? "var(--c-proches-ink)" : "var(--ink)"}}>
             <Circle Icon={mineShared ? CatPeople : IconLock} size={36} isize={16} bg={mineShared ? "var(--ink)" : "var(--bg)"} color={mineShared ? "#fff" : "var(--ink)"}/>
-            <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 14px var(--sans)"}}>{mineShared ? "Partagé avec Léo" : "Partager avec Léo"}</span><span style={{display:"block", marginTop:2, fontSize:12.5, fontWeight:600, opacity:.8}}>Quand il prend le relais, il saura aussi comment t'aider, toi.</span></span>
+            <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 14px var(--sans)"}}>{mineShared ? `Partagé avec ${plan.who}` : `Partager avec ${plan.who}`}</span><span style={{display:"block", marginTop:2, fontSize:12.5, fontWeight:600, opacity:.8}}>Quand il prend le relais, il saura aussi comment t'aider, toi.</span></span>
           </button>
         </Pad>
 
@@ -224,7 +228,7 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
               <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Allô Aidants · 09 72 30 30 30</span><span className="meta" style={{display:"block", marginTop:4}}>Écoute 7j/7, confidentielle, sans jugement.</span></span>
             </a></li>
           </ul>
-          <p className="meta" style={{marginTop:16, marginBottom:8, textAlign:"center", lineHeight:1.5}}>Rien de cette page n'est visible par Jeanne, les proches ou l'établissement.</p>
+          <p className="meta" style={{marginTop:16, marginBottom:8, textAlign:"center", lineHeight:1.5}}>Rien de cette page n'est visible par {W.person}, les proches ou l'établissement.</p>
         </Pad>
       </div>
     </div>

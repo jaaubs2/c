@@ -89,7 +89,10 @@ function LaunchScreen({onSignup, onLogin}){
 /* ─────────────────────────────────────────────────────────────
    2. SIGNUP
    ───────────────────────────────────────────────────────────── */
-function SignupScreen({onBack, onSubmit, onLogin}){
+function SignupScreen({onBack, onSubmit, onLogin, askName, onOAuth}){
+  const [name, setName] = useSAuth("");
+  const [busy, setBusy] = useSAuth(false);
+  const [serverError, setServerError] = useSAuth("");
   const [email, setEmail] = useSAuth("");
   const [password, setPassword] = useSAuth("");
   const [terms, setTerms] = useSAuth(false);
@@ -109,14 +112,23 @@ function SignupScreen({onBack, onSubmit, onLogin}){
     return true;
   }
 
-  function submit(){
+  async function submit(){
     if(!validate()) return;
     if(!terms || !sensitive) return;
     if(password.length < 8) return;
-    onSubmit({email, password});
+    setBusy(true); setServerError("");
+    try { await onSubmit({email, password, name:name.trim()}); }
+    catch(e){ setServerError(e.message); }
+    finally { setBusy(false); }
+  }
+  async function oauth(provider){
+    if(!onOAuth){ onSubmit({email:"anne@example.com", oauth:provider}); return; }
+    if(!terms || !sensitive){ setServerError("Coche d'abord les deux cases ci-dessous : elles valent aussi pour Google et Apple."); return; }
+    setServerError("");
+    try { await onOAuth(provider); } catch(e){ setServerError(e.message); }
   }
 
-  const canSubmit = email && password.length >= 8 && terms && sensitive;
+  const canSubmit = email && password.length >= 8 && terms && sensitive && (!askName || name.trim()) && !busy;
 
   return (
     <div className="screen fade-enter">
@@ -137,11 +149,11 @@ function SignupScreen({onBack, onSubmit, onLogin}){
 
         {/* OAuth */}
         <div style={{display:"grid", gap:8, marginTop:24}}>
-          <button onClick={() => onSubmit({email:"anne@example.com", oauth:"google"})}
+          <button onClick={() => oauth("google")}
                   className="btn soft" style={{width:"100%", minHeight:52}}>
             <IconGoogle size={18}/> Continuer avec Google
           </button>
-          <button onClick={() => onSubmit({email:"anne@example.com", oauth:"apple"})}
+          <button onClick={() => oauth("apple")}
                   className="btn" style={{width:"100%", minHeight:52, background:"#000", color:"#FFF"}}>
             <IconApple size={18}/> Continuer avec Apple
           </button>
@@ -153,6 +165,12 @@ function SignupScreen({onBack, onSubmit, onLogin}){
           <span className="kicker">ou</span>
           <div style={{flex:1, height:1, background:"var(--line-2)"}}/>
         </div>
+
+        {askName && (
+          <FormField label="Ton prénom" htmlFor="su-name" hint="C'est ainsi que l'app et tes proches te verront.">
+            <Field id="su-name" value={name} onChange={setName} placeholder="Anne" autoComplete="given-name"/>
+          </FormField>
+        )}
 
         <FormField label="Email" htmlFor="su-email" error={emailError}>
           <Field id="su-email" type="email" value={email} onChange={setEmail}
@@ -173,9 +191,11 @@ function SignupScreen({onBack, onSubmit, onLogin}){
                         label={<>Je comprends que <strong style={{color:"var(--ink)"}}>ces informations sont sensibles</strong> et qu'elles ne se partagent que sur mon invitation explicite.</>}/>
         </div>
 
+        <window.BUI.FormError msg={serverError}/>
+
         <button className="btn" style={{marginTop:24, width:"100%"}}
                 disabled={!canSubmit} onClick={submit}>
-          Créer mon compte
+          {busy ? "Création du compte…" : "Créer mon compte"}
         </button>
 
         <p style={{marginTop:18, textAlign:"center", fontSize:14.5, color:"var(--ink-2)"}}>
@@ -215,16 +235,25 @@ function ConsentCheck({checked, onChange, label}){
 /* ─────────────────────────────────────────────────────────────
    3. LOGIN
    ───────────────────────────────────────────────────────────── */
-function LoginScreen({onBack, onSubmit, onSignup, onForgot}){
-  const [email, setEmail] = useSAuth("anne@example.com");
+function LoginScreen({onBack, onSubmit, onSignup, onForgot, onOAuth}){
+  const real = window.Backend.enabled;
+  const [email, setEmail] = useSAuth(real ? "" : "anne@example.com");
   const [password, setPassword] = useSAuth("");
   const [err, setErr] = useSAuth(null);
+  const [busy, setBusy] = useSAuth(false);
 
-  function submit(){
+  async function submit(){
     if(!email.includes("@")){ setErr("Email invalide."); return; }
     if(password.length < 4){ setErr("Mot de passe trop court."); return; }
+    setErr(null); setBusy(true);
+    try { await onSubmit({email, password}); }
+    catch(e){ setErr(e.message); }
+    finally { setBusy(false); }
+  }
+  async function oauth(provider){
+    if(!onOAuth){ onSubmit({email:"anne@example.com"}); return; }
     setErr(null);
-    onSubmit({email});
+    try { await onOAuth(provider); } catch(e){ setErr(e.message); }
   }
 
   return (
@@ -241,7 +270,7 @@ function LoginScreen({onBack, onSubmit, onSignup, onForgot}){
           Te revoilà.
         </h1>
         <p style={{marginTop:10, fontSize:15.5, color:"var(--ink-2)", lineHeight:1.5}}>
-          Le carnet de Jeanne t'attend.
+          {real ? "Ton carnet t'attend." : "Le carnet de Jeanne t'attend."}
         </p>
 
         <FormField label="Email" htmlFor="li-email">
@@ -261,8 +290,8 @@ function LoginScreen({onBack, onSubmit, onSignup, onForgot}){
           Mot de passe oublié ?
         </button>
 
-        <button className="btn" style={{marginTop:22, width:"100%"}} onClick={submit}>
-          Se connecter
+        <button className="btn" style={{marginTop:22, width:"100%"}} onClick={submit} disabled={busy}>
+          {busy ? "Connexion…" : "Se connecter"}
         </button>
 
         <div style={{display:"flex", alignItems:"center", gap:12, margin:"24px 0"}} aria-hidden="true">
@@ -271,11 +300,11 @@ function LoginScreen({onBack, onSubmit, onSignup, onForgot}){
           <div style={{flex:1, height:1, background:"var(--line-2)"}}/>
         </div>
 
-        <button onClick={() => onSubmit({email:"anne@example.com"})}
+        <button onClick={() => oauth("google")}
                 className="btn soft" style={{width:"100%", minHeight:52}}>
           <IconGoogle size={18}/> Continuer avec Google
         </button>
-        <button onClick={() => onSubmit({email:"anne@example.com"})}
+        <button onClick={() => oauth("apple")}
                 className="btn" style={{width:"100%", minHeight:52, marginTop:8, background:"#000", color:"#FFF"}}>
           <IconApple size={18}/> Continuer avec Apple
         </button>
@@ -295,9 +324,16 @@ function LoginScreen({onBack, onSubmit, onSignup, onForgot}){
 /* ─────────────────────────────────────────────────────────────
    4. RECOVERY + 5. VERIFICATION
    ───────────────────────────────────────────────────────────── */
-function RecoveryScreen({onBack, onSent}){
+function RecoveryScreen({onBack, onSent, onSend}){
   const [email, setEmail] = useSAuth("");
   const [sent, setSent] = useSAuth(false);
+  const [busy, setBusy] = useSAuth(false);
+  const [err, setErr] = useSAuth("");
+  async function send(){
+    if(!onSend){ setSent(true); return; }
+    setBusy(true); setErr("");
+    try { await onSend(email); } catch(e){ setErr(e.message); } finally { setBusy(false); }
+  }
 
   if(sent) return (
     <div className="screen fade-enter">
@@ -341,7 +377,7 @@ function RecoveryScreen({onBack, onSent}){
           Mot de passe oublié ?
         </h1>
         <p style={{marginTop:10, fontSize:15.5, color:"var(--ink-2)", lineHeight:1.5}}>
-          Donne-nous ton email — on t'envoie un lien pour en choisir un nouveau.
+          Donne-nous ton email — on t'envoie {onSend ? "un code" : "un lien"} pour en choisir un nouveau.
         </p>
 
         <FormField label="Email" htmlFor="rec-email">
@@ -349,17 +385,21 @@ function RecoveryScreen({onBack, onSent}){
                  placeholder="ton@email.fr" autoComplete="email"/>
         </FormField>
 
+        <window.BUI.FormError msg={err}/>
         <button className="btn" style={{marginTop:22, width:"100%"}}
-                disabled={!email.includes("@")} onClick={() => setSent(true)}>
-          M'envoyer le lien
+                disabled={!email.includes("@") || busy} onClick={send}>
+          {busy ? "Envoi…" : onSend ? "M'envoyer le code" : "M'envoyer le lien"}
         </button>
       </div>
     </div>
   );
 }
 
-function VerificationScreen({email, onBack, onVerified}){
+function VerificationScreen({email, onBack, onVerified, onVerify, onResend}){
   const [code, setCode] = useSAuth(["", "", "", "", "", ""]);
+  const [err, setErr] = useSAuth("");
+  const [info, setInfo] = useSAuth("");
+  const [busy, setBusy] = useSAuth(false);
   const refs = useRAuth([]);
 
   function setDigit(i, v){
@@ -372,8 +412,18 @@ function VerificationScreen({email, onBack, onVerified}){
 
   const filled = code.join("").length === 6;
   useEAuth(() => {
-    if(filled) setTimeout(() => onVerified(), 600);
+    if(!filled) return;
+    if(!onVerify){ setTimeout(() => onVerified(), 600); return; }
+    setBusy(true); setErr(""); setInfo("");
+    onVerify(code.join(""))
+      .catch(e => { setErr(e.message); setCode(["", "", "", "", "", ""]); refs.current[0]?.focus(); })
+      .finally(() => setBusy(false));
   }, [filled]);
+  async function resend(){
+    if(!onResend) return;
+    setErr(""); setInfo("");
+    try { await onResend(); setInfo("Nouveau code envoyé."); } catch(e){ setErr(e.message); }
+  }
 
   return (
     <div className="screen fade-enter">
@@ -408,7 +458,10 @@ function VerificationScreen({email, onBack, onVerified}){
           ))}
         </div>
 
-        <button style={{marginTop:24, background:"none", border:"none", color:"var(--ink)",
+        {busy && <p className="meta" role="status" style={{marginTop:18, textAlign:"center"}}>Vérification…</p>}
+        <window.BUI.FormError msg={err}/>
+        {info && <p role="status" className="meta" style={{marginTop:14, textAlign:"center", fontWeight:700}}>{info}</p>}
+        <button onClick={resend} style={{marginTop:24, background:"none", border:"none", color:"var(--ink)",
                        textDecoration:"underline", cursor:"pointer", padding:0,
                        display:"block", marginInline:"auto",
                        font:"500 14px var(--sans)"}}>
@@ -416,7 +469,7 @@ function VerificationScreen({email, onBack, onVerified}){
         </button>
 
         <p className="meta" style={{marginTop:26, textAlign:"center", lineHeight:1.5}}>
-          Le code expire dans 10 minutes.
+          Pense à regarder dans les spams. Le code expire au bout d'une heure.
         </p>
       </div>
     </div>
@@ -429,19 +482,24 @@ function VerificationScreen({email, onBack, onVerified}){
 
 const ONBOARDING_STEPS = ["welcome", "role", "profile", "consent", "howto"];
 
-function OnboardingFlow({onDone}){
+function OnboardingFlow({onDone, real}){
   const [step, setStep] = useSAuth(0);
   const [role, setRole] = useSAuth("fille");
-  const [profile, setProfile] = useSAuth({
-    name: "Jeanne", age: 86, since: "2 ans", relation: "ma mère"
-  });
+  const [profile, setProfile] = useSAuth(real
+    ? { name: "", age: "", since: "", pronoun: "elle", avatar: "warm" }
+    : { name: "Jeanne", age: 86, since: "2 ans", relation: "ma mère", pronoun: "elle", avatar: "warm" });
   const [consent, setConsent] = useSAuth(null); // accord | representant | later
+  const [busy, setBusy] = useSAuth(false);
+  const [err, setErr] = useSAuth("");
 
-  function next(){
-    if(step < ONBOARDING_STEPS.length - 1) setStep(step + 1);
-    else onDone({role, profile, consent});
+  async function next(){
+    if(step < ONBOARDING_STEPS.length - 1){ setStep(step + 1); return; }
+    setBusy(true); setErr("");
+    try { await onDone({role, profile, consent}); }
+    catch(e){ setErr(e.message); }
+    finally { setBusy(false); }
   }
-  function back(){ if(step > 0) setStep(step - 1); else onDone(null); }
+  function back(){ if(step > 0) setStep(step - 1); else if(!real) onDone(null); }
 
   const phase = ONBOARDING_STEPS[step];
 
@@ -462,7 +520,7 @@ function OnboardingFlow({onDone}){
             }}/>
           ))}
         </div>
-        {step < ONBOARDING_STEPS.length - 1 ? (
+        {!real && step < ONBOARDING_STEPS.length - 1 ? (
           <button className="chip" onClick={onDone} style={{minHeight:36, padding:"6px 14px", fontSize:13}}>Passer</button>
         ) : <span style={{width:44}}/>}
       </div>
@@ -471,8 +529,10 @@ function OnboardingFlow({onDone}){
         {phase === "welcome" && <OnbWelcome onNext={next}/>}
         {phase === "role" && <OnbRole role={role} setRole={setRole} onNext={next}/>}
         {phase === "profile" && <OnbProfile profile={profile} setProfile={setProfile} onNext={next}/>}
-        {phase === "consent" && <OnbConsent value={consent} onChange={setConsent} onNext={next}/>}
+        {phase === "consent" && <OnbConsent value={consent} onChange={setConsent} onNext={next} pronoun={profile.pronoun}/>}
         {phase === "howto" && <OnbHowto onNext={next}/>}
+        {busy && <p className="meta" role="status" style={{marginTop:14, textAlign:"center"}}>Création du carnet…</p>}
+        <window.BUI.FormError msg={err}/>
       </div>
     </div>
   );
@@ -564,7 +624,9 @@ function OnbProfile({profile, setProfile, onNext}){
     {id:"rose", tone:"var(--c-apaise)"},
     {id:"blue", tone:"var(--c-parler)"}
   ];
-  const [avatar, setAvatar] = useSAuth("warm");
+  const avatar = profile.avatar || "warm";
+  const setAvatar = (a) => setProfile({...profile, avatar:a});
+  const il = profile.pronoun === "il";
 
   return (
     <>
@@ -602,13 +664,23 @@ function OnbProfile({profile, setProfile, onNext}){
                placeholder="Jeanne"/>
       </FormField>
 
+      <div style={{marginTop:16}}>
+        <span className="kicker">On parle d'elle ou de lui ?</span>
+        <div role="radiogroup" aria-label="Pronom" style={{display:"flex", gap:8, marginTop:8}}>
+          {[["elle", "Elle"], ["il", "Il"]].map(([id, label]) => (
+            <button key={id} role="radio" className="chip" aria-checked={(profile.pronoun || "elle") === id} aria-pressed={(profile.pronoun || "elle") === id}
+                    onClick={() => setProfile({...profile, pronoun:id})}>{label}</button>
+          ))}
+        </div>
+      </div>
+
       <FormField label="Son âge" htmlFor="op-age">
         <Field id="op-age" type="number" value={profile.age}
                onChange={v => setProfile({...profile, age: v ? Number(v) : ""})}
                placeholder="86"/>
       </FormField>
 
-      <FormField label="Accompagnée depuis…" htmlFor="op-since" hint="Approximatif, ça suffit.">
+      <FormField label={il ? "Accompagné depuis…" : "Accompagnée depuis…"} htmlFor="op-since" hint="Approximatif, ça suffit.">
         <Field id="op-since" value={profile.since}
                onChange={v => setProfile({...profile, since:v})}
                placeholder="2 ans"/>
@@ -622,9 +694,10 @@ function OnbProfile({profile, setProfile, onNext}){
   );
 }
 
-function OnbConsent({value, onChange, onNext}){
+function OnbConsent({value, onChange, onNext, pronoun}){
+  const g = (f, m) => pronoun === "il" ? m : f;
   const opts = [
-    {id:"accord",     title:"Elle a donné son accord",       body:"Tu lui as expliqué et elle est d'accord."},
+    {id:"accord",     title:g("Elle a donné son accord", "Il a donné son accord"), body:g("Tu lui as expliqué et elle est d'accord.", "Tu lui as expliqué et il est d'accord.")},
     {id:"representant", title:"Je suis son représentant légal", body:"Tutelle, curatelle, mandat de protection future."},
     {id:"later",      title:"J'en parlerai plus tard",        body:"Tu pourras revenir sur cette question quand tu veux."}
   ];
@@ -635,7 +708,7 @@ function OnbConsent({value, onChange, onNext}){
       </div>
       <p className="kicker" style={{marginTop:18, textAlign:"center"}}>Avec respect</p>
       <h1 className="serif" style={{fontSize:26, marginTop:10, textAlign:"center", letterSpacing:"-.02em", lineHeight:1.15}}>
-        Le carnet parle d'elle.{"\n"}A-t-elle donné son accord ?
+        {g("Le carnet parle d'elle.", "Le carnet parle de lui.")}{"\n"}{g("A-t-elle donné son accord ?", "A-t-il donné son accord ?")}
       </h1>
       <p style={{marginTop:14, fontSize:15, color:"var(--ink-2)", textAlign:"center", lineHeight:1.55, maxWidth:330, marginInline:"auto"}}>
         Ces informations lui appartiennent. On préfère te le rappeler avec douceur — rien n'est bloquant.

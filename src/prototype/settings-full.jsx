@@ -11,10 +11,20 @@ const { CATEGORIES: CATSet, CAT_BY_ID: CBYSet, softDate: softDateSet, ACTIVITY_L
 const { StatusBar: SBSet, Avatar: AvSet, useA11y: useA11ySet } = window.UI;
 
 /* ─── settings root ─── */
-function SettingsFull({visibility, setVisibility, sharePayload, onLogout}){
+function SettingsFull({visibility, setVisibility, sharePayload, onLogout, live}){
   const [page, setPage] = useSSet("menu");
 
   function back(){ setPage("menu"); }
+
+  // Avec un vrai compte : pages branchées sur le serveur.
+  if(live){
+    if(page === "account") return <LiveAccountPage live={live} onBack={back}/>;
+    if(page === "me") return <LiveMePage live={live} onBack={back}/>;
+    if(page === "profile") return <LivePersonPage live={live} onBack={back}/>;
+    if(page === "circle") return <LiveCirclePage live={live} onBack={back}/>;
+    if(page === "access") return <LiveAccessPage live={live} onBack={back} visibility={visibility} setVisibility={setVisibility}/>;
+    if(page === "privacy") return <LivePrivacyPage live={live} onBack={back} onGo={setPage}/>;
+  }
 
   if(page === "account") return <AccountPage onBack={back} onLogout={onLogout}/>;
   if(page === "me") return <MeProfilePage onBack={back}/>;
@@ -32,17 +42,18 @@ function SettingsFull({visibility, setVisibility, sharePayload, onLogout}){
 
 /* ─── menu ─── */
 function SettingsMenu({onPick, onLogout}){
+  const W = window.Who;
   const sections = [
     {group:"Toi",   items:[
-      {id:"me",      title:"Mon profil",                     body:"Prénom, photo, lien avec Jeanne."},
+      {id:"me",      title:"Mon profil",                     body:`Prénom, photo, lien avec ${W.person}.`},
       {id:"account", title:"Mon compte",                    body:"Email, mot de passe, déconnexion."},
       {id:"a11y",    title:"Accessibilité",                 body:"Taille, contraste, animations, voix."},
       {id:"notif",   title:"Notifications",                 body:"Rappels doux, consultations, mises à jour."},
       {id:"appear",  title:"Apparence",                     body:"Clair · Mode soir."}
     ]},
-    {group:"Jeanne",       items:[
-      {id:"profile", title:"Profil de Jeanne",              body:"Prénom, avatar, âge, depuis…"},
-      {id:"circle",  title:"Le cercle d'aidants",           body:"Anne, Léo · inviter d'autres proches."},
+    {group:W.person,       items:[
+      {id:"profile", title:`Profil de ${W.person}`,         body:"Prénom, avatar, âge, depuis…"},
+      {id:"circle",  title:"Le cercle d'aidants",           body:W.demo ? "Anne, Léo · inviter d'autres proches." : "Inviter d'autres proches à contribuer."},
       {id:"access",  title:"Accès & partages",              body:"Liens de transmission, révoquer, journal."}
     ]},
     {group:"L'app", items:[
@@ -684,15 +695,15 @@ function PrivacyPage({onBack}){
           Tes données t'appartiennent.
         </p>
         <p style={{marginTop:10, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.55}}>
-          Tout ce qu'on stocke est chiffré et hébergé en France, dans des serveurs européens conformes au RGPD.
+          Tout ce qu'on stocke est chiffré et hébergé dans l'Union européenne, conformément au RGPD.
         </p>
       </div>
 
       <p className="kicker" style={{marginTop:22}}>Où sont stockées les données</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
-        <RowItem label="Hébergement" value="OVH · Roubaix (France)" />
+        <RowItem label="Hébergement" value="Union européenne" />
         <RowItem label="Chiffrement" value="AES-256 au repos & en transit" />
-        <RowItem label="Conformité" value="RGPD · HDS · ISO 27001" />
+        <RowItem label="Conformité" value="RGPD · non médical" />
       </ul>
 
       <p className="kicker" style={{marginTop:22}}>Consentements donnés</p>
@@ -812,7 +823,7 @@ function NotifPrefsPage({onBack}){
                     checked={prefs.reads}  onChange={v => setP("reads", v)}/>
         <ToggleCard title="Invitations à actualiser" body="Quand une info qui date pourrait être mise à jour."
                     checked={prefs.stale}  onChange={v => setP("stale", v)}/>
-        <ToggleCard title="Résumé hebdomadaire" body="« Cette semaine dans le carnet de Jeanne »."
+        <ToggleCard title="Résumé hebdomadaire" body={`« Cette semaine dans le carnet de ${window.Who.person} ».`}
                     checked={prefs.weekly} onChange={v => setP("weekly", v)}/>
       </div>
 
@@ -919,6 +930,229 @@ function HelpPage({onBack}){
       <p className="meta" style={{marginTop:20, textAlign:"center", lineHeight:1.55}}>
         Le carnet vivant · v 1.0.0 · build 124
       </p>
+    </SubPage>
+  );
+}
+
+/* ════════ Pages réelles (vrais comptes) ════════ */
+const LiveRow = ({label, value}) => (
+  <li className="card" style={{padding:"12px 16px", display:"flex", justifyContent:"space-between", gap:12, alignItems:"center"}}>
+    <span style={{fontSize:13, color:"var(--ink-2)"}}>{label}</span>
+    <span style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:14.5, textAlign:"right"}}>{value}</span>
+  </li>
+);
+const liveInput = {width:"100%", minHeight:52, borderRadius:16, border:"none", background:"#fff", padding:"0 16px", font:"600 16px var(--sans)", color:"var(--ink)", boxShadow:"inset 0 0 0 1.5px var(--line)"};
+const Saved = ({on}) => on ? <p role="status" className="meta" style={{marginTop:10, fontWeight:700, color:"#3F7A57"}}>Enregistré.</p> : null;
+
+function LiveAccountPage({live, onBack}){
+  const [confirm, setConfirm] = useSSet(false);
+  const a = window.BUI.useAction();
+  const W = window.Who;
+  const owner = live.carnet && live.carnet.my_role === "owner";
+  return (
+    <SubPage title="Mon compte" onBack={onBack}>
+      <div className="card" style={{padding:16, display:"flex", gap:12, alignItems:"center"}}>
+        <AvSet name={live.name || "Toi"} size={48} tone="cool"/>
+        <div style={{minWidth:0}}>
+          <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17}}>{live.name || "Mon compte"}</p>
+          <p className="meta" style={{marginTop:2, wordBreak:"break-all"}}>{live.email}</p>
+        </div>
+      </div>
+      <p className="meta" style={{marginTop:14, lineHeight:1.5}}>Pour changer de mot de passe : déconnecte-toi, puis choisis « Mot de passe oublié ». Tu recevras un code par email.</p>
+
+      <button className="card card-press" onClick={live.onLogout} style={{marginTop:18, width:"100%", textAlign:"left", cursor:"pointer", padding:"14px 16px", font:"800 15px var(--sans)"}}>Se déconnecter</button>
+
+      <p className="kicker" style={{marginTop:26, color:"var(--accent)"}}>Zone sensible</p>
+      {!confirm ? (
+        <button onClick={() => setConfirm(true)} className="card" style={{marginTop:10, width:"100%", textAlign:"left", cursor:"pointer", padding:"14px 16px", color:"#8C1D18", font:"800 15px var(--sans)"}}>Supprimer mon compte</button>
+      ) : (
+        <div className="card slide-up" style={{marginTop:10, padding:16}}>
+          <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>Tu pars vraiment ?</p>
+          <p style={{marginTop:8, fontSize:14, color:"var(--ink-2)", lineHeight:1.55}}>On efface définitivement, sans retour possible :</p>
+          <ul style={{margin:"10px 0 0", paddingLeft:18, fontSize:14, color:"var(--ink-2)", lineHeight:1.7}}>
+            <li>ton compte et tes consentements</li>
+            {owner && <li>le carnet de {W.person}, toutes ses notes, y compris celles du cercle</li>}
+            {owner && <li>les fiches partagées : leurs liens ne s'ouvriront plus</li>}
+            {!owner && <li>ta participation aux carnets où tu étais invité·e</li>}
+          </ul>
+          <button className="btn soft" style={{marginTop:14, width:"100%"}} onClick={() => a.run(live.onExport).catch(() => {})}>Exporter mes données d'abord</button>
+          <window.BUI.FormError msg={a.error}/>
+          <div style={{display:"flex", gap:8, marginTop:10}}>
+            <button className="btn soft" style={{flex:1}} onClick={() => setConfirm(false)}>Annuler</button>
+            <button className="btn" style={{flex:1, background:"#8C1D18", color:"#fff"}} disabled={a.busy}
+                    onClick={() => a.run(live.onDeleteAccount).catch(() => {})}>{a.busy ? "Suppression…" : "Supprimer"}</button>
+          </div>
+        </div>
+      )}
+    </SubPage>
+  );
+}
+
+function LiveMePage({live, onBack}){
+  const [name, setName] = useSSet(live.name || "");
+  const [saved, setSaved] = useSSet(false);
+  const a = window.BUI.useAction();
+  return (
+    <SubPage title="Mon profil" onBack={onBack}>
+      <label style={{display:"block", marginTop:8}}><span className="kicker" style={{display:"block", marginBottom:8}}>Ton prénom</span>
+        <input value={name} onChange={e => { setName(e.target.value); setSaved(false); }} maxLength={80} style={liveInput} autoComplete="given-name"/></label>
+      <p className="meta" style={{marginTop:10, lineHeight:1.5}}>C'est ce nom qui signe tes notes et qui apparaît sur les fiches que tu partages.</p>
+      <window.BUI.FormError msg={a.error}/>
+      <button className="btn" style={{marginTop:18, width:"100%"}} disabled={!name.trim() || a.busy}
+              onClick={() => a.run(() => live.onSaveProfile(name.trim())).then(() => setSaved(true)).catch(() => {})}>{a.busy ? "Enregistrement…" : "Enregistrer"}</button>
+      <Saved on={saved}/>
+    </SubPage>
+  );
+}
+
+function LivePersonPage({live, onBack}){
+  const k = live.carnet || {};
+  const owner = k.my_role === "owner";
+  const [f, setF] = useSSet({ name:k.person_name || "", age:k.person_age ?? "", since:k.since_label || "", pronoun:k.pronoun || "elle" });
+  const [saved, setSaved] = useSSet(false);
+  const a = window.BUI.useAction();
+  const up = (key, v) => { setF(p => ({...p, [key]:v})); setSaved(false); };
+  return (
+    <SubPage title={`Profil de ${window.Who.person}`} onBack={onBack}>
+      {!owner && <p className="meta" style={{marginTop:6, lineHeight:1.5}}>Seule la personne qui tient le carnet peut modifier ce profil.</p>}
+      <fieldset disabled={!owner} style={{border:"none", padding:0, margin:0, display:"grid", gap:14, marginTop:8}}>
+        <label><span className="kicker" style={{display:"block", marginBottom:8}}>Prénom (et nom si tu veux)</span>
+          <input value={f.name} onChange={e => up("name", e.target.value)} maxLength={80} style={liveInput}/></label>
+        <div>
+          <span className="kicker" style={{display:"block", marginBottom:8}}>On parle d'elle ou de lui ?</span>
+          <div role="radiogroup" aria-label="Pronom" style={{display:"flex", gap:8}}>
+            {[["elle", "Elle"], ["il", "Il"]].map(([id, l]) => <button key={id} role="radio" className="chip" aria-checked={f.pronoun === id} aria-pressed={f.pronoun === id} onClick={() => up("pronoun", id)}>{l}</button>)}
+          </div>
+        </div>
+        <label><span className="kicker" style={{display:"block", marginBottom:8}}>Âge</span>
+          <input value={f.age} onChange={e => up("age", e.target.value.replace(/\D/g, "").slice(0, 3))} inputMode="numeric" style={liveInput}/></label>
+        <label><span className="kicker" style={{display:"block", marginBottom:8}}>Accompagné{f.pronoun === "il" ? "" : "e"} depuis</span>
+          <input value={f.since} onChange={e => up("since", e.target.value)} maxLength={40} placeholder="2 ans" style={liveInput}/></label>
+      </fieldset>
+      <window.BUI.FormError msg={a.error}/>
+      {owner && <button className="btn" style={{marginTop:18, width:"100%"}} disabled={!f.name.trim() || a.busy}
+              onClick={() => a.run(() => live.onSaveCarnet({ name:f.name.trim(), age:f.age, since:f.since, pronoun:f.pronoun })).then(() => setSaved(true)).catch(() => {})}>{a.busy ? "Enregistrement…" : "Enregistrer"}</button>}
+      <Saved on={saved}/>
+    </SubPage>
+  );
+}
+
+function LiveCirclePage({live, onBack}){
+  const W = window.Who;
+  const owner = live.carnet && live.carnet.my_role === "owner";
+  const [members, setMembers] = useSSet(null);
+  const [f, setF] = useSSet({ name:"", relation:"" });
+  const [invite, setInvite] = useSSet(null);
+  const a = window.BUI.useAction();
+  useESet(() => { live.listMembers().then(setMembers).catch(() => setMembers([])); }, []);
+  return (
+    <SubPage title="Le cercle d'aidants" onBack={onBack}>
+      <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>Les proches invités lisent le carnet de {W.person} et y ajoutent ce qu'ils savent. Chaque note est signée.</p>
+      <p className="kicker" style={{marginTop:22}}>Dans le cercle</p>
+      <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
+        {owner && <LiveRow label={`${live.name || "Toi"} · toi`} value="Tient le carnet"/>}
+        {members === null && <li className="meta">Chargement…</li>}
+        {members && members.map(m => <LiveRow key={m.user_id} label={`${m.display_name || "Proche"}${m.relation ? " · " + m.relation : ""}`} value={`${m.contributions} note${m.contributions > 1 ? "s" : ""}`}/>)}
+        {members && members.length === 0 && <li className="meta" style={{padding:"4px 2px"}}>Personne d'autre pour l'instant.</li>}
+      </ul>
+      {owner && !invite && (<>
+        <p className="kicker" style={{marginTop:24}}>Inviter un proche</p>
+        <div style={{display:"grid", gap:10, marginTop:10}}>
+          <input value={f.name} onChange={e => setF(p => ({...p, name:e.target.value}))} placeholder="Son prénom" maxLength={80} style={liveInput} aria-label="Prénom du proche"/>
+          <input value={f.relation} onChange={e => setF(p => ({...p, relation:e.target.value}))} placeholder={`Son lien avec ${W.person} (ex. ${W.g("son", "son")} petit-fils)`} maxLength={60} style={liveInput} aria-label="Son lien"/>
+        </div>
+        <window.BUI.FormError msg={a.error}/>
+        <button className="btn" style={{marginTop:14, width:"100%"}} disabled={!f.name.trim() || a.busy}
+                onClick={() => a.run(() => live.onInvite({ name:f.name.trim(), relation:f.relation.trim() })).then(setInvite).catch(() => {})}>{a.busy ? "Création…" : "Créer le lien d'invitation"}</button>
+      </>)}
+      {invite && (
+        <div style={{marginTop:22}}>
+          <p className="kicker">Invitation pour {f.name}</p>
+          <p className="meta" style={{marginTop:6, marginBottom:10, lineHeight:1.5}}>Envoie-lui ce lien. Il ne sert qu'une fois : {f.name} créera son compte et rejoindra le cercle.</p>
+          <window.BUI.LinkBox url={invite.url} expiresAt={invite.expiresAt} shareText={`${live.name || "Je"} t'invite au carnet de ${W.person}`}/>
+          <button className="btn soft" style={{marginTop:12, width:"100%"}} onClick={() => { setInvite(null); setF({name:"", relation:""}); }}>Inviter quelqu'un d'autre</button>
+        </div>
+      )}
+    </SubPage>
+  );
+}
+
+function LiveAccessPage({live, onBack, visibility, setVisibility}){
+  const shares = live.shares || [];
+  const now = Date.now();
+  return (
+    <SubPage title="Accès & partages" onBack={onBack}>
+      <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>Chaque fiche partagée, ce qu'elle montre et combien de fois elle a été ouverte. Tu crées les liens depuis « Transmettre ».</p>
+      <p className="kicker" style={{marginTop:22}}>Fiches partagées</p>
+      <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:8}}>
+        {shares.length === 0 && <li className="card" style={{padding:16}}><p className="meta">Aucune fiche partagée pour l'instant.</p></li>}
+        {shares.map(sh => { const st = sh.revokedAt ? "Désactivée" : sh.expiresAt <= now ? "Expirée" : "Active"; return (
+          <li key={sh.id} className="card" style={{padding:16}}>
+            <div style={{display:"flex", justifyContent:"space-between", gap:10, alignItems:"center"}}>
+              <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>{sh.name || "Relais"}</p>
+              <span className="mono" style={{padding:"4px 10px", fontSize:11, borderRadius:8, background: st === "Active" ? "var(--c-gouts)" : "rgba(0,0,0,.08)", color: st === "Active" ? "var(--c-gouts-ink)" : "var(--ink-3)", letterSpacing:".08em"}}>{st.toUpperCase()}</span>
+            </div>
+            <p className="meta" style={{marginTop:8}}>{sh.included.map(id => CBYSet[id]?.title).join(" · ")}</p>
+            <p className="meta" style={{marginTop:6}}>Créée {softDateSet(sh.createdAt)} · {sh.openCount ? `ouverte ${sh.openCount} fois, la dernière ${softDateSet(sh.lastOpenedAt)}` : "jamais ouverte"}</p>
+            {st === "Active" && <button className="chip" style={{marginTop:10, color:"#8C1D18"}} onClick={() => live.onRevoke(sh.id)}>Désactiver ce lien</button>}
+          </li>
+        ); })}
+      </ul>
+      <p className="kicker" style={{marginTop:22}}>Rubriques masquables</p>
+      <p style={{marginTop:6, fontSize:13, color:"var(--ink-2)"}}>Désactive une rubrique pour qu'elle ne soit proposée dans aucune nouvelle fiche.</p>
+      <div style={{marginTop:10, display:"grid", gap:6}}>
+        {CATSet.map(c => { const on = visibility[c.id] !== false; const Icon = c.Icon; return (
+          <div key={c.id} className="card" style={{padding:12, display:"flex", gap:12, alignItems:"center"}}>
+            <span style={{width:30, height:30, borderRadius:9, background:c.bg, color:c.ink, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}} aria-hidden="true"><Icon size={15} sw={1.6}/></span>
+            <span style={{flex:1, minWidth:0, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15}}>{c.title}</span>
+            <button role="switch" aria-checked={on} onClick={() => setVisibility({...visibility, [c.id]: !on})} aria-label={`Inclure ${c.title}`}
+                    style={{width:46, height:26, borderRadius:999, border:"none", padding:3, background: on ? "var(--accent)" : "var(--line-2)", cursor:"pointer", flexShrink:0}}>
+              <span style={{display:"block", width:20, height:20, borderRadius:"50%", background:"#FFFFFF", transform: on ? "translateX(20px)" : "translateX(0)", transition:"transform .2s"}}/>
+            </button>
+          </div>
+        ); })}
+      </div>
+    </SubPage>
+  );
+}
+
+function LivePrivacyPage({live, onBack, onGo}){
+  const [consents, setConsents] = useSSet(null);
+  const [done, setDone] = useSSet(false);
+  const a = window.BUI.useAction();
+  useESet(() => { window.Backend.myConsents().then(setConsents).catch(() => setConsents([])); }, []);
+  const LABEL = { terms:"Conditions et politique de confidentialité", sensitive_data:"Informations sensibles, partagées seulement sur invitation", person_consent:"Accord de la personne accompagnée" };
+  const VALUE = { accepted:"acceptées", accord:"accord donné", representant:"représentant légal", later:"à en parler plus tard" };
+  const day = (d) => new Date(d).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"});
+  return (
+    <SubPage title="Confidentialité & données" onBack={onBack}>
+      <div className="hero cool" style={{padding:18, marginTop:6}}>
+        <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17}}>Tes données t'appartiennent.</p>
+        <p style={{marginTop:10, fontSize:14.5, lineHeight:1.55}}>Le carnet n'est pas un dossier médical : aucune donnée clinique, aucun diagnostic. Rien n'est partagé sans ton invitation.</p>
+      </div>
+      <p className="kicker" style={{marginTop:22}}>Où sont les données</p>
+      <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
+        <LiveRow label="Hébergement" value="Union européenne"/>
+        <LiveRow label="Chiffrement" value="Au repos et en transit"/>
+        <LiveRow label="Liens partagés" value="Expirent, révocables"/>
+      </ul>
+      <p className="kicker" style={{marginTop:22}}>Consentements enregistrés</p>
+      <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
+        {consents === null && <li className="meta">Chargement…</li>}
+        {consents && consents.map((c, i) => (
+          <li key={i} className="card" style={{padding:"12px 16px"}}>
+            <p style={{font:"800 14px var(--sans)"}}>{LABEL[c.kind] || c.kind}</p>
+            <p className="meta" style={{marginTop:4}}>{VALUE[c.value] || c.value} · le {day(c.created_at)} · version {c.version}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="kicker" style={{marginTop:22}}>Tes droits</p>
+      <div style={{display:"grid", gap:8, marginTop:10}}>
+        <button className="btn soft" style={{width:"100%"}} disabled={a.busy} onClick={() => a.run(live.onExport).then(() => setDone(true)).catch(() => {})}>{a.busy ? "Préparation…" : "Exporter toutes mes données"}</button>
+        {done && <p role="status" className="meta" style={{fontWeight:700}}>Fichier téléchargé.</p>}
+        <window.BUI.FormError msg={a.error}/>
+        <button className="btn soft" style={{width:"100%", color:"#8C1D18"}} onClick={() => onGo("account")}>Supprimer mon compte et mes données</button>
+      </div>
     </SubPage>
   );
 }

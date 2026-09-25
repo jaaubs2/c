@@ -20,15 +20,16 @@ function Ring({value, max, size=56, stroke=3, label}){
   );
 }
 
-function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, onOpenNotifs, sharePayload, onOpenJournal}){
+function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, onOpenNotifs, sharePayload, lastShare, onOpenJournal}){
+  const W = window.Who;
   const counts = useMemo(() => { const c = {}; for(const n of notes) c[n.catId] = (c[n.catId]||0)+1; return c; }, [notes]);
   const filled = CATEGORIES.filter(c => counts[c.id] > 0).length;
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const matches = useMemo(() => { if(!search.trim()) return []; const q = search.toLowerCase(); return notes.filter(n => n.text.toLowerCase().includes(q)).slice(0,5); }, [search, notes]);
   const m = momentNow();
-  const ritual = RITUALS.find(x => x.moment === m) || RITUALS[0];
-  const rcat = CAT_BY_ID[ritual.catId];
+  const ritual = (W.demo ? RITUALS.find(x => x.moment === m) || RITUALS[0] : window.Live.ritual(notes, m))
+    || { catId:"habitudes", title:"Un repère pour ce moment", body:`Qu'est-ce qui compte pour ${W.g("elle", "lui")} à ce moment de la journée ? Note-le.` };
   const momentLabel = {matin:"ce matin", midi:"ce midi", aprem:"cet après-midi", soir:"ce soir"}[m];
   const weak = CATEGORIES.find(c => (counts[c.id]||0) < 3);
   const prompt = ENRICHMENT_PROMPTS.find(p => p.catId === weak?.id) || ENRICHMENT_PROMPTS[0];
@@ -40,10 +41,10 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
       <StatusBar/>
       <div className="topbar" style={{padding:"8px 20px 4px"}}>
         <div style={{display:"flex", alignItems:"center", gap:12, minWidth:0, flex:1}}>
-          <Avatar name="Anne C" size={46} tone="cool"/>
+          <Avatar name={W.aidantFull || W.aidant || "Toi"} size={46} tone="cool"/>
           <div style={{minWidth:0}}>
-            <p style={{font:"800 19px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1}}>{timeGreeting()}, Anne</p>
-            <p className="meta" style={{fontSize:12.5, marginTop:2}}>Aidante de Jeanne</p>
+            <p style={{font:"800 19px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1}}>{timeGreeting()}{W.aidant ? `, ${W.aidant}` : ""}</p>
+            <p className="meta" style={{fontSize:12.5, marginTop:2}}>Aux côtés de {W.person}</p>
           </div>
         </div>
         <button className="iconbtn" aria-label="Notifications" onClick={onOpenNotifs} style={{position:"relative"}}>
@@ -71,18 +72,18 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
         <div style={{...pad, paddingTop:16}}>
           <div className="hero" style={{padding:"22px 22px 22px"}}>
             <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
-              <button onClick={() => onTab("settings")} aria-label="Profil de Jeanne" style={{width:52, height:52, borderRadius:"50%", background:"var(--ink)", border:"none", padding:0, overflow:"hidden", display:"flex", alignItems:"flex-end", justifyContent:"center", cursor:"pointer"}}>
-                <JeanneIllustration size={50}/>
+              <button onClick={() => onTab("settings")} aria-label={`Profil de ${W.person}`} style={{width:52, height:52, borderRadius:"50%", background:"var(--ink)", border:"none", padding:0, overflow:"hidden", display:"flex", alignItems:"flex-end", justifyContent:"center", cursor:"pointer"}}>
+                {W.demo ? <JeanneIllustration size={50}/> : <window.Persona name={W.personFull || W.person} size={50} bg="transparent" style={W.pronoun === "il" ? "short" : undefined}/>}
               </button>
               <Ring value={filled} max={CATEGORIES.length} size={60} stroke={3}/>
             </div>
-            <h1 style={{marginTop:18, fontSize:30}}>Le carnet de Jeanne</h1>
+            <h1 style={{marginTop:18, fontSize:30}}>Le carnet de {W.person}</h1>
             <p className="meta" style={{marginTop:6, opacity:.8}}>{notes.length} notes · {filled} rubriques sur {CATEGORIES.length} renseignées</p>
 
-            <div role="radiogroup" aria-label="Comment va Jeanne aujourd'hui" style={{display:"flex", gap:6, marginTop:18, flexWrap:"wrap"}}>
+            <div role="radiogroup" aria-label={`Comment va ${W.person} aujourd'hui`} style={{display:"flex", gap:6, marginTop:18, flexWrap:"wrap"}}>
               {MOODS.map(x => { const on = mood === x.id; return (
                 <button key={x.id} role="radio" aria-checked={on} onClick={() => setMood(on ? null : x.id)}
-                        style={{border:"none", borderRadius:999, padding:"0 14px", minHeight:38, cursor:"pointer", font:"700 13px var(--sans)", background: on ? "var(--ink)" : "rgba(255,255,255,.55)", color: on ? "#fff" : "inherit"}}>{x.label}</button>
+                        style={{border:"none", borderRadius:999, padding:"0 14px", minHeight:38, cursor:"pointer", font:"700 13px var(--sans)", background: on ? "var(--ink)" : "rgba(255,255,255,.55)", color: on ? "#fff" : "inherit"}}>{W.pronoun === "il" ? ({sereine:"Serein", fatiguee:"Fatigué"}[x.id] || x.label) : x.label}</button>
               ); })}
             </div>
             <button onClick={onOpenCapture} className="btn" style={{marginTop:18, minHeight:50, paddingLeft:22, whiteSpace:"nowrap"}}>
@@ -127,10 +128,10 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
         {(() => {
           const pick = (catId, fallback) => { const n = notes.find(x => x.catId === catId && !x.archived); return n ? n.text : fallback; };
           const byMood = {
-            fragile:  { kicker:"Elle est fragile aujourd'hui", catId:"apaise",  title:"Ce qui l'apaise", body: pick("apaise", "Une voix douce, sa musique, le calme."), tone:"var(--c-apaise)", ink:"var(--c-apaise-ink)" },
-            fatiguee: { kicker:"Elle est fatiguée", catId:"habitudes", title:"Alléger la journée", body: pick("habitudes", "Respecter ses temps de repos, ne rien forcer."), tone:"var(--c-habitudes)", ink:"var(--c-habitudes-ink)" },
-            sereine:  { kicker:"Elle est sereine", catId:"histoire", title:"Un moment pour se souvenir", body: pick("histoire", "Une photo, une chanson, une question sur sa jeunesse."), tone:"var(--c-histoire)", ink:"var(--c-histoire-ink)" },
-            belle:    { kicker:"Belle journée", catId:"proches", title:"En profiter", body:"Une sortie courte pendant qu'elle est en forme, ou un appel à Claire : elle adore entendre sa voix.", tone:"var(--c-sante)", ink:"var(--c-sante-ink)" },
+            fragile:  { kicker:W.g("Elle est fragile aujourd'hui", "Il est fragile aujourd'hui"), catId:"apaise",  title:"Ce qui l'apaise", body: pick("apaise", "Une voix douce, sa musique, le calme."), tone:"var(--c-apaise)", ink:"var(--c-apaise-ink)" },
+            fatiguee: { kicker:W.g("Elle est fatiguée", "Il est fatigué"), catId:"habitudes", title:"Alléger la journée", body: pick("habitudes", "Respecter ses temps de repos, ne rien forcer."), tone:"var(--c-habitudes)", ink:"var(--c-habitudes-ink)" },
+            sereine:  { kicker:W.g("Elle est sereine", "Il est serein"), catId:"histoire", title:"Un moment pour se souvenir", body: pick("histoire", "Une photo, une chanson, une question sur sa jeunesse."), tone:"var(--c-histoire)", ink:"var(--c-histoire-ink)" },
+            belle:    { kicker:"Belle journée", catId:"proches", title:"En profiter", body: W.demo ? "Une sortie courte pendant qu'elle est en forme, ou un appel à Claire : elle adore entendre sa voix." : `Une sortie courte pendant qu'${W.g("elle", "il")} est en forme, ou un appel à un proche.`, tone:"var(--c-sante)", ink:"var(--c-sante-ink)" },
           };
           const mm = mood && byMood[mood];
           const card = mm || { kicker:`Pour ${momentLabel}`, catId:ritual.catId, title:ritual.title, body:ritual.body, tone:"var(--card)", ink:"var(--ink)" };
@@ -160,7 +161,7 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
               <span aria-hidden="true" style={{width:44, height:44, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, font:"800 15px var(--sans)"}}>{stale.length}</span>
               <span style={{flex:1, minWidth:0}}>
                 <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Toujours d'actualité ?</span>
-                <span style={{display:"block", marginTop:4, fontSize:13, fontWeight:600, opacity:.85, lineHeight:1.4}}>« {first.text.length > 60 ? first.text.slice(0,60) + "…" : first.text} » a {Math.round((Date.now()-first.ts)/86400000/30)} mois. Jeanne change, le carnet aussi.</span>
+                <span style={{display:"block", marginTop:4, fontSize:13, fontWeight:600, opacity:.85, lineHeight:1.4}}>« {first.text.length > 60 ? first.text.slice(0,60) + "…" : first.text} » a {Math.round((Date.now()-first.ts)/86400000/30)} mois. {W.person} change, le carnet aussi.</span>
               </span>
               <IconChevron size={18}/>
             </button>
@@ -183,10 +184,22 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
         <div style={{...pad, paddingTop:14}}>
           <button onClick={() => onTab("transmettre")} className="card card-press" style={{width:"100%", textAlign:"left", cursor:"pointer", display:"flex", gap:14, alignItems:"center", padding:16}}>
             <span aria-hidden="true" style={{width:48, height:48, borderRadius:16, background:"var(--c-proches)", color:"var(--c-proches-ink)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><IconShare size={20} sw={1.8}/></span>
-            <span style={{flex:1, minWidth:0}}>
-              <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Fiche envoyée à {sharePayload.name.split(" ")[0]}</span>
-              <span className="meta" style={{display:"block", marginTop:4}}>il y a 2 jours · 6 rubriques · valable 5 jours</span>
-            </span>
+            {W.demo ? (
+              <span style={{flex:1, minWidth:0}}>
+                <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Fiche envoyée à {sharePayload.name.split(" ")[0]}</span>
+                <span className="meta" style={{display:"block", marginTop:4}}>il y a 2 jours · 6 rubriques · valable 5 jours</span>
+              </span>
+            ) : lastShare ? (
+              <span style={{flex:1, minWidth:0}}>
+                <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Fiche {lastShare.name ? `pour ${lastShare.name.split(" ")[0]}` : "partagée"}</span>
+                <span className="meta" style={{display:"block", marginTop:4}}>{lastShare.openCount ? `ouverte ${lastShare.openCount} fois` : "pas encore ouverte"} · {lastShare.included.length} rubrique{lastShare.included.length > 1 ? "s" : ""} · valable {Math.max(1, Math.ceil((lastShare.expiresAt - Date.now()) / 86400000))} j</span>
+              </span>
+            ) : (
+              <span style={{flex:1, minWidth:0}}>
+                <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Transmettre à un relais</span>
+                <span className="meta" style={{display:"block", marginTop:4}}>Crée un lien sécurisé, rubrique par rubrique.</span>
+              </span>
+            )}
             <IconChevron size={18}/>
           </button>
         </div>

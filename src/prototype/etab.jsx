@@ -117,7 +117,11 @@ const SEED_ADDED = [
   { id:"a2", residentId:"henri",  text:"Agité vers 14h en attendant Nadia. Le match à la télé l'a apaisé.", catId:"apaise", ts:Date.now()-6*3600000, by:"karim", status:"published" },
   { id:"a3", residentId:"louise", text:"A demandé « son atelier » deux fois. Un tissu à plier a suffi.", catId:"histoire", ts:Date.now()-26*3600000, by:"theo", status:"pending" },
 ];
-const first = n => n.split(" ")[0];
+const first = n => (n || "").split(" ")[0];
+// Établissement affiché (démo ; remplacé par le vrai avec un compte).
+const ORG = { name:"Maison des Tilleuls", cadreName:"Marc Aubry", cadreRole:"Cadre de santé", demo:true };
+const NO_UNIT = { id:null, name:"Sans unité", sub:"Ton cadre va t'affecter à une unité.", tone:"var(--bg-2)", ink:"var(--ink)" };
+const unitOf = (id) => UNITS.find(x => x.id === id) || NO_UNIT;
 const MOMENT_LABEL = { matin:"Ce matin", midi:"Ce midi", aprem:"Cet après-midi", soir:"Ce soir" };
 
 /* ── Primitives ──────────────────────────────────────────── */
@@ -180,10 +184,10 @@ function CadreUnits({staff, added, notesOf, onOpenUnit, onTab, onSwitchRole, onA
       <StatusBar/>
       <div className="topbar" style={{padding:"8px 20px 4px"}}>
         <div style={{display:"flex", alignItems:"center", gap:12, minWidth:0, flex:1}}>
-          <button onClick={onSwitchRole} aria-label="Changer de rôle (démo)" style={{border:"none", background:"none", padding:0, cursor:"pointer"}}><Avatar name="Marc Aubry" size={46} tone="sage"/></button>
+          <button onClick={onSwitchRole || undefined} aria-label={onSwitchRole ? "Changer de rôle (démo)" : ORG.cadreName} style={{border:"none", background:"none", padding:0, cursor: onSwitchRole ? "pointer" : "default"}}><Avatar name={ORG.cadreName} size={46} tone="sage"/></button>
           <div style={{minWidth:0}}>
-            <p style={{font:"800 19px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1}}>{timeGreeting()}, Marc</p>
-            <p className="meta" style={{fontSize:12.5, marginTop:2}}>Cadre de santé · Maison des Tilleuls</p>
+            <p style={{font:"800 19px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1}}>{timeGreeting()}, {first(ORG.cadreName)}</p>
+            <p className="meta" style={{fontSize:12.5, marginTop:2}}>{ORG.cadreRole} · {ORG.name}</p>
           </div>
         </div>
         <button className="iconbtn" aria-label="Nouveau résident" onClick={onAddResident} style={{background:"var(--ink)", color:"#fff"}}><span style={{font:"800 22px var(--sans)", lineHeight:1}}>+</span></button>
@@ -260,7 +264,7 @@ function CadreUnit({unitId, staff, notesOf, onBack, onOpenResident, onOpenTeam, 
   );
 }
 
-function CadreTeam({staff, setStaff, focusId, onOpen, onAdd, onInvite}){
+function CadreTeam({staff, setStaff, focusId, onOpen, onAdd, onInvite, invites}){
   const [q, setQ] = useState("");
   const list = staff.filter(s => (s.name + s.role).toLowerCase().includes(q.toLowerCase()));
   return (
@@ -278,7 +282,7 @@ function CadreTeam({staff, setStaff, focusId, onOpen, onAdd, onInvite}){
           </button>
         </div>
         <ul style={{listStyle:"none", padding:0, margin:"16px 0 0", display:"grid", gap:10}}>
-          {list.map(s => { const u = UNITS.find(x => x.id === s.unit); const p = PERMS.find(x => x.id === s.perm); return (
+          {list.map(s => { const u = unitOf(s.unit); const p = PERMS.find(x => x.id === s.perm); return (
             <li key={s.id}><button onClick={() => onOpen(s.id)} className="card card-press" style={{width:"100%", textAlign:"left", cursor:"pointer", padding:16, display:"flex", gap:12, alignItems:"center", outline: focusId === s.id ? "3px solid var(--ink)" : "none"}}>
               <Avatar name={s.name} size={44} tone={s.tone}/>
               <span style={{flex:1, minWidth:0}}>
@@ -290,15 +294,21 @@ function CadreTeam({staff, setStaff, focusId, onOpen, onAdd, onInvite}){
             </button></li>
           ); })}
         </ul>
+        {invites && invites.length > 0 && (<>
+          <p className="kicker" style={{marginTop:22, marginBottom:10}}>Codes en attente</p>
+          <ul style={{listStyle:"none", padding:0, margin:0, display:"grid", gap:8}}>
+            {invites.map(i => <li key={i.id} className="card" style={{padding:"12px 16px", display:"flex", justifyContent:"space-between", gap:12}}><span style={{font:"800 14px var(--sans)"}}>{i.display_name}</span><span className="meta" style={{fontSize:12.5}}>valable jusqu'au {new Date(i.expires_at).toLocaleString("fr-FR", {weekday:"short", hour:"2-digit", minute:"2-digit"})}</span></li>)}
+          </ul>
+        </>)}
       </div>
     </div>
   );
 }
 
-function CadreStaff({staffId, staff, setStaff, onBack, onToast}){
+function CadreStaff({staffId, staff, setStaff, onUpdate, onBack, onToast}){
   const s = staff.find(x => x.id === staffId);
-  const upd = (patch) => setStaff(prev => prev.map(x => x.id === staffId ? {...x, ...patch} : x));
-  const u = UNITS.find(x => x.id === s.unit);
+  const upd = (patch) => onUpdate ? onUpdate(s, {...s, ...patch}) : setStaff(prev => prev.map(x => x.id === staffId ? {...x, ...patch} : x));
+  const u = unitOf(s.unit);
   return (
     <div className="screen fade-enter">
       <StatusBar/>
@@ -340,9 +350,10 @@ function CadreStaff({staffId, staff, setStaff, onBack, onToast}){
   );
 }
 
-function CadreValidate({added, setAdded, staff, onToast}){
+function CadreValidate({added, setAdded, staff, onToast, onDecide}){
   const pending = added.filter(a => a.status === "pending");
   const act = (id, status) => {
+    if(onDecide) return onDecide(id, status);
     const a = added.find(x => x.id === id);
     setAdded(p => p.map(x => x.id === id ? {...x, status} : x));
     if(status === "published" && a && a.residentId === "jeanne"){ const s = staff.find(x => x.id === a.by); window.FamilyJournal.publish({ text:a.text, catId:a.catId, ts:Date.now(), who: s ? first(s.name) : "L'équipe", role: s ? s.role : "Équipe", unit:"B" }); }
@@ -359,13 +370,13 @@ function CadreValidate({added, setAdded, staff, onToast}){
             <li key={a.id} className="card" style={{padding:16}}>
               <div style={{display:"flex", gap:12, alignItems:"center"}}>
                 <Portrait r={r} size={40}/>
-                <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15px var(--sans)"}}>{r.profile.name}</span><span className="meta" style={{fontSize:12.5}}>{r.room} · Unité {r.unit}</span></span>
+                <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15px var(--sans)"}}>{r.profile.name}</span><span className="meta" style={{fontSize:12.5}}>{r.room} · {unitOf(r.unit).name}</span></span>
                 <span className="meta" style={{fontSize:12, whiteSpace:"nowrap"}}>{softDate(a.ts)}</span>
               </div>
               <p style={{marginTop:12, font:"600 15px var(--sans)", lineHeight:1.5}}>{a.text}</p>
               <div style={{display:"flex", gap:6, marginTop:10, flexWrap:"wrap"}}>
                 <Pill tone={c.bg} ink={c.ink}>{c.title}</Pill>
-                <Pill tone="var(--bg)" ink="var(--ink)">{s ? `${first(s.name)} · ${s.role}` : "Équipe"}</Pill>
+                <Pill tone="var(--bg)" ink="var(--ink)">{s ? `${first(s.name)} · ${s.role}` : a.author ? `${first(a.author)}${a.authorRole ? " · " + a.authorRole : ""}` : "Équipe"}</Pill>
               </div>
               <div style={{display:"flex", gap:8, marginTop:14}}>
                 <button className="btn" style={{flex:1, minHeight:46}} onClick={() => act(a.id, "published")}><IconCheck size={18}/> Valider</button>
@@ -379,10 +390,19 @@ function CadreValidate({added, setAdded, staff, onToast}){
   );
 }
 
-function AddStaff({onBack, onDone}){
-  const [f, setF] = useState({ name:"", role:"Aide-soignante", unit:"B", perm:"validate" });
-  const [code] = useState(() => String(Math.floor(100000 + Math.random()*900000)));
+function AddStaff({onBack, onDone, onCreateCode}){
+  const [f, setF] = useState({ name:"", role:"Aide-soignante", unit: ORG.demo ? "B" : (UNITS[0] || {}).id, perm:"validate" });
+  const [code, setCode] = useState(() => String(Math.floor(100000 + Math.random()*900000)));
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  async function generate(){
+    if(!onCreateCode){ setSent(true); return; }
+    setBusy(true); setErr("");
+    try { const r = await onCreateCode(f); setCode(r.code); setSent(true); }
+    catch(e){ setErr(e.message); }
+    finally { setBusy(false); }
+  }
   const up = (k,v) => setF(p => ({...p, [k]:v}));
   const ROLES = ["Aide-soignante","Infirmier·ère","AMP","ASH","Psychomotricien·ne","Animateur·rice"];
   return (
@@ -399,15 +419,16 @@ function AddStaff({onBack, onDone}){
           <p className="kicker" style={{marginTop:18}}>Droits</p>
           <ul style={{listStyle:"none", padding:0, margin:"8px 0 0", display:"grid", gap:6}}>{PERMS.map(p => { const on = f.perm === p.id; return <li key={p.id}><button onClick={() => up("perm", p.id)} role="radio" aria-checked={on} className="card" style={{width:"100%", textAlign:"left", cursor:"pointer", padding:"12px 14px", display:"flex", gap:12, alignItems:"center", background: on ? "var(--ink)" : "#fff", color: on ? "#fff" : "var(--ink)"}}><span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 14px var(--sans)"}}>{p.label}</span><span style={{display:"block", fontSize:12.5, fontWeight:600, opacity: on ? .75 : 1, color: on ? "#fff" : "var(--ink-2)"}}>{p.desc}</span></span></button></li>; })}</ul>
           <div style={{flex:1}}/>
-          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={!f.name.trim()} onClick={() => setSent(true)}>Générer son code</button>
+          {err && <p role="alert" style={{marginTop:14, padding:"12px 14px", borderRadius:14, background:"#FBE3E1", color:"#8C1D18", font:"700 14px var(--sans)"}}>{err}</p>}
+          <button className="btn" style={{marginTop:20, width:"100%"}} disabled={!f.name.trim() || busy} onClick={generate}>{busy ? "Création du code…" : "Générer son code"}</button>
         </>) : (<>
           <div className="fade-enter" style={{marginTop:8, background:"var(--c-histoire)", color:"var(--c-histoire-ink)", borderRadius:"var(--r-xl)", padding:22, textAlign:"center"}}>
             <window.UserPersona name={f.name} size={72} bg="rgba(255,255,255,.7)"/>
             <p style={{marginTop:12, font:"800 20px var(--sans)", letterSpacing:"-.02em"}}>{f.name}</p>
-            <p style={{marginTop:4, fontSize:13.5, fontWeight:600, opacity:.85}}>{f.role} · Unité {f.unit} · {PERMS.find(p => p.id === f.perm).label}</p>
+            <p style={{marginTop:4, fontSize:13.5, fontWeight:600, opacity:.85}}>{f.role} · {unitOf(f.unit).name} · {PERMS.find(p => p.id === f.perm).label}</p>
             <p className="kicker" style={{marginTop:22, color:"inherit", opacity:.75}}>Son code d'équipe</p>
             <p style={{marginTop:8, font:"800 44px var(--sans)", letterSpacing:".18em"}} aria-label={"Code " + code.split("").join(" ")}>{code}</p>
-            <p style={{marginTop:10, fontSize:13, fontWeight:600, opacity:.85, lineHeight:1.45}}>Valable 48 h. Elle l'entre à sa première ouverture, choisit un PIN, et c'est tout.</p>
+            <p style={{marginTop:10, fontSize:13, fontWeight:600, opacity:.85, lineHeight:1.45}}>{ORG.demo ? "Valable 48 h. Elle l'entre à sa première ouverture, choisit un PIN, et c'est tout." : "Valable 48 h, une seule fois. Elle crée son compte (profil « soignant·e »), puis entre ce code."}</p>
           </div>
           <button className="btn soft" style={{marginTop:14, width:"100%"}} onClick={() => navigator.clipboard && navigator.clipboard.writeText(code)}>Copier le code</button>
           <div style={{flex:1}}/>
@@ -419,7 +440,29 @@ function AddStaff({onBack, onDone}){
 }
 
 function AddResident({unit:presetUnit, onBack, onDone}){
-  const [f, setF] = useState({ name:"", age:"", room:"", unit:presetUnit || "B", family:"", contact:"", invite:true });
+  const [f, setF] = useState({ name:"", age:"", room:"", unit:presetUnit || (ORG.demo ? "B" : (UNITS[0] || {}).id), family:"", contact:"", invite:true });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [created, setCreated] = useState(null);
+  async function submit(){
+    if(ORG.demo){ onDone(f); return; }
+    setBusy(true); setErr("");
+    try { const r = await onDone(f); if(r && r.invite) setCreated(r); }
+    catch(e){ setErr(e.message); }
+    finally { setBusy(false); }
+  }
+  if(created) return (
+    <div className="screen fade-enter">
+      <StatusBar/>
+      <Header left={<button className="iconbtn" aria-label="Retour" onClick={() => created.open()}><IconBack size={20}/></button>} title="Carnet ouvert"/>
+      <div className="scroll" style={{padding:"8px 20px 24px"}}>
+        <h1 style={{fontSize:26, marginTop:8}}>Invitation pour {first(f.family.split(",")[0])}.</h1>
+        <p className="meta" style={{marginTop:8, lineHeight:1.5}}>Envoie-lui ce lien (SMS, email). Il ne sert qu'une fois : la famille crée son compte, lit le carnet et y ajoute ce qu'elle seule sait.</p>
+        <div style={{marginTop:18}}><window.BUI.LinkBox url={created.invite.url} expiresAt={created.invite.expiresAt} shareText={`${ORG.name} vous invite au carnet de ${first(f.name)}`}/></div>
+        <button className="btn" style={{marginTop:20, width:"100%"}} onClick={() => created.open()}><IconCheck size={18}/> Ouvrir le carnet</button>
+      </div>
+    </div>
+  );
   const up = (k,v) => setF(p => ({...p, [k]:v}));
   const In = ({label, k, ...p}) => <label style={{display:"block"}}><span style={{display:"block", font:"800 13px var(--sans)", color:"var(--ink-2)", marginBottom:6}}>{label}</span><input value={f[k]} onChange={ev => up(k, ev.target.value)} {...p} style={{width:"100%", minHeight:52, borderRadius:16, border:"none", background:"#fff", padding:"0 16px", font:"600 16px var(--sans)", color:"var(--ink)", boxShadow:"inset 0 0 0 1.5px var(--line)"}}/></label>;
   const ok = f.name.trim() && f.room.trim();
@@ -447,12 +490,13 @@ function AddResident({unit:presetUnit, onBack, onDone}){
             </button>
             {f.invite && <div className="slide-up" style={{display:"grid", gap:10, marginTop:12}}>
               <In label="Proche référent·e" k="family" placeholder="Prénom, lien (fille, époux…)"/>
-              <In label="Email ou téléphone" k="contact" placeholder="Pour lui envoyer l'invitation"/>
+              {ORG.demo ? <In label="Email ou téléphone" k="contact" placeholder="Pour lui envoyer l'invitation"/> : <p className="meta" style={{fontSize:12.5, lineHeight:1.45}}>Un lien d'invitation te sera donné, à lui envoyer par SMS ou email.</p>}
             </div>}
           </div>
         </div>
         <div style={{flex:1}}/>
-        <button className="btn" style={{marginTop:20, width:"100%"}} disabled={!ok} onClick={() => onDone(f)}><IconCheck size={18}/> Ouvrir le carnet{f.invite && f.family ? " et inviter " + f.family.split(",")[0] : ""}</button>
+        {err && <p role="alert" style={{marginTop:14, padding:"12px 14px", borderRadius:14, background:"#FBE3E1", color:"#8C1D18", font:"700 14px var(--sans)"}}>{err}</p>}
+        <button className="btn" style={{marginTop:20, width:"100%"}} disabled={!ok || busy} onClick={submit}><IconCheck size={18}/> {busy ? "Ouverture…" : "Ouvrir le carnet" + (f.invite && f.family ? " et inviter " + f.family.split(",")[0] : "")}</button>
       </div>
     </div>
   );
@@ -460,7 +504,7 @@ function AddResident({unit:presetUnit, onBack, onDone}){
 
 /* ══ SOIGNANT·E ══════════════════════════════════════════ */
 function StaffHome({me, notesOf, added, onOpenResident, onTab, onSwitchRole, onCapture}){
-  const u = UNITS.find(x => x.id === me.unit), p = PERMS.find(x => x.id === me.perm);
+  const u = unitOf(me.unit), p = PERMS.find(x => x.id === me.perm);
   const res = RESIDENTS.filter(r => r.unit === me.unit);
   const mine = added.filter(a => a.by === me.id && a.status === "pending").length;
   return (
@@ -468,14 +512,14 @@ function StaffHome({me, notesOf, added, onOpenResident, onTab, onSwitchRole, onC
       <StatusBar/>
       <div className="topbar" style={{padding:"8px 20px 4px"}}>
         <div style={{display:"flex", alignItems:"center", gap:12, minWidth:0, flex:1}}>
-          <button onClick={onSwitchRole} aria-label="Changer de rôle (démo)" style={{border:"none", background:"none", padding:0, cursor:"pointer"}}><Avatar name={me.name} size={46} tone={me.tone}/></button>
+          <button onClick={onSwitchRole || undefined} aria-label={onSwitchRole ? "Changer de rôle (démo)" : me.name} style={{border:"none", background:"none", padding:0, cursor: onSwitchRole ? "pointer" : "default"}}><Avatar name={me.name} size={46} tone={me.tone}/></button>
           <div style={{minWidth:0}}>
             <p style={{font:"800 19px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1, whiteSpace:"nowrap"}}>Bonjour, {first(me.name)}</p>
             <p className="meta" style={{fontSize:12.5, marginTop:2}}>{me.role} · {u.name}</p>
           </div>
         </div>
       </div>
-      <window.NetBanner/>
+      {ORG.demo && <window.NetBanner/>}
       <div className="scroll">
         <div style={{padding:"12px 20px 0"}}>
           <div style={{background:u.tone, color:u.ink, borderRadius:"var(--r-xl)", padding:20}}>
@@ -511,7 +555,7 @@ function Resident({residentId, notesOf, canWrite, onBack, onOpenCat, onAdd}){
   return (
     <div className="screen fade-enter">
       <StatusBar/>
-      <Header left={<button className="iconbtn" aria-label="Retour" onClick={onBack}><IconBack size={20}/></button>} title={`${r.room} · Unité ${r.unit}`}
+      <Header left={<button className="iconbtn" aria-label="Retour" onClick={onBack}><IconBack size={20}/></button>} title={`${r.room} · ${unitOf(r.unit).name}`}
               right={canWrite ? <button className="iconbtn" aria-label="Ajouter une note" onClick={onAdd} style={{background:"var(--ink)", color:"#fff"}}><IconMic size={18}/></button> : <span className="iconbtn" aria-label="Lecture seule" style={{color:"var(--ink-3)"}}><IconLock size={18}/></span>}/>
       <div className="scroll" style={{padding:"8px 20px 24px"}}>
         <div style={{background:r.tone, color:r.ink, borderRadius:"var(--r-xl)", padding:"22px 20px", marginTop:6}}>
@@ -625,7 +669,7 @@ function Today({units, notesOf, onOpenResident}){
             <li key={r.id}><div style={{background:r.tone, color:r.ink, borderRadius:"var(--r-lg)", padding:16}}>
               <button onClick={() => onOpenResident(r.id)} style={{display:"flex", alignItems:"center", gap:12, width:"100%", border:"none", background:"none", padding:0, cursor:"pointer", color:"inherit", textAlign:"left"}}>
                 <Portrait r={r} size={40}/>
-                <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 16px var(--sans)", letterSpacing:"-.02em"}}>{r.profile.name}</span><span style={{fontSize:12.5, fontWeight:700, opacity:.8}}>{r.room} · Unité {r.unit}</span></span>
+                <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 16px var(--sans)", letterSpacing:"-.02em"}}>{r.profile.name}</span><span style={{fontSize:12.5, fontWeight:700, opacity:.8}}>{r.room} · {unitOf(r.unit).name}</span></span>
                 <IconChevron size={16}/>
               </button>
               <ul style={{listStyle:"none", padding:0, margin:"12px 0 0", display:"grid", gap:6}}>
@@ -652,7 +696,7 @@ function Journal({me, added, staff, onOpenResident}){
   return (
     <div className="screen fade-enter">
       <StatusBar/>
-      <PageTitle title="Journal" sub={`Notes de l'équipe · Unité ${me.unit}`}/>
+      <PageTitle title="Journal" sub={`Notes de l'équipe · ${unitOf(me.unit).name}`}/>
       <div className="scroll" style={{padding:"10px 20px 24px"}}>
         <div className="h-scroll" style={{padding:0}} role="tablist" aria-label="Filtrer par résident">
           <button className="chip" role="tab" aria-pressed={filter==="all"} onClick={() => setFilter("all")}>Tous</button>
@@ -668,7 +712,7 @@ function Journal({me, added, staff, onOpenResident}){
                 <p style={{marginTop:6, font:"600 14.5px var(--sans)", lineHeight:1.5}}>{a.text}</p>
                 <div style={{display:"flex", gap:6, marginTop:10, flexWrap:"wrap"}}>
                   <Pill tone={c.bg} ink={c.ink}>{c.title}</Pill>
-                  <Pill tone="var(--bg)" ink="var(--ink)">{s ? `${first(s.name)} · ${s.role}` : "Équipe"}</Pill>
+                  <Pill tone="var(--bg)" ink="var(--ink)">{s ? `${first(s.name)} · ${s.role}` : a.author ? `${first(a.author)}${a.authorRole ? " · " + a.authorRole : ""}` : "Équipe"}</Pill>
                   <Pill tone={st[1]} ink={st[2]}>{st[0]}</Pill>
                 </div>
               </div>
@@ -682,10 +726,10 @@ function Journal({me, added, staff, onOpenResident}){
 
 function Settings({role, me, onSwitchRole, onLogout}){
   const [showPicker, setShowPicker] = useState(false);
-  const who = role === "cadre" ? "Marc Aubry" : me.name;
+  const who = role === "cadre" ? ORG.cadreName : me.name;
   const rows = role === "cadre"
-    ? [["Établissement","Maison des Tilleuls"],["Unités","A · B · C"],["Carnets",`${RESIDENTS.length} résidents · tenus par l'équipe`],["Équipe","5 soignants connectés"],["Validation","Visa du cadre pour les profils « À valider »"],["Données","Hébergées en France · aucune donnée médicale"]]
-    : [["Établissement","Maison des Tilleuls"],["Mon unité",`Unité ${me.unit}`],["Mes droits",PERMS.find(p => p.id === me.perm).label],["Cadre référent","Marc Aubry"]];
+    ? [["Établissement",ORG.name],["Unités",UNITS.map(u => u.name).join(" · ")],["Carnets",`${RESIDENTS.length} résidents · tenus par l'équipe`],["Équipe",ORG.demo ? "5 soignants connectés" : `${ORG.staffCount} soignant${ORG.staffCount > 1 ? "s" : ""}`],["Validation","Visa du cadre pour les profils « À valider »"],["Données",ORG.demo ? "Hébergées en France · aucune donnée médicale" : "Hébergées dans l'UE · aucune donnée médicale"]]
+    : [["Établissement",ORG.name],["Mon unité",unitOf(me.unit).name],["Mes droits",PERMS.find(p => p.id === me.perm).label],["Cadre référent",ORG.cadreName]];
   return (
     <div className="screen fade-enter">
       <StatusBar/>
@@ -693,18 +737,18 @@ function Settings({role, me, onSwitchRole, onLogout}){
       <div className="scroll" style={{padding:"10px 20px 24px"}}>
         <div style={{background:"var(--c-sante)", color:"var(--c-sante-ink)", borderRadius:"var(--r-xl)", padding:20, display:"flex", gap:14, alignItems:"center"}}>
           <Avatar name={role === "cadre" ? "Marc Aubry" : me.name} size={56} tone={role === "cadre" ? "sage" : me.tone}/>
-          <div style={{flex:1, minWidth:0}}><p style={{font:"800 18px var(--sans)", letterSpacing:"-.02em"}}>{who}</p><p style={{marginTop:4, fontSize:13, fontWeight:600, opacity:.85}}>{role === "cadre" ? "Cadre de santé" : me.role}</p></div>
+          <div style={{flex:1, minWidth:0}}><p style={{font:"800 18px var(--sans)", letterSpacing:"-.02em"}}>{who}</p><p style={{marginTop:4, fontSize:13, fontWeight:600, opacity:.85}}>{role === "cadre" ? ORG.cadreRole : me.role}</p></div>
           <button onClick={() => setShowPicker(v => !v)} style={{border:"none", cursor:"pointer", background:"rgba(255,255,255,.65)", color:"inherit", borderRadius:999, padding:"0 14px", minHeight:38, font:"700 13px var(--sans)"}}>Avatar</button>
         </div>
         {showPicker && <div className="card slide-up" style={{marginTop:10, padding:14}}><p className="kicker" style={{marginBottom:10}}>Choisir mon avatar</p><window.AvatarPicker name={who} bg="var(--c-sante)" onPick={() => setShowPicker(false)}/></div>}
         <ul style={{listStyle:"none", padding:0, margin:"16px 0 0", display:"grid", gap:8}}>
           {rows.map(([k,v]) => <li key={k} className="card" style={{padding:"14px 16px", display:"flex", justifyContent:"space-between", gap:12, alignItems:"center"}}><span style={{font:"800 14px var(--sans)", whiteSpace:"nowrap"}}>{k}</span><span className="meta" style={{fontSize:13, textAlign:"right"}}>{v}</span></li>)}
         </ul>
-        <button className="card card-press" onClick={onSwitchRole} style={{marginTop:16, width:"100%", textAlign:"left", cursor:"pointer", padding:16, display:"flex", gap:12, alignItems:"center"}}>
+        {onSwitchRole && <button className="card card-press" onClick={onSwitchRole} style={{marginTop:16, width:"100%", textAlign:"left", cursor:"pointer", padding:16, display:"flex", gap:12, alignItems:"center"}}>
           <Circle Icon={IconSwap} size={40} bg="var(--bg)" color="var(--ink)"/>
           <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 14.5px var(--sans)"}}>Voir en tant que {role === "cadre" ? "soignante (Sandra)" : "cadre (Marc)"}</span><span className="meta" style={{fontSize:12.5}}>Démo · bascule de rôle</span></span>
           <IconChevron size={18}/>
-        </button>
+        </button>}
         <button className="card card-press" onClick={onLogout} style={{marginTop:12, width:"100%", textAlign:"left", cursor:"pointer", padding:"14px 16px", display:"flex", gap:12, alignItems:"center", color:"#B3261E"}}>
           <span aria-hidden="true" style={{width:36, height:36, borderRadius:"50%", background:"var(--bg)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg></span>
           <span style={{font:"800 14.5px var(--sans)"}}>Se déconnecter</span>
@@ -756,36 +800,104 @@ function PickResident({me, notesOf, onPick, onClose}){
   );
 }
 
-function EtabApp({jeanneNotes, onToast, onLogout, initialRole="cadre"}){
+const TONE_LIST = [["var(--c-parler)","var(--c-parler-ink)"],["var(--c-habitudes)","var(--c-habitudes-ink)"],["var(--c-gouts)","var(--c-gouts-ink)"],["var(--c-apaise)","var(--c-apaise-ink)"],["var(--c-sante)","var(--c-sante-ink)"],["var(--c-histoire)","var(--c-histoire-ink)"],["var(--c-proches)","var(--c-proches-ink)"]];
+const STAFF_TONES = ["warm", "cool", "sage"];
+
+/* Vrais comptes : charge l'établissement, puis affiche les mêmes écrans avec les vraies données. */
+function EtabApp(props){
+  if(!props.real) return <EtabAppInner {...props}/>;
+  return <EtabLive {...props}/>;
+}
+
+function EtabLive({onToast, onLogout}){
+  const [snap, setSnap] = useState(null);
+  const [failed, setFailed] = useState(false);
+  const refresh = () => window.Backend.orgSnapshot().then(x => { setSnap(x); setFailed(false); }).catch(() => setFailed(true));
+  useEffect(() => { refresh(); }, []);
+  if(failed) return (
+    <div className="screen fade-enter"><StatusBar/>
+      <div className="scroll" style={{padding:"40px 26px", textAlign:"center"}}>
+        <h1 style={{fontSize:26}}>Impossible de charger l'établissement.</h1>
+        <p className="meta" style={{marginTop:10}}>Vérifie ta connexion internet.</p>
+        <button className="btn" style={{marginTop:22}} onClick={refresh}>Réessayer</button>
+      </div>
+    </div>
+  );
+  if(!snap) return <window.BUI.BootScreen label="Ouverture de l'établissement…"/>;
+
+  // Les écrans lisent UNITS, RESIDENTS et ORG : on y place les vraies données.
+  const cadre = snap.members.find(m => m.role === "cadre") || snap.me;
+  Object.assign(ORG, { demo:false, name:snap.org.name, cadreName:cadre.display_name || "Cadre", cadreRole:cadre.job_title || "Cadre de santé",
+                       staffCount:snap.members.filter(m => m.role === "soignant").length });
+  UNITS.splice(0, UNITS.length, ...snap.units.map((u, i) => ({ id:u.id, name:u.name, sub:u.subtitle || "", tone:TONE_LIST[i % 7][0], ink:TONE_LIST[i % 7][1] })));
+  RESIDENTS.splice(0, RESIDENTS.length, ...snap.residents.map((k, i) => {
+    const fam = (k.family || [])[0];
+    return { id:k.id, profile:{ name:k.person_name, age:k.person_age ?? "—", relation:fam ? fam.relation : "" },
+             sharedBy:fam ? first(fam.display_name) : "", tone:TONE_LIST[i % 7][0], ink:TONE_LIST[i % 7][1],
+             room:k.room || "—", unit:k.unit_id, included:CATEGORIES.map(c => c.id), notes:[] };
+  }));
+  const staff = snap.members.filter(m => m.role === "soignant").map((m, i) => ({ id:m.user_id, name:m.display_name, role:m.job_title, unit:m.unit_id, perm:m.perm, tone:STAFF_TONES[i % 3] }));
+  const me = { id:snap.me.user_id, name:snap.me.display_name, role:snap.me.job_title, unit:snap.me.unit_id, perm:snap.me.perm, tone:"warm" };
+  const added = snap.notes.map(n => ({ id:n.id, residentId:n.carnetId, text:n.text, catId:n.catId, ts:n.ts, by:n.authorId, status:n.status, author:n.author, authorRole:n.authorRole }));
+  const run = async (fn, ok) => { try { const r = await fn(); await refresh(); if(ok) onToast(ok); return r; } catch(e){ onToast(e.message); throw e; } };
+
+  const live = {
+    staff, me, added,
+    notesOf: (r) => snap.notes.filter(n => n.carnetId === r.id && n.status === "published" && !n.archived).map(n => ({ id:n.id, text:n.text, catId:n.catId, ts:n.ts, author:n.author })),
+    updateMember: (s, next) => run(() => window.Backend.updateMember(s.id, { unitId:next.unit, perm:next.perm }), "Droits mis à jour."),
+    decide: (id, status) => run(() => window.Backend.validateNote(id, status === "published"), status === "published" ? "Note publiée. La famille la reçoit." : "Note refusée."),
+    createCode: (f) => window.Backend.createStaffCode({ name:f.name.trim(), jobTitle:f.role, unitId:f.unit, perm:f.perm }).then(async r => { await refresh(); return r; }),
+    addNote: (r, {text, catId}) => run(() => window.Backend.addNote(r.id, {text, catId}),
+      me.perm === "validate" ? `Envoyée à ${first(ORG.cadreName)} pour validation.` : `Note publiée${r.sharedBy ? `. ${r.sharedBy} la reçoit` : ""}.`),
+    createResident: async (f) => {
+      const k = await window.Backend.createResident({ name:f.name.trim(), age:f.age, room:f.room.trim(), unitId:f.unit });
+      let invite = null;
+      if(f.invite && f.family.trim()){
+        const [name, ...rest] = f.family.split(",");
+        invite = await window.Backend.createInvite(k.id, { name:name.trim(), relation:rest.join(",").trim() });
+      }
+      await refresh();
+      return { carnet:k, invite };
+    },
+    invites: snap.invites,
+  };
+  return <EtabAppInner key={snap.me.role} initialRole={snap.me.role === "cadre" ? "cadre" : "staff"} onToast={onToast} onLogout={onLogout} live={live}/>;
+}
+
+function EtabAppInner({jeanneNotes, onToast, onLogout, initialRole="cadre", live}){
   const [role, setRole] = useState(initialRole);
   const [inviting, setInviting] = useState(false);
   const [addingResident, setAddingResident] = useState(null); // false | unitId | true
   const [, tick] = useState(0);
   const [addingStaff, setAddingStaff] = useState(false);
   const [tab, setTab] = useState("home");
-  const [staff, setStaff] = useState(SEED_STAFF);
-  const [added, setAdded] = useState(SEED_ADDED);
+  const [staffDemo, setStaff] = useState(SEED_STAFF);
+  const [addedDemo, setAdded] = useState(SEED_ADDED);
+  const staff = live ? live.staff : staffDemo;
+  const added = live ? live.added : addedDemo;
   const [unit, setUnit] = useState(null);
   const [staffId, setStaffId] = useState(null);
   const [resident, setResident] = useState(null);
   const [cat, setCat] = useState(null);
   const [adding, setAdding] = useState(false);
   const [picking, setPicking] = useState(false);
-  const me = staff.find(s => s.id === "sandra");
+  const me = live ? live.me : staff.find(s => s.id === "sandra");
   const RelaisCategory = window.Relais.RelaisCategory;
 
-  const notesOf = (r) => {
+  const notesOf = live ? live.notesOf : (r) => {
     const base = r.id === "jeanne" ? jeanneNotes : (r.notes || []);
     const pub = added.filter(a => a.residentId === r.id && a.status === "published").map(a => ({ id:a.id, text:a.text, catId:a.catId, ts:a.ts }));
     return [...pub, ...base].sort((a,b) => b.ts - a.ts);
   };
-  const switchRole = () => { const next = role === "cadre" ? "staff" : "cadre"; setRole(next); setTab("home"); setUnit(null); setStaffId(null); setResident(null); setCat(null); onToast(next === "cadre" ? "Vue cadre de santé · Marc" : `Vue soignante · ${first(me.name)}`); };
+  const switchRole = live ? null : () => { const next = role === "cadre" ? "staff" : "cadre"; setRole(next); setTab("home"); setUnit(null); setStaffId(null); setResident(null); setCat(null); onToast(next === "cadre" ? "Vue cadre de santé · Marc" : `Vue soignante · ${first(me.name)}`); };
   const back = () => { if(cat) return setCat(null); if(adding) return setAdding(false); if(resident) return setResident(null); if(staffId) return setStaffId(null); setUnit(null); };
   const r = resident && RESIDENTS.find(x => x.id === resident);
   const canWrite = role === "staff" && me.perm !== "read";
 
   let screen;
   if(r && cat) screen = <RelaisCategory catId={cat} notes={notesOf(r)} onBack={() => setCat(null)}/>;
+  else if(r && adding && live) screen = <window.BUI.NoteComposer subject={`Pour ${first(r.profile.name)}`} needsVisa={me.perm === "validate"}
+        onClose={() => setAdding(false)} onSave={async (n) => { await live.addNote(r, n); setAdding(false); }}/>;
   else if(r && adding) screen = <AddNote resident={r} needsVisa={me.perm === "validate"} onClose={() => setAdding(false)}
         onSave={({text, catId}) => {
           const status = me.perm === "validate" ? "pending" : "published";
@@ -798,7 +910,12 @@ function EtabApp({jeanneNotes, onToast, onLogout, initialRole="cadre"}){
   else if(r) screen = <Resident residentId={r.id} notesOf={notesOf} canWrite={canWrite} onBack={() => setResident(null)} onOpenCat={setCat} onAdd={() => setAdding(true)}/>;
   else if(role === "staff" && picking) screen = <PickResident me={me} notesOf={notesOf} onClose={() => setPicking(false)} onPick={(id) => { setPicking(false); setResident(id); setAdding(true); }}/>;
   else if(role === "cadre" && (inviting || addingResident)) screen = <AddResident unit={typeof addingResident === "string" ? addingResident : undefined} onBack={() => { setInviting(false); setAddingResident(null); }}
-        onDone={(f) => {
+        onDone={live ? async (f) => {
+          const res = await live.createResident(f);
+          const open = () => { setInviting(false); setAddingResident(null); setUnit(null); setResident(res.carnet.id); };
+          if(res.invite) return { invite:res.invite, open };
+          open(); onToast("Carnet ouvert. À l'équipe de le remplir.");
+        } : (f) => {
           const tones = [["var(--c-parler)","var(--c-parler-ink)"],["var(--c-habitudes)","var(--c-habitudes-ink)"],["var(--c-gouts)","var(--c-gouts-ink)"],["var(--c-apaise)","var(--c-apaise-ink)"],["var(--c-sante)","var(--c-sante-ink)"],["var(--c-histoire)","var(--c-histoire-ink)"],["var(--c-proches)","var(--c-proches-ink)"]];
           const [tone, ink] = tones[RESIDENTS.length % tones.length];
           const nr = { id:"r"+Date.now(), profile:{ name:f.name.trim(), age:f.age || "—", relation:f.family ? f.family.split(",").slice(1).join(",").trim() || "proche" : "" }, sharedBy: f.invite && f.family ? f.family.split(",")[0].trim() : "", tone, ink, room:f.room.trim(), unit:f.unit, included:CATEGORIES.map(c => c.id), notes:[] };
@@ -806,13 +923,14 @@ function EtabApp({jeanneNotes, onToast, onLogout, initialRole="cadre"}){
           setInviting(false); setAddingResident(null); setUnit(null); setResident(nr.id);
           onToast(f.invite && f.family ? `Carnet ouvert. Invitation envoyée à ${nr.sharedBy}.` : "Carnet ouvert. À l'équipe de le remplir.");
         }}/>;
-  else if(role === "cadre" && addingStaff) screen = <AddStaff onBack={() => setAddingStaff(false)} onDone={(s) => { setStaff(p => [...p, s]); setAddingStaff(false); onToast(`${s.name.split(" ")[0]} ajouté·e à l'Unité ${s.unit}.`); }}/>;
-  else if(role === "cadre" && staffId) screen = <CadreStaff staffId={staffId} staff={staff} setStaff={setStaff} onBack={() => setStaffId(null)} onToast={onToast}/>;
+  else if(role === "cadre" && addingStaff) screen = <AddStaff onBack={() => setAddingStaff(false)} onCreateCode={live ? live.createCode : null}
+        onDone={(s) => { setAddingStaff(false); if(live){ onToast(`${first(s.name)} apparaîtra dans l'équipe dès qu'il ou elle aura saisi son code.`); return; } setStaff(p => [...p, s]); onToast(`${s.name.split(" ")[0]} ajouté·e à l'Unité ${s.unit}.`); }}/>;
+  else if(role === "cadre" && staffId) screen = <CadreStaff staffId={staffId} staff={staff} setStaff={setStaff} onUpdate={live ? live.updateMember : null} onBack={() => setStaffId(null)} onToast={live ? () => {} : onToast}/>;
   else if(role === "cadre" && unit) screen = <CadreUnit unitId={unit} staff={staff} notesOf={notesOf} onBack={() => setUnit(null)} onOpenResident={setResident} onOpenTeam={setStaffId} onAddResident={(u) => setAddingResident(u)}/>;
   else if(role === "cadre"){
     screen = tab === "home" ? <CadreUnits staff={staff} added={added} notesOf={notesOf} onOpenUnit={setUnit} onTab={setTab} onSwitchRole={switchRole} onAddResident={() => setAddingResident(true)}/>
-      : tab === "team" ? <CadreTeam staff={staff} setStaff={setStaff} onOpen={setStaffId} onAdd={() => setAddingStaff(true)} onInvite={() => setInviting(true)}/>
-      : tab === "validate" ? <CadreValidate added={added} setAdded={setAdded} staff={staff} onToast={onToast}/>
+      : tab === "team" ? <CadreTeam staff={staff} setStaff={setStaff} onOpen={setStaffId} onAdd={() => setAddingStaff(true)} onInvite={() => setInviting(true)} invites={live ? live.invites : null}/>
+      : tab === "validate" ? <CadreValidate added={added} setAdded={setAdded} staff={staff} onToast={onToast} onDecide={live ? live.decide : null}/>
       : <Settings role={role} me={me} onSwitchRole={switchRole} onLogout={onLogout}/>;
   } else {
     screen = tab === "home" ? <StaffHome me={me} notesOf={notesOf} added={added} onOpenResident={setResident} onTab={setTab} onSwitchRole={switchRole} onCapture={canWrite ? () => setPicking(true) : null}/>

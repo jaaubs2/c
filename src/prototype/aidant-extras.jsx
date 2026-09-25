@@ -13,9 +13,10 @@ const { StatusBar: SBAX, Avatar: AvatarAX, useA11y } = window.UI;
 /* ─────────────────────────────────────────────────────────────
    NOTIFICATIONS — slide-up
    ───────────────────────────────────────────────────────────── */
-function AidantNotifications({onBack, onOpenCat}){
+function AidantNotifications({onBack, onOpenCat, live}){
   const REQUEST = { id:"req-tilleuls", kind:"request", ts:Date.now()-2*3600000, title:"La Maison des Tilleuls a ouvert le carnet de Jeanne", body:"Marc Aubry, cadre de santé · Unité B, t'invite à y contribuer : ce que toi seule sais d'elle, l'équipe ne peut pas le deviner. Choisis ce que tu partages.", cats:["habitudes","apaise","parler","histoire"] };
-  const [items, setItems] = useStateAX([REQUEST, ...NOTIFICATIONS]);
+  // Avec un vrai compte : les vraies ouvertures de fiches (journal d'accès).
+  const [items, setItems] = useStateAX(live || [REQUEST, ...NOTIFICATIONS]);
   const [reqCats, setReqCats] = useStateAX(REQUEST.cats);
   const [decided, setDecided] = useStateAX(null);
 
