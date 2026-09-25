@@ -1,0 +1,26 @@
+# Dépendances
+node_modules/
+
+# Build
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environnement / secrets (jamais commités)
+.env
+.env.*
+!.env.example
+
+# Apps natives : fichiers générés à la compilation
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+
+# Système
+.DS_Store

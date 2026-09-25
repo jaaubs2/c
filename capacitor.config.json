@@ -1,0 +1,12 @@
+{
+  "appId": "fr.lecarnetvivant.app",
+  "appName": "Le carnet vivant",
+  "webDir": "dist",
+  "backgroundColor": "#F4F3EF",
+  "ios": {
+    "contentInset": "never"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

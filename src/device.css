@@ -1,0 +1,56 @@
+/* Plein écran sur un vrai téléphone (classe « device » posée par device.js).
+   Sur ordinateur, rien ne change : l'app reste dans son cadre de téléphone. */
+
+html.device body {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  background: var(--bg);
+}
+
+html.device #root {
+  width: 100%;
+  max-width: none;
+}
+
+html.device .phone {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Fausse encoche et fausse barre d'état (heure, batterie) : le téléphone a déjà les siennes. */
+html.device .phone::before {
+  display: none;
+}
+html.device .statusbar > * {
+  visibility: hidden;
+}
+
+/* Zones de sécurité : encoche en haut, barre d'accueil en bas. */
+html.device .statusbar {
+  height: max(92px, calc(env(safe-area-inset-top) + 64px));
+}
+html.device .demo-pill {
+  top: max(56px, calc(env(safe-area-inset-top) + 12px));
+}
+html.device .tabbar {
+  bottom: calc(20px + env(safe-area-inset-bottom));
+}
+html.device .toast {
+  bottom: calc(120px + env(safe-area-inset-bottom));
+}
+html.device .scroll {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+}
+
+/* Tablettes : on garde une colonne lisible au centre. */
+@media (min-width: 600px) {
+  html.device #root {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+}
