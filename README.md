@@ -15,6 +15,8 @@ Un seul code, deux portes d'entrée :
 > **IA (Mistral, serveur européen)** : dictée vocale, rubrique proposée, fiche de transmission
 > rédigée, repérage des infos à vérifier. À activer avec [`docs/IA-MISTRAL.md`](docs/IA-MISTRAL.md)
 > (20 à 30 minutes) ; sans cela, l'app marche sans les fonctions IA.
+> **Mise en ligne** (hébergeur européen statichost.eu, mises à jour automatiques depuis GitHub) :
+> [`docs/MISE-EN-LIGNE.md`](docs/MISE-EN-LIGNE.md).
 
 ## Deux modes
 
@@ -33,6 +35,26 @@ Un seul code, deux portes d'entrée :
 L'IA passe toujours par le serveur (fonction `supabase/functions/ai`) : la clé Mistral n'est
 jamais dans l'app, seules les personnes connectées l'utilisent (150 appels par jour au maximum),
 et elle ne reçoit que les notes utiles et le prénom. Elle propose, la personne décide : tout reste modifiable.
+
+## Accessibilité (WCAG 2.1 AA)
+
+- **Réglages → Accessibilité** : texte grand ou très grand (tout l'écran s'agrandit et se remet en page),
+  contraste renforcé, animations réduites, police de lecture facilitée, lecture à voix haute des notes.
+  Les préférences s'appliquent dès l'ouverture de l'app ; le réglage « réduire les animations » du
+  téléphone est aussi respecté.
+- **Clavier** : tout se fait au clavier, avec un contour bien visible ; à chaque nouvel écran, le focus
+  va sur son titre (annoncé par les lecteurs d'écran) ; **Échap** revient en arrière.
+- **Saisie vocale** : micro de dictée dans chaque note (et dictée du téléphone partout ailleurs).
+- **Vérifié** avec l'outil axe (règles WCAG 2.1 A et AA) : 98 écrans de démo et 19 écrans du parcours
+  réel, aucun défaut détecté. Un outil automatique ne voit pas tout : un test avec VoiceOver (iPhone)
+  et TalkBack (Android) reste conseillé avant l'ouverture au public.
+
+## Documents légaux
+
+Politique de confidentialité, conditions d'utilisation et mentions légales sont dans l'app
+(`src/prototype/legal.jsx`), avec une adresse publique : `…/#legal=confidentialite`.
+Les passages « À compléter » attendent les informations de la structure : voir
+[`docs/MISE-EN-LIGNE.md`](docs/MISE-EN-LIGNE.md).
 
 Tout ce qui touche aux données est vérifié par le serveur (règles d'accès de la base), pas
 seulement masqué à l'écran. Les consentements sont enregistrés et datés ; chacun peut exporter
@@ -107,8 +129,13 @@ Après les avoir modifiées : `npm run app:icons`.
 | `supabase/migrations/` | La base de données : tables, règles d'accès, fonctions |
 | `supabase/functions/ai/` | Fonction serveur de l'IA (Mistral) : dictée, rangement, fiche, relecture |
 | `supabase/tests/` | Tests de sécurité de la base et scénario complet (pour les développeurs) |
+| `tests/` | Tests d'accessibilité et de navigation au clavier (mode démo) |
 | `docs/SUPABASE.md` | Guide pas à pas pour créer et relier le projet Supabase |
 | `docs/IA-MISTRAL.md` | Guide pas à pas pour activer l'IA |
+| `docs/MISE-EN-LIGNE.md` | Guide pas à pas pour mettre l'app en ligne (et les documents légaux) |
+| `statichost.yml`, `.env.production.example` | Réglages de la version en ligne |
+| `src/prototype/legal.jsx` | Politique de confidentialité, conditions d'utilisation, mentions légales |
+| `src/a11y.js` | Accessibilité transversale : focus, touche Échap, préférences au démarrage |
 | `src/main.jsx` | Point de départ : assemble les écrans dans l'ordre |
 | `src/device.js`, `src/device.css` | Plein écran sur téléphone, cadre sur ordinateur |
 | `src/pwa.js`, `public/sw.js`, `public/manifest.webmanifest` | Version web installable |

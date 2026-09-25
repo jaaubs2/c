@@ -202,10 +202,10 @@ function AccountPage({onBack, onLogout}){
   );
 }
 
-function RowItem({label, value, action}){
+function RowItem({label, value, action, onClick}){
   return (
     <li>
-      <button style={{
+      <button onClick={onClick} style={{
         width:"100%", textAlign:"left",
         background:"var(--card)", border:"1px solid var(--line)",
         borderRadius:18, padding:"12px 16px",
@@ -708,8 +708,8 @@ function PrivacyPage({onBack}){
 
       <p className="kicker" style={{marginTop:22}}>Consentements donnés</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
-        <RowItem label="Conditions d'utilisation" value="Acceptées le 12 mai 2024" action="Relire"/>
-        <RowItem label="Politique de confidentialité" value="v 2.1 · acceptée" action="Relire"/>
+        <RowItem label="Conditions d'utilisation" value="Acceptées le 12 mai 2024" action="Relire" onClick={() => window.Legal.open("conditions")}/>
+        <RowItem label="Politique de confidentialité" value="v 2.1 · acceptée" action="Relire" onClick={() => window.Legal.open("confidentialite")}/>
         <RowItem label="Données sensibles" value="Comprises et acceptées" action="Détails"/>
       </ul>
 
@@ -731,7 +731,7 @@ function PrivacyPage({onBack}){
       </ul>
 
       <p className="meta" style={{marginTop:20, textAlign:"center", lineHeight:1.55}}>
-        Contact DPO : <a href="#" style={{color:"var(--ink)", textDecoration:"underline"}}>dpo@carnet-vivant.fr</a>
+        Contact DPO : <a href="mailto:dpo@carnet-vivant.fr" style={{color:"var(--ink)", textDecoration:"underline"}}>dpo@carnet-vivant.fr</a>
       </p>
     </SubPage>
   );
@@ -921,10 +921,10 @@ function HelpPage({onBack}){
 
       <p className="kicker" style={{marginTop:22}}>Mentions légales</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
-        <RowItem label="Conditions d'utilisation" value="v 2.1" action="Lire"/>
-        <RowItem label="Politique de confidentialité" value="v 2.1" action="Lire"/>
-        <RowItem label="Mentions légales" value="Carnet Vivant SAS" action="Lire"/>
-        <RowItem label="Licences open-source" value="React · Inter · Fraunces" action="Voir"/>
+        <RowItem label="Conditions d'utilisation" value={"Version " + window.Legal.VERSION} action="Lire" onClick={() => window.Legal.open("conditions")}/>
+        <RowItem label="Politique de confidentialité" value={"Version " + window.Legal.VERSION} action="Lire" onClick={() => window.Legal.open("confidentialite")}/>
+        <RowItem label="Mentions légales" value="Éditeur, hébergement, accessibilité" action="Lire" onClick={() => window.Legal.open("mentions")}/>
+        <RowItem label="Licences open-source" value="React · Manrope · Atkinson Hyperlegible" action="Voir" onClick={() => window.Legal.open("mentions")}/>
       </ul>
 
       <p className="meta" style={{marginTop:20, textAlign:"center", lineHeight:1.55}}>
@@ -1147,6 +1147,11 @@ function LivePrivacyPage({live, onBack, onGo}){
             <p className="meta" style={{marginTop:4}}>{VALUE[c.value] || c.value} · le {day(c.created_at)} · version {c.version}</p>
           </li>
         ))}
+      </ul>
+      <p className="kicker" style={{marginTop:22}}>Documents</p>
+      <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
+        <RowItem label="Politique de confidentialité" value={"Version " + window.Legal.VERSION} action="Lire" onClick={() => window.Legal.open("confidentialite")}/>
+        <RowItem label="Conditions d'utilisation" value={"Version " + window.Legal.VERSION} action="Lire" onClick={() => window.Legal.open("conditions")}/>
       </ul>
       <p className="kicker" style={{marginTop:22}}>Tes droits</p>
       <div style={{display:"grid", gap:8, marginTop:10}}>

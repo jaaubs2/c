@@ -168,7 +168,7 @@ function ResidentGrid({list, notesOf, onOpen}){
             <span style={{flex:1}}/>
             <span style={{display:"block", font:"800 17px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1, width:"100%"}}>{r.profile.name}</span>
             <span style={{display:"block", marginTop:5, fontSize:12.5, fontWeight:700, opacity:.8}}>{r.profile.age} ans · {r.room}</span>
-            <span style={{display:"block", marginTop:8, fontSize:12, fontWeight:600, opacity:.75, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", width:"100%"}}>{ns.length ? `${ns.length} note${ns.length>1?"s":""}` : "Carnet à ouvrir"}{r.sharedBy ? " · famille" : ""}</span>
+            <span style={{display:"block", marginTop:8, fontSize:12.5, fontWeight:700, opacity:.9, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", width:"100%"}}>{ns.length ? `${ns.length} note${ns.length>1?"s":""}` : "Carnet à ouvrir"}{r.sharedBy ? " · famille" : ""}</span>
           </button>
         </li>
       ); })}
@@ -203,10 +203,10 @@ function CadreUnits({staff, added, notesOf, onOpenUnit, onTab, onSwitchRole, onA
             <IconChevron size={18}/>
           </button>
         </div>
-        <div style={{padding:"24px 20px 12px", display:"flex", justifyContent:"space-between", alignItems:"baseline"}}>
+        <div style={{padding:"24px 20px 12px", display:"flex", justifyContent:"space-between", alignItems:"baseline", flexWrap:"wrap", columnGap:12}}>
           <h2>Unités</h2><span className="meta" style={{fontWeight:700, whiteSpace:"nowrap"}}>{RESIDENTS.length} carnets · {staff.length} soignants</span>
         </div>
-        <ul style={{listStyle:"none", padding:"0 20px", margin:0, display:"grid", gap:12}}>
+        <ul style={{listStyle:"none", padding:"0 20px", margin:0, display:"grid", gridTemplateColumns:"minmax(0,1fr)", gap:12}}>
           {UNITS.map(u => {
             const res = RESIDENTS.filter(r => r.unit === u.id), team = staff.filter(s => s.unit === u.id);
             const pend = added.filter(a => a.status === "pending" && res.some(r => r.id === a.residentId)).length;
@@ -218,7 +218,7 @@ function CadreUnits({staff, added, notesOf, onOpenUnit, onTab, onSwitchRole, onA
                     {pend > 0 && <Pill dark>{pend} à valider</Pill>}
                   </span>
                   <span style={{fontSize:13.5, fontWeight:600, opacity:.85}}>{u.sub}</span>
-                  <span style={{display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%", minWidth:0, gap:10}}>
+                  <span style={{display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%", minWidth:0, gap:10, flexWrap:"wrap"}}>
                     <span style={{display:"flex", flexShrink:0}}>{res.slice(0,4).map((r,i) => <span key={r.id} style={{marginLeft: i ? -10 : 0, borderRadius:"50%", border:"3px solid #fff", background:"#fff", display:"flex"}}><Portrait r={r} size={36}/></span>)}{res.length > 4 && <span aria-hidden="true" style={{marginLeft:-10, width:42, height:42, borderRadius:"50%", background:"var(--ink)", color:"#fff", border:"3px solid #fff", display:"flex", alignItems:"center", justifyContent:"center", font:"800 12px var(--sans)"}}>+{res.length-4}</span>}</span>
                     <span style={{display:"flex", gap:6, flexWrap:"wrap", justifyContent:"flex-end", minWidth:0}}><Pill>{res.length} résident{res.length>1?"s":""}</Pill><Pill>{team.length} soignant{team.length>1?"s":""}</Pill></span>
                   </span>
@@ -426,7 +426,7 @@ function AddStaff({onBack, onDone, onCreateCode}){
             <window.UserPersona name={f.name} size={72} bg="rgba(255,255,255,.7)"/>
             <p style={{marginTop:12, font:"800 20px var(--sans)", letterSpacing:"-.02em"}}>{f.name}</p>
             <p style={{marginTop:4, fontSize:13.5, fontWeight:600, opacity:.85}}>{f.role} · {unitOf(f.unit).name} · {PERMS.find(p => p.id === f.perm).label}</p>
-            <p className="kicker" style={{marginTop:22, color:"inherit", opacity:.75}}>Son code d'équipe</p>
+            <p className="kicker" style={{marginTop:22, color:"inherit", opacity:.9}}>Son code d'équipe</p>
             <p style={{marginTop:8, font:"800 44px var(--sans)", letterSpacing:".18em"}} aria-label={"Code " + code.split("").join(" ")}>{code}</p>
             <p style={{marginTop:10, fontSize:13, fontWeight:600, opacity:.85, lineHeight:1.45}}>{ORG.demo ? "Valable 48 h. Elle l'entre à sa première ouverture, choisit un PIN, et c'est tout." : "Valable 48 h, une seule fois. Elle crée son compte (profil « soignant·e »), puis entre ce code."}</p>
           </div>
@@ -556,7 +556,7 @@ function Resident({residentId, notesOf, canWrite, onBack, onOpenCat, onAdd}){
     <div className="screen fade-enter">
       <StatusBar/>
       <Header left={<button className="iconbtn" aria-label="Retour" onClick={onBack}><IconBack size={20}/></button>} title={`${r.room} · ${unitOf(r.unit).name}`}
-              right={canWrite ? <button className="iconbtn" aria-label="Ajouter une note" onClick={onAdd} style={{background:"var(--ink)", color:"#fff"}}><IconMic size={18}/></button> : <span className="iconbtn" aria-label="Lecture seule" style={{color:"var(--ink-3)"}}><IconLock size={18}/></span>}/>
+              right={canWrite ? <button className="iconbtn" aria-label="Ajouter une note" onClick={onAdd} style={{background:"var(--ink)", color:"#fff"}}><IconMic size={18}/></button> : <span className="iconbtn" role="img" aria-label="Lecture seule" style={{color:"var(--ink-3)"}}><IconLock size={18}/></span>}/>
       <div className="scroll" style={{padding:"8px 20px 24px"}}>
         <div style={{background:r.tone, color:r.ink, borderRadius:"var(--r-xl)", padding:"22px 20px", marginTop:6}}>
           <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}><Portrait r={r} size={64}/><Pill>{ns.length} notes</Pill></div>
@@ -581,7 +581,7 @@ function Resident({residentId, notesOf, canWrite, onBack, onOpenCat, onAdd}){
             <button key={c.id} onClick={() => onOpenCat(c.id)} className="card-press" style={{border:"none", cursor:"pointer", textAlign:"left", background:c.bg, color:c.ink, borderRadius:"var(--r-lg)", padding:14, minHeight:120, display:"flex", flexDirection:"column", gap:10, minWidth:0}}>
               <Circle Icon={c.Icon} size={36} isize={17}/><span style={{flex:1}}/>
               <span style={{font:"800 14px var(--sans)", letterSpacing:"-.02em", lineHeight:1.15}}>{c.title}</span>
-              <span style={{fontSize:12, fontWeight:700, opacity:.75}}>{n} note{n>1?"s":""}</span>
+              <span style={{fontSize:12.5, fontWeight:700, opacity:.9}}>{n} note{n>1?"s":""}</span>
             </button>
           ); })}
         </div>
@@ -698,9 +698,9 @@ function Journal({me, added, staff, onOpenResident}){
       <StatusBar/>
       <PageTitle title="Journal" sub={`Notes de l'équipe · ${unitOf(me.unit).name}`}/>
       <div className="scroll" style={{padding:"10px 20px 24px"}}>
-        <div className="h-scroll" style={{padding:0}} role="tablist" aria-label="Filtrer par résident">
-          <button className="chip" role="tab" aria-pressed={filter==="all"} onClick={() => setFilter("all")}>Tous</button>
-          {pool.map(r => <button key={r.id} className="chip" role="tab" aria-pressed={filter===r.id} onClick={() => setFilter(filter===r.id ? "all" : r.id)} style={{paddingLeft:8}}><Portrait r={r} size={26}/> {first(r.profile.name)}</button>)}
+        <div className="h-scroll" style={{padding:0}} role="group" aria-label="Filtrer par résident">
+          <button className="chip" aria-pressed={filter==="all"} onClick={() => setFilter("all")}>Tous</button>
+          {pool.map(r => <button key={r.id} className="chip" aria-pressed={filter===r.id} onClick={() => setFilter(filter===r.id ? "all" : r.id)} style={{paddingLeft:8}}><Portrait r={r} size={26}/> {first(r.profile.name)}</button>)}
         </div>
         {shown.length === 0 && <div className="card" style={{marginTop:16, padding:"24px 20px", textAlign:"center"}}><p className="meta">Aucune note pour l'instant. Ouvre un résident pour en ajouter une.</p></div>}
         <ul style={{listStyle:"none", padding:0, margin:"16px 0 0", display:"grid", gap:10}}>

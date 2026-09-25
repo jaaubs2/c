@@ -22,6 +22,7 @@ import "./prototype/icons.jsx";
 import "./prototype/persona.jsx";
 import "./prototype/data.jsx";
 import "./prototype/ui.jsx";
+import "./prototype/legal.jsx";
 import "./prototype/backend-ui.jsx";
 import "./prototype/tabbar-v2.jsx";
 import "./prototype/aidant.jsx";
@@ -41,6 +42,9 @@ import "./prototype/relais-settings.jsx";
 
 // 4) app.jsx affiche l'application
 import "./prototype/app.jsx";
+
+// 4 bis) Accessibilité transversale : focus, touche Échap, préférences au démarrage
+import "./a11y.js";
 
 // 5) Version web installable (PWA)
 import "./pwa.js";

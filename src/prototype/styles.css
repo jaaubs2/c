@@ -1,6 +1,6 @@
   :root{
     --bg:#F4F3EF; --bg-2:#ECEBE6; --paper:#FFFFFF; --card:#FFFFFF;
-    --ink:#14151A; --ink-2:#4B4E58; --ink-3:#7A7E89; --ink-4:#B0B3BC;
+    --ink:#14151A; --ink-2:#4B4E58; --ink-3:#5E626C; --ink-4:#B0B3BC;
     --line:#E6E5E0; --line-2:#D6D5CF;
     --accent:#14151A; --accent-2:#F28C3B;
     --pink:#F4A9B8; --pink-bg:#FBE1E7;
@@ -48,7 +48,7 @@
   .mono{font-family:var(--sans);font-weight:800;letter-spacing:.08em}
   .meta{font-size:13px;color:var(--ink-2);font-weight:500}
   .label{font-size:11px;color:var(--ink);text-transform:uppercase;letter-spacing:.14em;font-weight:800}
-  .kicker{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);font-weight:800}
+  .kicker{font-family:var(--sans);font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);font-weight:800}
   .card{background:var(--card);border-radius:var(--r-lg);padding:20px;border:none;box-shadow:0 1px 2px rgba(0,0,0,.04)}
   .card.paper{background:#fff}
   .card.dashed{border:1.5px dashed var(--line-2);box-shadow:none;background:transparent}
@@ -104,7 +104,7 @@
   .dots span.on{background:var(--ink);width:18px;border-radius:3px}
   .note{background:#fff;border:none;border-radius:var(--r-md);padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
   .note .when{font-size:12.5px;color:var(--ink-3);font-weight:600}
-  .hero{border-radius:var(--r-xl);overflow:hidden;position:relative;border:none;background:var(--c-parler);color:var(--c-parler-ink)}
+  .hero{border-radius:var(--r-xl);overflow:hidden;position:relative;border:none;background:var(--c-parler);color:var(--c-parler-ink);--ink-2:currentColor;--ink-3:currentColor}
   .hero.cool{background:var(--c-parler)}
   .hero h1,.hero h2,.hero h3,.hero p,.hero .meta,.hero .kicker{color:inherit}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
@@ -116,8 +116,15 @@
   button,[role="button"]{min-height:36px}
   textarea,input,button{font-family:inherit}
   @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
-  .phone[data-text="large"]{font-size:17px}.phone[data-text="large"] h1{font-size:36px}.phone[data-text="large"] p,.phone[data-text="large"] .note p{font-size:17px}
-  .phone[data-text="xlarge"]{font-size:19px}.phone[data-text="xlarge"] h1{font-size:40px}.phone[data-text="xlarge"] p,.phone[data-text="xlarge"] .note p{font-size:19px}.phone[data-text="xlarge"] .meta{font-size:15px}.phone[data-text="xlarge"] .kicker{font-size:12px}
+  /* Taille du texte : tout le contenu est agrandi (textes, icônes, marges) et se remet en page
+     dans la largeur disponible, y compris les tailles écrites directement dans les écrans. */
+  .phone[data-text="large"] .scroll>*,.phone[data-text="large"] .topbar{zoom:1.14}
+  .phone[data-text="xlarge"] .scroll>*,.phone[data-text="xlarge"] .topbar{zoom:1.3}
+  /* Focus clavier toujours visible, sur tout ce qui se clique ou se remplit */
+  .phone :is(a,button,[role="button"],[role="switch"],[role="radio"],[role="tab"],[role="link"],summary,select,[tabindex]:not([tabindex="-1"])):focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+  .hero :is(a,button,[role="button"]):focus-visible{outline-color:currentColor}
+  .a11y-focus-target:focus{outline:none}
+  .a11y-focus-target:focus-visible{outline:2px dashed var(--focus);outline-offset:4px;border-radius:6px}
   .phone[data-contrast="high"]{--ink-2:var(--ink);--ink-3:var(--ink-2);--line:rgba(0,0,0,.25);--line-2:rgba(0,0,0,.4)}
   .phone[data-contrast="high"] .card,.phone[data-contrast="high"] .chip,.phone[data-contrast="high"] .note{border:2px solid var(--ink)}
   .phone[data-contrast="high"] .btn{border:2px solid var(--ink)}

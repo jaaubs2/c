@@ -25,7 +25,7 @@ prénom seul envoyé, notes en attente ou hors rubriques jamais envoyées, dict�
 node supabase/tests/ai.test.mjs      # Node 22 ou plus récent
 ```
 
-## Scénario complet dans le navigateur (50 vérifications)
+## Scénario complet dans le navigateur (54 vérifications)
 
 `mini-supabase.cjs` imite les deux services de Supabase utilisés par l'app (comptes et appels
 de fonctions), branchés sur la base locale. `e2e.cjs` joue le parcours complet au format iPhone :
@@ -33,9 +33,11 @@ Anne crée un carnet et un lien, Claire l'ouvre sans compte, Marc crée son éta
 Sandra entre avec son code, Sophie rejoint le carnet de sa mère, Anne supprime son compte.
 Côté IA (faux Mistral intégré à `mini-supabase.cjs`, micro simulé) : dictée d'une note, rubrique
 proposée, fiche rédigée puis corrigée, affichage chez le relais, carte « Garder le carnet vivant ».
+Accessibilité : chaque écran capturé (et l'inscription, le code, la politique de confidentialité)
+est contrôlé avec axe (règles WCAG 2.1 A et AA) ; le scénario échoue au moindre défaut.
 
 ```
-npm install --no-save pg jose playwright
+npm install --no-save pg jose playwright axe-core
 ./supabase/tests/reset-db.sh
 node supabase/tests/mini-supabase.cjs            # affiche ANON_KEY=…
 VITE_SUPABASE_URL=http://127.0.0.1:54321 VITE_SUPABASE_ANON_KEY=<ANON_KEY> \

@@ -462,7 +462,7 @@ function App(){
   }
 
   return (
-    <div className="phone" role="application" aria-label="Le carnet vivant">
+    <main className="phone" aria-label="Le carnet vivant">
       {!REAL && <DemoPill view={view} onChange={changeView}/>}
 
       {phase === "boot" && <BootScreen/>}
@@ -518,8 +518,9 @@ function App(){
         <TabBar tabs={REAL && guest ? GUEST_TABS : RELAIS_TABS} current={relaisTab} onChange={setRelaisTab}/>
       )}
 
+      <window.Legal.LegalLayer/>
       <Toast msg={toast} onClear={() => setToast("")}/>
-    </div>
+    </main>
   );
 }
 

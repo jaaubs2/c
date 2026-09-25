@@ -4,6 +4,7 @@ node_modules/
 # Build
 dist/
 dist-e2e/
+dist-a11y/
 captures/
 
 # Logs
@@ -14,6 +15,9 @@ npm-debug.log*
 .env
 .env.*
 !.env.example
+!.env.production.example
+# Réglages publics de la version en ligne (adresse Supabase + clé publique) : envoyés exprès
+!.env.production
 
 # Apps natives : fichiers générés à la compilation
 android/.gradle/

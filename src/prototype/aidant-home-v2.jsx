@@ -98,10 +98,10 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
             <h2>Rubriques</h2>
             <button onClick={() => onTab("carnet")} style={{border:"none", background:"none", cursor:"pointer", font:"700 13px var(--sans)", color:"var(--ink-2)", display:"inline-flex", alignItems:"center", gap:4, minHeight:32}}>Tout voir <IconChevron size={14}/></button>
           </div>
-          <div className="h-scroll" role="tablist" aria-label="Filtrer les rubriques">
-            <button className="chip" role="tab" aria-pressed={filter==="all"} onClick={() => setFilter("all")}>Toutes</button>
+          <div className="h-scroll" role="group" aria-label="Filtrer les rubriques">
+            <button className="chip" aria-pressed={filter==="all"} onClick={() => setFilter("all")}>Toutes</button>
             {CATEGORIES.map(c => { const Icon = c.Icon; return (
-              <button key={c.id} className="chip" role="tab" aria-pressed={filter===c.id} onClick={() => setFilter(filter===c.id ? "all" : c.id)}>
+              <button key={c.id} className="chip" aria-pressed={filter===c.id} onClick={() => setFilter(filter===c.id ? "all" : c.id)}>
                 <Icon size={15} sw={2}/> {SHORT[c.id]}
               </button>
             ); })}

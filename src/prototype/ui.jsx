@@ -23,7 +23,7 @@ function StatusBar(){
 function Toast({msg, onClear}){
   useEffect(() => {
     if(!msg) return;
-    const t = setTimeout(onClear, 2200);
+    const t = setTimeout(onClear, 4000);
     return () => clearTimeout(t);
   }, [msg]);
   return <div className={"toast " + (msg ? "show":"")} role="status" aria-live="polite">{msg}</div>;

@@ -415,8 +415,8 @@ function RelaisHelpPage({onBack}){
 
       <p className="kicker" style={{marginTop:22}}>Mentions légales</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
-        <li><button style={{width:"100%", textAlign:"left", background:"var(--card)", border:"1px solid var(--line)", borderRadius:18, padding:"12px 16px", cursor:"pointer", minHeight:48, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15}}>Conditions d'utilisation</button></li>
-        <li><button style={{width:"100%", textAlign:"left", background:"var(--card)", border:"1px solid var(--line)", borderRadius:18, padding:"12px 16px", cursor:"pointer", minHeight:48, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15}}>Politique de confidentialité</button></li>
+        <li><button onClick={() => window.Legal.open("conditions")} style={{width:"100%", textAlign:"left", background:"var(--card)", border:"1px solid var(--line)", borderRadius:18, padding:"12px 16px", cursor:"pointer", minHeight:48, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15}}>Conditions d'utilisation</button></li>
+        <li><button onClick={() => window.Legal.open("confidentialite")} style={{width:"100%", textAlign:"left", background:"var(--card)", border:"1px solid var(--line)", borderRadius:18, padding:"12px 16px", cursor:"pointer", minHeight:48, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15}}>Politique de confidentialité</button></li>
       </ul>
 
       <p className="meta" style={{marginTop:20, textAlign:"center", lineHeight:1.55}}>

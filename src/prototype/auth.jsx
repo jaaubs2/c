@@ -186,9 +186,12 @@ function SignupScreen({onBack, onSubmit, onLogin, askName, onOAuth}){
         {/* Consent block */}
         <div style={{marginTop:20, display:"grid", gap:10}}>
           <ConsentCheck checked={terms} onChange={setTerms}
-                        label={<>J'accepte les <a href="#" style={{color:"var(--ink)", textDecoration:"underline"}}>conditions d'utilisation</a> et la <a href="#" style={{color:"var(--ink)", textDecoration:"underline"}}>politique de confidentialité</a>.</>}/>
+                        label={<>J'accepte les conditions d'utilisation et la politique de confidentialité.</>}/>
           <ConsentCheck checked={sensitive} onChange={setSensitive}
                         label={<>Je comprends que <strong style={{color:"var(--ink)"}}>ces informations sont sensibles</strong> et qu'elles ne se partagent que sur mon invitation explicite.</>}/>
+          <p className="meta" style={{lineHeight:1.6}}>
+            À lire : <window.Legal.LegalLink doc="conditions">conditions d'utilisation</window.Legal.LegalLink> · <window.Legal.LegalLink doc="confidentialite">politique de confidentialité</window.Legal.LegalLink>
+          </p>
         </div>
 
         <window.BUI.FormError msg={serverError}/>

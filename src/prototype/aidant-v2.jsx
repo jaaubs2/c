@@ -156,6 +156,7 @@ function AidantCategory({catId, notes, onBack, onOpenCapture, onEdit, onDelete, 
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState("");
   const [showTrace, setShowTrace] = useState(false);
+  const [a11y] = window.UI.useA11y();
   return (
     <div className="screen fade-enter">
       <StatusBar/>
@@ -169,6 +170,7 @@ function AidantCategory({catId, notes, onBack, onOpenCapture, onEdit, onDelete, 
           <h1 style={{fontSize:28, marginTop:16}}>{cat.title}</h1>
           <p style={{marginTop:6, fontSize:14, fontWeight:600, opacity:.85}}>{cat.blurb}</p>
         </div>
+        {a11y.ttsOnRead && list.length > 0 && <div style={{display:"flex", justifyContent:"flex-end", marginTop:12}}><window.UI.ReadAll texts={[cat.title, ...list.map(n => n.text)]}/></div>}
         {stale.length > 0 && (
           <div className="card" style={{marginTop:12, padding:14, display:"flex", gap:12, alignItems:"center", background:"var(--c-histoire)", color:"var(--c-histoire-ink)"}}>
             <Circle Icon={IconSparkle} size={36} isize={16}/>
@@ -209,6 +211,7 @@ function AidantCategory({catId, notes, onBack, onOpenCapture, onEdit, onDelete, 
                   )}
                   <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10}}>
                     <span className="when">{n.confirmedAt ? `confirmé ${softDate(n.confirmedAt)}` : `noté ${softDate(n.ts)}`}{by}</span>
+                    {a11y.ttsOnRead && <span style={{marginLeft:"auto", marginRight:8}}><window.UI.ReadAloud text={n.text} size={36}/></span>}
                     {canEdit && <button onClick={() => { setEditingId(n.id); setDraft(n.text); }} style={{border:"none", background:"var(--bg)", borderRadius:999, padding:"0 12px", minHeight:34, font:"700 13px var(--sans)", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:6}}><IconEdit size={14}/> Modifier</button>}
                   </div>
                 </div>

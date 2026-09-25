@@ -18,22 +18,46 @@ async function newPage(browser, who) {
   page.setDefaultTimeout(8000);
   return page;
 }
-const shot = async (page, name) => { await page.waitForTimeout(700); await page.screenshot({ path: path.join(SHOTS, name) }); };
+// Accessibilité : chaque écran capturé est aussi contrôlé avec axe (règles WCAG 2.1 A et AA).
+let AXE = null;
+try { AXE = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8'); } catch {}
+const a11y = []; let a11yScreens = 0;
+async function axeCheck(page, label) {
+  if (!AXE) return;
+  await page.waitForTimeout(600); // fin des animations d'apparition
+  if (!(await page.evaluate(() => !!window.axe))) await page.addScriptTag({ content: AXE });
+  const v = await page.evaluate(async () => (await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] }, resultTypes: ['violations'] }))
+    .violations.map(v => `${v.id} : ${v.nodes.slice(0, 2).map(n => n.html.slice(0, 90)).join(' / ')}`));
+  a11yScreens++;
+  v.forEach(x => a11y.push(`${label} · ${x}`));
+}
+const shot = async (page, name) => { await page.waitForTimeout(700); await axeCheck(page, name); await page.screenshot({ path: path.join(SHOTS, name) }); };
 const see = async (page, text, label) => {
   try { await page.getByText(text).first().waitFor({ timeout: 8000 }); ok(true, label); }
-  catch { ok(false, label); }
+  catch { ok(false, label); await page.screenshot({ path: path.join(SHOTS, `echec-${failed}.png`) }).catch(() => {}); }
 };
 const absent = async (page, text, label) => ok(await page.getByText(text).count() === 0, label);
 
-async function signup(page, { role, name, email }) {
+async function signup(page, { role, name, email, legal }) {
   await page.getByText(role, { exact: true }).click();
   await page.locator('#su-name').fill(name);
   await page.locator('#su-email').fill(email);
   await page.locator('#su-pwd').fill('motdepasse123');
   await page.getByRole('checkbox').nth(0).click();
   await page.getByRole('checkbox').nth(1).click();
+  await axeCheck(page, `inscription (${name})`);
+  if (legal) {
+    await page.getByRole('button', { name: 'politique de confidentialité', exact: true }).click();
+    await see(page, 'Qui est responsable', 'la politique de confidentialité s\'ouvre depuis l\'inscription');
+    ok(page.url().includes('#legal=confidentialite'), 'elle a une adresse publique (pour les stores)');
+    await axeCheck(page, 'politique de confidentialité');
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Créer mon compte' }).waitFor();
+    ok(await page.locator('#su-email').inputValue() === email, 'Échap la referme, le formulaire est resté rempli');
+  }
   await page.getByRole('button', { name: 'Créer mon compte' }).click();
   await page.getByLabel('Chiffre 1').waitFor();
+  await axeCheck(page, `code reçu par email (${name})`);
   const c = await code(email);
   for (let i = 0; i < 6; i++) await page.getByLabel(`Chiffre ${i + 1}`).fill(c[i]);
 }
@@ -49,8 +73,10 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   console.log('\n■ Anne crée son compte et le carnet de Paul');
   const anne = await newPage(browser, 'Anne');
   await anne.goto(APP);
+  await anne.getByRole('button', { name: 'Créer mon carnet' }).waitFor();
+  await axeCheck(anne, 'accueil');
   await anne.getByRole('button', { name: 'Créer mon carnet' }).click();
-  await signup(anne, { role: 'Un·e aidant·e', name: 'Anne', email: 'anne@e2e.fr' });
+  await signup(anne, { role: 'Un·e aidant·e', name: 'Anne', email: 'anne@e2e.fr', legal: true });
   await anne.getByRole('button', { name: 'Essayer 14 jours gratuitement' }).click();
   await anne.getByRole('button', { name: 'Commencer' }).click();
   await anne.getByRole('button', { name: 'Continuer' }).click();
@@ -69,7 +95,7 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
 
   console.log('\n■ Anne écrit trois notes');
   await anne.getByRole('button', { name: 'Ajouter une note' }).first().click();
-  await anne.locator('#note-text').fill('Le matin, il aime son café noir, sans sucre.');
+  await anne.locator('#note-text').fill('Le matin, il prend son café noir, sans sucre.');
   await see(anne, 'Habitudes et routines', 'la rubrique « Habitudes » est proposée automatiquement');
   await shot(anne, '2-aidant-note.png');
   await anne.getByRole('button', { name: /Enregistrer/ }).click();
@@ -254,6 +280,10 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await see(anne, 'Créer mon carnet', 'Anne revient à l\'écran d\'accueil');
   await claire.goto('about:blank'); await claire.goto(shareUrl);
   await see(claire, 'Ce lien ne fonctionne pas.', 'le lien de Claire ne mène plus à rien');
+
+  console.log('\n■ Accessibilité (WCAG 2.1 AA, contrôle automatique axe)');
+  if (AXE) ok(a11y.length === 0, `${a11yScreens} écrans contrôlés, aucun défaut détecté` + (a11y.length ? '\n     - ' + [...new Set(a11y)].slice(0, 12).join('\n     - ') : ''));
+  else console.log('  (axe-core non installé : contrôle ignoré)');
 
   console.log(`\n${passed} vérifications réussies, ${failed} en échec.`);
   console.log('Erreurs JavaScript :', errors.length ? '\n - ' + errors.join('\n - ') : 'aucune');
