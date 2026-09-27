@@ -33,8 +33,10 @@
   /* Espace de fin de page (pseudo-élément : fiable même dans les conteneurs flex sur Safari). */
   .scroll::after{content:"";display:block;height:110px;flex-shrink:0}
   .scroll::-webkit-scrollbar{display:none}
-  .statusbar{height:92px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;padding:20px 32px 0;font:800 15px var(--sans);letter-spacing:-.01em;color:var(--ink)}
+  .statusbar{height:54px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;padding:20px 32px 0;font:800 15px var(--sans);letter-spacing:-.01em;color:var(--ink)}
   .statusbar .right{display:flex;gap:6px;align-items:center}
+  /* Mode démo : place pour la pastille « Proche / Aidant / Équipe ». */
+  .phone:has(.demo-pill) .statusbar{height:98px}
   .demo-pill{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:55;display:flex;align-items:center;gap:2px;background:#14151A;border-radius:999px;padding:3px;box-shadow:0 4px 10px -2px rgba(0,0,0,.3)}
   .demo-pill button{border:none;background:transparent;font:800 9px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);padding:4px 8px;border-radius:999px;cursor:pointer;min-height:22px}
   .demo-pill button.on{background:#fff;color:var(--ink)}
@@ -129,7 +131,8 @@
   .phone :is(a,button,[role="button"],[role="switch"],[role="radio"],[role="tab"],[role="link"],summary,select,[tabindex]:not([tabindex="-1"])):focus-visible{outline:3px solid var(--focus);outline-offset:2px}
   .hero :is(a,button,[role="button"]):focus-visible{outline-color:currentColor}
   .a11y-focus-target:focus{outline:none}
-  .a11y-focus-target:focus-visible{outline:2px dashed var(--focus);outline-offset:4px;border-radius:6px}
+  .a11y-focus-target:focus-visible{outline:none}
+  html.kbd-nav .a11y-focus-target:focus-visible{outline:2px dashed var(--focus);outline-offset:4px;border-radius:6px}
   .phone[data-contrast="high"]{--ink-2:var(--ink);--ink-3:var(--ink-2);--line:rgba(0,0,0,.25);--line-2:rgba(0,0,0,.4)}
   .phone[data-contrast="high"] .card,.phone[data-contrast="high"] .chip,.phone[data-contrast="high"] .note{border:2px solid var(--ink)}
   .phone[data-contrast="high"] .btn{border:2px solid var(--ink)}

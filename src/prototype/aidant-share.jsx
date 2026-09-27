@@ -420,6 +420,8 @@ function ShareCompose({recipient, included, onSend, onCreate, draft}){
   const [created, setCreated] = useStateAS(null);
   const [busy, setBusy] = useStateAS(false);
   const [err, setErr] = useStateAS("");
+  // Le petit mot affiché en haut de la fiche : celui rédigé avec l'IA, sinon un texte par défaut, toujours modifiable.
+  const [message, setMessage] = useStateAS((draft && draft.intro.trim()) || recipient.intro);
   const link = "carnet.vivant/j/4f7c-2a9e";
   const includedSet = new Set(included);
   const W = window.Who;
@@ -429,7 +431,7 @@ function ShareCompose({recipient, included, onSend, onCreate, draft}){
     const essentials = draft ? draft.essentials.filter(e => e.text.trim() && included.includes(e.category))
                                   .map(e => ({ category:e.category, text:e.text.trim().slice(0, 300) })) : [];
     try { setCreated(await onCreate({ recipientType:recipient.id, recipientName:name.trim(), categories:included, days,
-                                      intro:(draft && draft.intro.trim()) || recipient.intro,
+                                      intro:message.trim().slice(0, 300) || recipient.intro,
                                       aiSummary:essentials.length ? { essentials } : null })); }
     catch(e){ setErr(e.message); }
     finally { setBusy(false); }
@@ -467,6 +469,13 @@ function ShareCompose({recipient, included, onSend, onCreate, draft}){
         <label htmlFor="to-name" className="label">Pour</label>
         <input id="to-name" type="text" value={name} onChange={e => setName(e.target.value)} style={{marginTop:8}} aria-label="Nom du destinataire"
                placeholder={recipient.id === "etab" ? "Nom de l'établissement" : "Son prénom"}/>
+      </div>
+
+      <div style={{marginTop:22}}>
+        <label htmlFor="to-message" className="label">Ton petit mot{name.trim() ? ` pour ${name.trim().split(" ")[0]}` : ""}</label>
+        <textarea id="to-message" rows={3} maxLength={300} value={message} onChange={e => setMessage(e.target.value)}
+                  aria-describedby="to-message-hint" style={{marginTop:8}}/>
+        <p id="to-message-hint" className="meta" style={{marginTop:6}}>Il s'affiche en haut de la fiche, avec ton prénom. {300 - message.length} caractères restants.</p>
       </div>
 
       {real && (
