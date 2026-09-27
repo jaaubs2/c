@@ -30,12 +30,18 @@ html.device .statusbar > * {
   visibility: hidden;
 }
 
-/* Zones de sécurité : encoche en haut, barre d'accueil en bas. */
+/* En haut : le vrai téléphone affiche déjà l'heure et le réseau. On ne garde que la
+   zone de sécurité (encoche) et un petit espace, pour que le contenu colle au haut de l'écran. */
 html.device .statusbar {
-  height: max(92px, calc(env(safe-area-inset-top) + 64px));
+  height: calc(env(safe-area-inset-top, 0px) + 8px);
+  padding: 0;
+}
+/* Mode démo : la pastille « Proche / Aidant / Équipe » a besoin de sa place. */
+html.device .phone:has(.demo-pill) .statusbar {
+  height: calc(env(safe-area-inset-top, 0px) + 60px);
 }
 html.device .demo-pill {
-  top: max(56px, calc(env(safe-area-inset-top) + 12px));
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
 }
 html.device .tabbar {
   bottom: calc(20px + env(safe-area-inset-bottom));
@@ -43,8 +49,11 @@ html.device .tabbar {
 html.device .toast {
   bottom: calc(120px + env(safe-area-inset-bottom));
 }
-html.device .scroll {
-  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+html.device .phone .scroll::after {
+  height: calc(28px + env(safe-area-inset-bottom));
+}
+html.device .phone:has(.tabbar) .scroll::after {
+  height: calc(100px + env(safe-area-inset-bottom));
 }
 
 /* Tablettes : on garde une colonne lisible au centre. */
