@@ -11,7 +11,7 @@ const { CATEGORIES: CATSet, CAT_BY_ID: CBYSet, softDate: softDateSet, ACTIVITY_L
 const { StatusBar: SBSet, Avatar: AvSet, useA11y: useA11ySet } = window.UI;
 
 /* ─── settings root ─── */
-function SettingsFull({visibility, setVisibility, sharePayload, onLogout, live}){
+function SettingsFull({visibility, setVisibility, sharePayload, onLogout, live, onOpenShare}){
   const [page, setPage] = useSSet("menu");
 
   function back(){ setPage("menu"); }
@@ -22,7 +22,7 @@ function SettingsFull({visibility, setVisibility, sharePayload, onLogout, live})
     if(page === "me") return <LiveMePage live={live} onBack={back}/>;
     if(page === "profile") return <LivePersonPage live={live} onBack={back}/>;
     if(page === "circle") return <LiveCirclePage live={live} onBack={back}/>;
-    if(page === "access") return <LiveAccessPage live={live} onBack={back} visibility={visibility} setVisibility={setVisibility}/>;
+    if(page === "access") return <LiveAccessPage live={live} onBack={back} visibility={visibility} setVisibility={setVisibility} onOpenShare={onOpenShare}/>;
     if(page === "privacy") return <LivePrivacyPage live={live} onBack={back} onGo={setPage}/>;
   }
 
@@ -30,7 +30,7 @@ function SettingsFull({visibility, setVisibility, sharePayload, onLogout, live})
   if(page === "me") return <MeProfilePage onBack={back}/>;
   if(page === "profile") return <ProfilePage onBack={back}/>;
   if(page === "circle") return <CirclePage onBack={back}/>;
-  if(page === "access") return <AccessPage onBack={back} sharePayload={sharePayload} visibility={visibility} setVisibility={setVisibility}/>;
+  if(page === "access") return <AccessPage onBack={back} sharePayload={sharePayload} visibility={visibility} setVisibility={setVisibility} onOpenShare={onOpenShare}/>;
   if(page === "privacy") return <PrivacyPage onBack={back}/>;
   if(page === "a11y") return <A11yPage onBack={back}/>;
   if(page === "notif") return <NotifPrefsPage onBack={back}/>;
@@ -599,7 +599,17 @@ function CirclePage({onBack}){
 }
 
 /* ─── Accès & partages ─── */
-function AccessPage({onBack, sharePayload, visibility, setVisibility}){
+/* Bouton « Partager la fiche de … » (mène au parcours de partage, comme depuis l'accueil). */
+function ShareButton({onOpenShare}){
+  if(!onOpenShare) return null;
+  return (
+    <button className="btn" style={{marginTop:16, width:"100%"}} onClick={onOpenShare}>
+      <IconShareSet size={18} sw={1.8}/> Partager la fiche de {window.Who.person}
+    </button>
+  );
+}
+
+function AccessPage({onBack, sharePayload, visibility, setVisibility, onOpenShare}){
   const [revoked, setRevoked] = useSSet(false);
   const ACT = ACTSet || [];
 
@@ -608,6 +618,7 @@ function AccessPage({onBack, sharePayload, visibility, setVisibility}){
       <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>
         Liens actifs, ce que chacun voit, et le journal des consultations.
       </p>
+      <ShareButton onOpenShare={onOpenShare}/>
 
       <p className="kicker" style={{marginTop:22}}>Liens actifs</p>
       <div className="card" style={{marginTop:10, padding:16}}>
@@ -1123,12 +1134,13 @@ function LiveCirclePage({live, onBack}){
   );
 }
 
-function LiveAccessPage({live, onBack, visibility, setVisibility}){
+function LiveAccessPage({live, onBack, visibility, setVisibility, onOpenShare}){
   const shares = live.shares || [];
   const now = Date.now();
   return (
     <SubPage title="Accès & partages" onBack={onBack}>
-      <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>Chaque fiche partagée, ce qu'elle montre et combien de fois elle a été ouverte. Tu crées les liens depuis « Transmettre ».</p>
+      <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>Chaque fiche partagée, ce qu'elle montre et combien de fois elle a été ouverte.</p>
+      <ShareButton onOpenShare={onOpenShare}/>
       <p className="kicker" style={{marginTop:22}}>Fiches partagées</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:8}}>
         {shares.length === 0 && <li className="card" style={{padding:16}}><p className="meta">Aucune fiche partagée pour l'instant.</p></li>}

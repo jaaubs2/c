@@ -187,22 +187,14 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
         <div style={{...pad, paddingTop:14}}>
           <button onClick={() => onTab("transmettre")} className="card card-press" style={{width:"100%", textAlign:"left", cursor:"pointer", display:"flex", gap:14, alignItems:"center", padding:16}}>
             <span aria-hidden="true" style={{width:48, height:48, borderRadius:16, background:"var(--c-proches)", color:"var(--c-proches-ink)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><IconShare size={20} sw={1.8}/></span>
-            {W.demo ? (
-              <span style={{flex:1, minWidth:0}}>
-                <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Fiche envoyée à {sharePayload.name.split(" ")[0]}</span>
-                <span className="meta" style={{display:"block", marginTop:4}}>il y a 2 jours · 6 rubriques · valable 5 jours</span>
+            <span style={{flex:1, minWidth:0}}>
+              <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Partager la fiche de {W.person}</span>
+              <span className="meta" style={{display:"block", marginTop:4}}>
+                {W.demo ? `Dernière : ${sharePayload.name.split(" ")[0]} · il y a 2 jours · valable 5 jours`
+                  : lastShare ? `Dernière : ${lastShare.name ? lastShare.name.split(" ")[0] : "un relais"} · ${lastShare.openCount ? `ouverte ${lastShare.openCount} fois` : "pas encore ouverte"} · valable ${Math.max(1, Math.ceil((lastShare.expiresAt - Date.now()) / 86400000))} j`
+                  : "Crée un lien sécurisé, rubrique par rubrique."}
               </span>
-            ) : lastShare ? (
-              <span style={{flex:1, minWidth:0}}>
-                <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Fiche {lastShare.name ? `pour ${lastShare.name.split(" ")[0]}` : "partagée"}</span>
-                <span className="meta" style={{display:"block", marginTop:4}}>{lastShare.openCount ? `ouverte ${lastShare.openCount} fois` : "pas encore ouverte"} · {lastShare.included.length} rubrique{lastShare.included.length > 1 ? "s" : ""} · valable {Math.max(1, Math.ceil((lastShare.expiresAt - Date.now()) / 86400000))} j</span>
-              </span>
-            ) : (
-              <span style={{flex:1, minWidth:0}}>
-                <span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Transmettre à un relais</span>
-                <span className="meta" style={{display:"block", marginTop:4}}>Crée un lien sécurisé, rubrique par rubrique.</span>
-              </span>
-            )}
+            </span>
             <IconChevron size={18}/>
           </button>
         </div>

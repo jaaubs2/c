@@ -81,7 +81,7 @@ Pourquoi trois navigateurs ? Dans un même navigateur, on ne peut être connect�
 
 ### 1:40 – 2:40 · Transmettre · fenêtre ①
 
-1. Sur l'accueil : **Fiche pour Claire · ouverte 2 fois** → clique.
+1. Sur l'accueil : **Partager la fiche de Jeanne** (en dessous : « Dernière : Claire · ouverte 2 fois ») → clique.
    > « Anne sait que Claire l'a lue, deux fois. Le lien expire tout seul, et Anne peut le couper à tout moment. »
 2. **Nouvelle transmission** → **Préparer la fiche** → **Rédiger avec l'IA**.
    > « L'IA choisit les trois choses essentielles, dans les rubriques qu'Anne a choisies. Anne relit, corrige. »

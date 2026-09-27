@@ -121,8 +121,8 @@ const see = async (page, text, label) => {
   await anne.getByRole('button', { name: /Enregistrer/ }).click();
   await see(anne, 'Rangé dans', '   la note est rangée');
 
-  await see(anne, 'ouverte 2 fois', '② l\'accueil montre que Claire a ouvert sa fiche 2 fois');
-  await anne.getByText('Fiche pour Claire').click();
+  await see(anne, 'Dernière : Claire · ouverte 2 fois', '② l\'accueil montre que Claire a ouvert sa fiche 2 fois');
+  await anne.getByText('Partager la fiche de Jeanne').click();
   await see(anne, 'Ouverte 2 fois', '   avec son journal d\'ouverture (2 fois)');
   await shot(anne, 'jury-3-journal.png');
   await anne.getByRole('button', { name: /Nouvelle transmission/ }).click();
@@ -153,6 +153,10 @@ const see = async (page, text, label) => {
   await see(sophie, 'a retrouvé son chapelet', '   Sophie voit aussitôt la note validée');
   await shot(sophie, 'jury-8-famille.png');
 
+  await anne.locator('.tabbar').getByRole('button', { name: 'Réglages' }).click();
+  await anne.getByText('Accès & partages').first().click();
+  await anne.getByRole('button', { name: 'Partager la fiche de Jeanne' }).click();
+  await see(anne, 'Nouvelle transmission', '   Réglages → Accès & partages : le bouton mène au partage');
   await anne.locator('.tabbar').getByRole('button', { name: 'Réglages' }).click();
   await anne.getByText('Accessibilité').first().click();
   await anne.getByRole('radio', { name: /Très grand|Aa/ }).last().click();
