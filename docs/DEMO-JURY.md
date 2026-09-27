@@ -37,6 +37,8 @@ l'inscription, crée un compte en direct et saisis ce code.
    (`#fiche=…`). Colle-le après l'adresse de l'app, par exemple
    `https://ton-adresse/#fiche=…`, et garde ce lien dans tes notes.
 
+**Après le jury** : `supabase/demo/supprimer-demo.sql` efface toute la démo (comptes, carnets, établissement, mutuelle fictive), sans toucher aux vrais comptes.
+
 **Remise à zéro** : relancer le même fichier efface les comptes de démo et les recrée à neuf.
 Les vrais comptes ne sont jamais touchés. ⚠️ Le lien de Claire **change** à chaque remise à zéro,
 et il faut se reconnecter aux comptes.

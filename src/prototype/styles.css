@@ -26,6 +26,11 @@
   .phone[data-listening="1"]::before{width:170px;height:36px}
   .screen{flex:1;min-height:0;min-width:0;position:relative;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
   .scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:120px;width:100%}
+  /* Espace en bas de chaque page : juste la place de la barre d'onglets quand elle est là (64 px + 20 px + un souffle), sinon un petit espace. */
+  .phone .scroll{padding-bottom:0 !important}
+  .phone .scroll::after{height:28px}
+  .phone:has(.tabbar) .scroll::after{height:100px}
+  /* Espace de fin de page (pseudo-élément : fiable même dans les conteneurs flex sur Safari). */
   .scroll::after{content:"";display:block;height:110px;flex-shrink:0}
   .scroll::-webkit-scrollbar{display:none}
   .statusbar{height:92px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;padding:20px 32px 0;font:800 15px var(--sans);letter-spacing:-.01em;color:var(--ink)}
