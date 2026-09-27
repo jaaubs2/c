@@ -264,7 +264,7 @@ function MeProfilePage({onBack}){
             : <AvSet name="Anne C" size={72} tone="cool"/>}
         </button>
         <div style={{flex:1, minWidth:0}}>
-          <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:18, letterSpacing:"-.01em"}}>{name} {lastname.charAt(0)}.</p>
+          <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:18, letterSpacing:"-.01em"}}>{name} {lastname.charAt(0)}.</p>
           <p className="meta" style={{marginTop:2}}>{relation} de Jeanne</p>
           <button onClick={() => fileRef.current && fileRef.current.click()}
                   className="chip" style={{marginTop:8, fontSize:12.5, padding:"5px 10px"}}>
@@ -691,7 +691,7 @@ function PrivacyPage({onBack}){
   return (
     <SubPage title="Confidentialité & données" onBack={onBack}>
       <div className="hero cool" style={{padding:18, marginTop:6}}>
-        <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17, letterSpacing:"-.01em"}}>
+        <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:17, letterSpacing:"-.01em"}}>
           Tes données t'appartiennent.
         </p>
         <p style={{marginTop:10, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.55}}>
@@ -884,7 +884,7 @@ function HelpPage({onBack}){
   return (
     <SubPage title="Aide & à propos" onBack={onBack}>
       <div className="hero" style={{padding:18, marginTop:6}}>
-        <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17, letterSpacing:"-.01em"}}>
+        <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:17, letterSpacing:"-.01em"}}>
           Ce n'est pas un outil médical.
         </p>
         <p style={{marginTop:10, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.55}}>

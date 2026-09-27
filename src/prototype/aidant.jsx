@@ -499,7 +499,7 @@ function AidantCarnet({notes, onOpenCat}){
                       <span style={{fontSize:12, opacity:.7, fontWeight:600}}>{n}</span>
                     </span>
                     {recent ? (
-                      <span style={{display:"block", marginTop:8, fontSize:13.5, opacity:.85, lineHeight:1.45, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical"}}>
+                      <span style={{marginTop:8, fontSize:13.5, opacity:.85, lineHeight:1.45, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical"}}>
                         « {recent.text} »
                       </span>
                     ) : (

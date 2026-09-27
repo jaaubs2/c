@@ -33,7 +33,7 @@ function FamilyJournalCard({onOpen, who="Jeanne"}){
           <span style={{font:"800 11px var(--sans)", letterSpacing:".1em", textTransform:"uppercase", opacity:.75}}>Des nouvelles de {who}</span>
           <span style={{fontSize:12, fontWeight:700, whiteSpace:"nowrap", opacity:.75}}>{softDate(last.ts)}</span>
         </span>
-        <span style={{display:"block", marginTop:6, font:"700 14.5px var(--sans)", lineHeight:1.4, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical"}}>{last.text}</span>
+        <span style={{marginTop:6, font:"700 14.5px var(--sans)", lineHeight:1.4, overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical"}}>{last.text}</span>
         <span style={{display:"block", marginTop:6, fontSize:12.5, fontWeight:600, opacity:.8}}>{last.who}, {last.role.toLowerCase()} · Maison des Tilleuls{today > 1 ? ` · ${today} nouvelles aujourd'hui` : ""}</span>
       </span>
       <IconChevron size={18}/>

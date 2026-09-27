@@ -20,7 +20,7 @@ function BrandLogo({size = 28}){
         color:"#FFFFFF", fontFamily:"var(--display)", fontWeight:600, fontSize:size*.55,
         letterSpacing:"-.02em"
       }}>c</span>
-      <span style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:size*.7, color:"var(--ink)", letterSpacing:"-.015em"}}>
+      <span style={{fontFamily:"var(--display)", fontWeight:800, fontSize:size*.7, color:"var(--ink)", letterSpacing:"-.015em"}}>
         Le carnet vivant
       </span>
     </span>
@@ -772,7 +772,7 @@ function OnbHowto({onNext}){
               {s.icon}
             </span>
             <div style={{flex:1, minWidth:0}}>
-              <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17, color:"var(--ink)", letterSpacing:"-.01em"}}>{s.title}</p>
+              <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:17, color:"var(--ink)", letterSpacing:"-.01em"}}>{s.title}</p>
               <p style={{marginTop:6, fontSize:14, color:"var(--ink-2)", lineHeight:1.5}}>{s.body}</p>
             </div>
           </li>
@@ -954,7 +954,7 @@ function ChooseProfileScreen({onBack, onPick}){
                   {t.illus}
                 </span>
                 <span style={{flex:1, minWidth:0}}>
-                  <span style={{display:"block", fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:18, letterSpacing:"-.01em"}}>{t.title}</span>
+                  <span style={{display:"block", fontFamily:"var(--display)", fontWeight:800, fontSize:18, letterSpacing:"-.01em"}}>{t.title}</span>
                   <span className="mono" style={{display:"inline-block", marginTop:6, padding:"3px 8px", borderRadius:6, fontSize:10, letterSpacing:".08em", background: on ? "rgba(252,246,236,.15)" : t.bg, color: on ? "var(--paper)" : t.ink}}>
                     {t.tag.toUpperCase()}
                   </span>

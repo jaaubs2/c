@@ -91,7 +91,7 @@ function AidantNotifications({onBack, onOpenCat, live}){
                     <span className="meta" style={{marginLeft:"auto"}}>{softDateAX(n.ts)}</span>
                   </div>
 
-                  <p style={{marginTop:10, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17, lineHeight:1.3, color:"var(--ink)", letterSpacing:"-.01em"}}>
+                  <p style={{marginTop:10, fontFamily:"var(--display)", fontWeight:800, fontSize:17, lineHeight:1.3, color:"var(--ink)", letterSpacing:"-.01em"}}>
                     {n.title}
                   </p>
                   <p style={{marginTop:6, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.5}}>
@@ -174,7 +174,7 @@ function AidantSettingsV2({visibility, setVisibility, sharePayload, onRevoke}){
             <JIAX size={64}/>
           </div>
           <div style={{flex:1, minWidth:0}}>
-            <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:20, color:"var(--ink)", letterSpacing:"-.01em"}}>Jeanne</p>
+            <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:20, color:"var(--ink)", letterSpacing:"-.01em"}}>Jeanne</p>
             <p className="meta" style={{marginTop:4}}>86 ans · accompagnée depuis 2 ans</p>
           </div>
           <button className="iconbtn" aria-label="Modifier le profil de Jeanne">
@@ -289,7 +289,7 @@ function AidantSettingsV2({visibility, setVisibility, sharePayload, onRevoke}){
                             borderRadius:14, padding:"12px 8px",
                             cursor:"pointer", minHeight:54,
                             font:"500 " + opt.size + "px var(--sans)",
-                            fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", letterSpacing:"-.01em"
+                            fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.01em"
                           }}>
                     Aa
                   </button>
@@ -484,7 +484,7 @@ function AidantCare({onBack}){
       <div className="scroll" style={{padding:"6px 22px 24px"}}>
         {/* Opening message */}
         <div className="hero cool" style={{padding:"22px 22px 24px"}}>
-          <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:20, lineHeight:1.35, color:"var(--ink)", letterSpacing:"-.01em"}}>
+          <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:20, lineHeight:1.35, color:"var(--ink)", letterSpacing:"-.01em"}}>
             Tu prends soin de Jeanne depuis 2 ans. C'est immense — et c'est précieux.
           </p>
           <p style={{marginTop:12, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.55}}>
@@ -544,7 +544,7 @@ function AidantCare({onBack}){
               transition: breathing ? `transform ${breath === "inspire" ? "4s" : breath === "expire" ? "6s" : "2s"} cubic-bezier(.4,.0,.2,1)` : "transform .4s ease"
             }}/>
             <div style={{position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column"}}>
-              <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17, color:"var(--ink)", letterSpacing:"-.01em"}}>
+              <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:17, color:"var(--ink)", letterSpacing:"-.01em"}}>
                 {breathing ? breathLabel : "Prête ?"}
               </p>
             </div>

@@ -387,7 +387,7 @@ function RelaisHelpPage({onBack}){
   return (
     <RSubPage title="Aide & à propos" onBack={onBack}>
       <div className="hero" style={{padding:18, marginTop:6}}>
-        <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:17, letterSpacing:"-.01em"}}>
+        <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:17, letterSpacing:"-.01em"}}>
           Tu es invité·e à lire.
         </p>
         <p style={{marginTop:10, fontSize:14.5, color:"var(--ink-2)", lineHeight:1.55}}>

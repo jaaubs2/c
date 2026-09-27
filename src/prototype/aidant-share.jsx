@@ -363,7 +363,7 @@ function PreviewFiche({notes, recipient, included, onToggle, onNext, draft, setD
         marginTop:12, background:"var(--paper)", border:"1px solid var(--line)",
         borderRadius:24, padding:"22px 18px"
       }}>
-        <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:12, color:"var(--ink-3)", textTransform:"uppercase", letterSpacing:".18em"}}>L'essentiel à savoir</p>
+        <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:12, color:"var(--ink-3)", textTransform:"uppercase", letterSpacing:".18em"}}>L'essentiel à savoir</p>
         <h2 className="serif" style={{fontSize:26, marginTop:6}}>{window.Who.person}</h2>
         <p style={{marginTop:10, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>{(draft && draft.intro.trim()) || recipient.intro}</p>
 

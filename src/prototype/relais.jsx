@@ -155,7 +155,7 @@ function RelaisCarnetPicker({onPick, name="Claire"}){
                   </div>
                   <div style={{flex:1, minWidth:0}}>
                     <p className="label" style={{fontSize:10.5}}>Carnet de</p>
-                    <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:22, letterSpacing:"-.01em", marginTop:2}}>{c.profile.name}</p>
+                    <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:22, letterSpacing:"-.01em", marginTop:2}}>{c.profile.name}</p>
                     <p className="meta" style={{marginTop:4, fontSize:12.5}}>
                       {c.profile.age} ans · partagé par {c.sharedBy}
                     </p>
@@ -298,7 +298,7 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
                             }
                           </span>
                           <span style={{flex:1, minWidth:0}}>
-                            <span style={{display:"block", fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15.5, letterSpacing:"-.01em"}}>{c.profile.name}</span>
+                            <span style={{display:"block", fontFamily:"var(--display)", fontWeight:800, fontSize:15.5, letterSpacing:"-.01em"}}>{c.profile.name}</span>
                             <span style={{display:"block", marginTop:2, fontSize:11.5, color:"var(--ink-2)"}}>
                               {c.profile.age} ans · partagé par {c.sharedBy}
                             </span>
