@@ -3,6 +3,7 @@
 // Ce fichier doit être importé avant les écrans.
 import React from "react";
 import * as ReactDOMClient from "react-dom/client";
+import { createPortal, flushSync } from "react-dom";
 
 window.React = React;
-window.ReactDOM = ReactDOMClient;
+window.ReactDOM = { ...ReactDOMClient, createPortal, flushSync };

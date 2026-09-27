@@ -187,6 +187,46 @@ function RelaisCarnetPicker({onPick, name="Claire"}){
   );
 }
 
+/* Ce que Claire doit savoir sur la confidentialité de la fiche (bouton cadenas). */
+function FichePrivacySheet({from, person, cats, expiresAt, onClose}){
+  const until = expiresAt ? new Date(expiresAt).toLocaleDateString("fr-FR", {day:"numeric", month:"long"}) : null;
+  const Row = ({children}) => (
+    <li style={{display:"flex", gap:12, alignItems:"flex-start"}}>
+      <span aria-hidden="true" style={{width:22, height:22, borderRadius:7, flexShrink:0, marginTop:2, background:"var(--c-sante)", color:"var(--c-sante-ink)", display:"flex", alignItems:"center", justifyContent:"center"}}><IconCheckR size={14} sw={2.5}/></span>
+      <span style={{fontSize:15, lineHeight:1.55, color:"var(--ink-2)"}}>{children}</span>
+    </li>
+  );
+  const sheet = (
+    <div className="screen fade-enter" role="dialog" aria-modal="true" aria-labelledby="fiche-privacy-title" style={{position:"absolute", inset:0, zIndex:60}}>
+      <SBR/>
+      <div className="topbar" style={{background:"var(--bg)"}}>
+        <button className="iconbtn" aria-label="Fermer" onClick={onClose}><IconCloseR size={20}/></button>
+        <span style={{width:44}}/>
+      </div>
+      <div className="scroll" style={{padding:"4px 22px 24px"}}>
+        <span aria-hidden="true" style={{width:56, height:56, borderRadius:18, background:"var(--c-sante)", color:"var(--c-sante-ink)", display:"flex", alignItems:"center", justifyContent:"center"}}><IconLockR size={26}/></span>
+        <h1 id="fiche-privacy-title" style={{fontSize:28, marginTop:16}}>Une fiche confidentielle</h1>
+        <p style={{marginTop:10, fontSize:15.5, lineHeight:1.55}}>{from} te l'a confiée pour que tu prennes soin de {person} comme {window.Who.demo || window.Who.pronoun !== "il" ? "elle" : "il"} aime qu'on le fasse.</p>
+        <ul style={{listStyle:"none", padding:0, margin:"20px 0 0", display:"grid", gap:12}}>
+          <Row>Tu vois seulement les rubriques choisies par {from}{cats.length ? " : " + cats.map(c => c.title.toLowerCase()).join(", ") : ""}.</Row>
+          <Row>{until ? `Le lien est valable jusqu'au ${until}. ` : ""}{from} peut le désactiver à tout moment.</Row>
+          <Row>{from} voit quand la fiche est ouverte : la date et l'heure, rien d'autre.</Row>
+          <Row>Pas de compte, pas d'inscription : on ne te demande rien sur toi.</Row>
+          <Row>Ce lien est fait pour toi : merci de ne pas le transférer.</Row>
+        </ul>
+        <div className="card" style={{marginTop:20, padding:16}}>
+          <p style={{fontSize:14.5, lineHeight:1.55, color:"var(--ink-2)"}}>Ce carnet n'est pas un dossier médical. En cas d'urgence, appelle le <strong style={{color:"var(--ink)"}}>15</strong> ou le <strong style={{color:"var(--ink)"}}>112</strong>.</p>
+        </div>
+        <button className="btn soft" style={{marginTop:20, width:"100%"}} onClick={() => window.Legal.open("confidentialite")}>Politique de confidentialité</button>
+        <button className="btn" style={{marginTop:10, width:"100%"}} onClick={onClose}>J'ai compris</button>
+      </div>
+    </div>
+  );
+  // Affichée par-dessus tout l'écran (y compris la barre d'onglets).
+  const host = document.querySelector(".phone");
+  return host ? ReactDOM.createPortal(sheet, host) : sheet;
+}
+
 /* ─────────────────────────────────────────────────────────────
    1. Relais Home — dashboard with 3 essentials
    ───────────────────────────────────────────────────────────── */
@@ -200,6 +240,8 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
   // Même illustration que celle choisie à la création du carnet (pour « elle »).
   const isJeanneRH = window.Who.demo ? personFirst === "Jeanne" : window.Who.pronoun !== "il";
   const [switcherOpen, setSwitcherOpen] = useSR(false);
+  const [privacyOpen, setPrivacyOpen] = useSR(false);
+  const expiresAt = payload.expiresAt || (payload.expiresIn ? Date.now() + payload.expiresIn * 864e5 : null);
   const carnets = window.Who.demo ? (RELAIS_CARNETS_R || []) : [];
   // Avec un vrai lien : les « choses à savoir » relues par l'aidant, sinon tirées des notes.
   const essentials = window.Who.demo ? TOP_THREE
@@ -217,7 +259,7 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
             <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>{(payload.name || "").split(" ")[0] || "et bienvenue"}</p>
           </div>
         </div>
-        <button className="iconbtn" aria-label="Confidentialité"><IconLockR size={18}/></button>
+        <button className="iconbtn" aria-label="Confidentialité de la fiche" aria-haspopup="dialog" onClick={() => setPrivacyOpen(true)}><IconLockR size={18}/></button>
       </div>
 
       <div className="scroll">
@@ -411,6 +453,7 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
           </div>
         </div>
       </div>
+      {privacyOpen && <FichePrivacySheet from={from} person={personFirst} cats={visibleCats} expiresAt={expiresAt} onClose={() => setPrivacyOpen(false)}/>}
     </div>
   );
 }
