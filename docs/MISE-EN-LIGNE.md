@@ -90,15 +90,9 @@ Leur adresse publique, à donner à l'App Store et à Google Play :
 
 `https://TON-ADRESSE/#legal=confidentialite` (et `#legal=conditions`, `#legal=mentions`)
 
-Les passages surlignés **« À compléter »** attendent tes informations. Ils sont dans le fichier
-`src/prototype/legal.jsx`, entre doubles crochets `[[…]]` :
-
-- nom de la structure, forme juridique, adresse, SIRET, directeur ou directrice de la publication ;
-- email de contact pour les données personnelles ;
-- région Supabase choisie (Paris), service d'emails (Brevo), hébergeur (statichost.eu, Union européenne) ;
-- durée de conservation des comptes inactifs ;
-- ce qui se passe à la fin de la découverte sans code, conditions du contrat établissement, médiateur de la consommation ;
-- délai de préavis si le service s'arrêtait.
+Les informations de l'éditrice (Mylène Sollier, structure juridique en cours de création), le contact
+(`lecarnetvivant@gmail.com`) et les prestataires sont remplis dans `src/prototype/legal.jsx`.
+À mettre à jour quand la structure juridique sera créée (nom, adresse, SIRET).
 
 Ces textes sont une **base sérieuse, pas un avis juridique** : fais-les relire (incubateur,
 juriste, ou le délégué à la protection des données d'un établissement partenaire) avant l'ouverture au public.

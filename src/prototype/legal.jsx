@@ -1,6 +1,6 @@
 // Documents légaux : politique de confidentialité, conditions d'utilisation, mentions légales.
 // Ouverts par un lien public (…/#legal=confidentialite), sans compte : c'est l'adresse à donner
-// à l'App Store et à Google Play. Les passages [[entre doubles crochets]] sont à compléter
+// à l'App Store et à Google Play. Un passage écrit [[entre doubles crochets]] serait à compléter
 // par l'éditeur (voir docs/MISE-EN-LIGNE.md).
 (() => {
 const { useState, useEffect } = React;
@@ -15,8 +15,8 @@ const DOCS = {
     intro: "Le carnet vivant garde et transmet ce qui compte pour une personne accompagnée : ses habitudes, ce qui l'apaise, sa façon d'aimer qu'on lui parle. Ces informations sont précieuses et personnelles. Voici, simplement, ce que nous en faisons.",
     sections: [
       { h: "Qui est responsable", p: [
-        "Le responsable du traitement est [[nom de la structure, forme juridique, adresse, numéro SIRET]].",
-        "Pour toute question sur vos données : [[adresse email de contact dédiée aux données personnelles]].",
+        "Le responsable du traitement est Mylène Sollier, porteuse du projet Le carnet vivant (structure juridique en cours de création).",
+        "Pour toute question sur vos données : lecarnetvivant@gmail.com.",
       ]},
       { h: "Un outil non médical", p: [
         "Le carnet n'est pas un dossier médical. Il ne doit contenir ni diagnostic, ni traitement, ni résultat d'examen. La rubrique « Santé et vigilance » sert aux repères du quotidien (par exemple : « appareil auditif à gauche »).",
@@ -41,20 +41,20 @@ const DOCS = {
         "Nous ne vendons aucune donnée, ne faisons aucune publicité et n'utilisons pas vos notes pour entraîner une IA.",
         "Nos sous-traitants, tous liés par un accord de traitement des données :",
       ], list: [
-        "Supabase : hébergement de la base de données et des comptes, dans l'Union européenne ([[région choisie, par exemple Paris]]).",
+        "Supabase : hébergement de la base de données et des comptes, dans l'Union européenne (région Paris, France).",
         "Votre mutuelle n'est pas un destinataire : elle finance l'accès, mais ne reçoit ni vos carnets, ni vos notes, ni votre nom.",
         "Mistral AI (France) : aide à la rédaction, uniquement quand vous utilisez la dictée, le rangement automatique ou la rédaction de fiche. Seuls le texte utile et le prénom sont transmis, jamais le nom de famille. Serveurs européens.",
-        "[[Service d'envoi d'emails, par exemple Brevo (France)]] : envoi des codes de connexion.",
-        "[[Hébergeur de la version web]] : mise à disposition de l'application, sans accès aux carnets.",
+        "Brevo (Sendinblue SAS, Paris, France) : envoi des codes de connexion.",
+        "statichost.eu (Suède, Union européenne) : mise à disposition de l'application, sans accès aux carnets.",
       ]},
       { h: "Combien de temps", list: [
         "Tant que votre compte existe. Vous pouvez le supprimer à tout moment dans Réglages → Mon compte : vos données sont alors effacées immédiatement, et les liens que vous avez partagés cessent de fonctionner.",
         "Les liens de partage expirent à la date choisie et peuvent être désactivés avant.",
-        "Comptes inactifs : [[durée, par exemple suppression après 2 ans sans connexion, avec un email de rappel un mois avant]].",
+        "Comptes inactifs : supprimés après 2 ans sans connexion, avec un email de rappel un mois avant.",
       ]},
       { h: "Vos droits", p: [
         "Vous pouvez accéder à vos données, les corriger, les effacer, en recevoir une copie (Réglages → Confidentialité & données → Exporter), vous opposer à un traitement, en demander la limitation, retirer votre consentement et définir ce que deviennent vos données après votre décès.",
-        "Écrivez-nous à [[adresse email de contact]]. Nous répondons sous un mois. Si vous n'êtes pas satisfait, vous pouvez saisir la CNIL (cnil.fr).",
+        "Écrivez-nous à lecarnetvivant@gmail.com. Nous répondons sous un mois. Si vous n'êtes pas satisfait, vous pouvez saisir la CNIL (cnil.fr).",
       ]},
       { h: "Sécurité", p: [
         "Les échanges sont chiffrés (HTTPS) et les données sont chiffrées sur les serveurs. Les liens de partage sont uniques et impossibles à deviner, et le serveur n'en garde qu'une empreinte. Chaque ouverture est inscrite dans un journal que vous pouvez consulter.",
@@ -70,7 +70,7 @@ const DOCS = {
     intro: "Ces conditions posent le cadre, avec un principe : prendre soin de la personne accompagnée, de sa dignité et de sa vie privée.",
     sections: [
       { h: "Le service", p: [
-        "Le carnet vivant permet de rassembler et de transmettre le savoir humain sur une personne accompagnée, entre proches aidants, relais et équipes d'établissement. Il est édité par [[nom de la structure]].",
+        "Le carnet vivant permet de rassembler et de transmettre le savoir humain sur une personne accompagnée, entre proches aidants, relais et équipes d'établissement. Il est édité par Mylène Sollier, porteuse du projet Le carnet vivant (structure juridique en cours de création).",
       ]},
       { h: "Ce n'est pas un outil médical", p: [
         "Le carnet ne remplace ni un avis médical, ni un dossier de soins, ni les transmissions réglementaires d'un établissement. N'y inscrivez pas de diagnostic ni de traitement. En cas d'urgence, appelez le 15 ou le 112.",
@@ -88,15 +88,15 @@ const DOCS = {
       ]},
       { h: "Accès et prix", list: [
         "Particuliers : l'accès est pris en charge par votre mutuelle, si elle est partenaire. Elle vous transmet un code à saisir dans l'app ; vous n'avez rien à payer.",
-        "Sans code : une période de découverte de 14 jours, gratuite et sans carte bancaire. [[Ce qui se passe à la fin de la découverte, sans code de mutuelle.]] Dans tous les cas, vos notes restent à vous : vous pouvez toujours les consulter, les exporter ou les supprimer.",
+        "Sans code : une période de découverte de 14 jours, gratuite et sans carte bancaire. À la fin de la découverte, vous pouvez continuer à utiliser le carnet : ajoutez le code de votre mutuelle dans les réglages dès qu'elle propose le service. Nous vous préviendrons avant tout changement. Dans tous les cas, vos notes restent à vous : vous pouvez toujours les consulter, les exporter ou les supprimer.",
         "Proches invités et relais qui reçoivent une fiche : toujours gratuit.",
-        "Établissements : abonnement selon le contrat conclu avec l'établissement. [[Conditions du contrat établissement.]]",
+        "Établissements : abonnement selon le contrat signé avec l'établissement.",
       ]},
       { h: "Arrêter", p: [
-        "Vous pouvez supprimer votre compte à tout moment, depuis les réglages. Si nous devions arrêter le service, nous vous préviendrions [[délai, par exemple trois mois]] à l'avance pour que vous puissiez exporter vos carnets.",
+        "Vous pouvez supprimer votre compte à tout moment, depuis les réglages. Si nous devions arrêter le service, nous vous préviendrions trois mois à l'avance pour que vous puissiez exporter vos carnets.",
       ]},
       { h: "Droit applicable", p: [
-        "Ces conditions sont soumises au droit français. En cas de désaccord, nous chercherons d'abord une solution amiable ; vous pouvez aussi recourir gratuitement à un médiateur de la consommation : [[nom et coordonnées du médiateur]].",
+        "Ces conditions sont soumises au droit français. En cas de désaccord, écrivez-nous à lecarnetvivant@gmail.com : nous chercherons d'abord une solution amiable.",
       ]},
     ],
   },
@@ -105,16 +105,16 @@ const DOCS = {
     title: "Mentions légales",
     sections: [
       { h: "Éditeur", p: [
-        "[[Nom de la structure, forme juridique, capital, adresse du siège, numéro SIRET / RCS]].",
-        "Directrice ou directeur de la publication : [[nom]].",
-        "Contact : [[adresse email]].",
+        "Mylène Sollier, porteuse du projet Le carnet vivant (structure juridique en cours de création).",
+        "Directrice de la publication : Mylène Sollier.",
+        "Contact : lecarnetvivant@gmail.com.",
       ]},
       { h: "Hébergement", list: [
-        "Application web : [[nom, adresse et téléphone de l'hébergeur]].",
-        "Données : Supabase, sur des serveurs situés dans l'Union européenne ([[région]]).",
+        "Application web : statichost.eu, service édité par Variable Object Assignment, c/o Knackeriet, Sankt Paulsgatan 25, 118 48 Stockholm, Suède (www.statichost.eu).",
+        "Données : Supabase, sur des serveurs situés dans l'Union européenne (région Paris, France).",
       ]},
       { h: "Accessibilité", p: [
-        "Le carnet vivant vise la conformité au niveau AA des règles WCAG 2.1 : texte agrandissable, contraste renforcé, navigation au clavier, compatibilité avec les lecteurs d'écran, dictée et lecture à voix haute. Un défaut vous gêne ? Écrivez-nous à [[adresse email]], nous le corrigerons.",
+        "Le carnet vivant vise la conformité au niveau AA des règles WCAG 2.1 : texte agrandissable, contraste renforcé, navigation au clavier, compatibilité avec les lecteurs d'écran, dictée et lecture à voix haute. Un défaut vous gêne ? Écrivez-nous à lecarnetvivant@gmail.com, nous le corrigerons.",
       ]},
       { h: "Crédits", p: [
         "Polices Manrope et Atkinson Hyperlegible (licence SIL Open Font License). Application construite avec React, Vite, Capacitor et Supabase (licences libres).",
