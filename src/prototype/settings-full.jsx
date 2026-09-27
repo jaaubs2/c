@@ -731,7 +731,7 @@ function PrivacyPage({onBack}){
       </ul>
 
       <p className="meta" style={{marginTop:20, textAlign:"center", lineHeight:1.55}}>
-        Contact DPO : <a href="mailto:dpo@carnet-vivant.fr" style={{color:"var(--ink)", textDecoration:"underline"}}>dpo@carnet-vivant.fr</a>
+        Contact données personnelles : <a href="mailto:lecarnetvivant@gmail.com" style={{color:"var(--ink)", textDecoration:"underline"}}>lecarnetvivant@gmail.com</a>
       </p>
     </SubPage>
   );
@@ -916,7 +916,7 @@ function HelpPage({onBack}){
         <p style={{fontSize:14, color:"var(--ink-2)", lineHeight:1.55}}>
           Une question, un retour ? Écris-nous, on lit tout.
         </p>
-        <p style={{marginTop:10, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}>contact@carnet-vivant.fr</p>
+        <p style={{marginTop:10, fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:16}}><a href="mailto:lecarnetvivant@gmail.com" style={{color:"var(--ink)"}}>lecarnetvivant@gmail.com</a></p>
       </div>
 
       <p className="kicker" style={{marginTop:22}}>Mentions légales</p>
