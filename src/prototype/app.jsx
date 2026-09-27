@@ -386,6 +386,7 @@ function App(){
     if(aidantTab === "settings"){
       return <SettingsFull visibility={visibility} setVisibility={setVisibility}
                            sharePayload={sharePayload}
+                           onOpenShare={() => setAidantTab("transmettre")}
                            live={settingsLive}
                            onLogout={logout}/>;
     }

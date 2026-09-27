@@ -143,7 +143,7 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await see(anne, 'Rangé dans « Goûts et plaisirs »', 'la note dictée est rangée dans « Goûts et plaisirs »');
 
   console.log('\n■ Anne crée un lien pour Claire');
-  await anne.getByText('Transmettre à un relais').click();
+  await anne.getByText('Partager la fiche de Paul').click();
   await anne.getByRole('button', { name: /Nouvelle transmission/ }).click();
   await anne.getByRole('button', { name: 'Préparer la fiche' }).click();
   await anne.getByRole('button', { name: "Rédiger avec l'IA" }).click();
@@ -179,7 +179,8 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
 
   console.log('\n■ Anne voit l\'ouverture, puis désactive le lien');
   await anne.reload();
-  await anne.getByText('Fiche pour Claire').click();
+  await see(anne, 'Dernière : Claire · ouverte 1 fois', 'l\'accueil résume la dernière fiche partagée');
+  await anne.getByText('Partager la fiche de Paul').click();
   await see(anne, 'Ouverte 1 fois', 'le journal d\'accès indique 1 ouverture');
   await anne.getByRole('button', { name: 'Désactiver le lien' }).click();
   await anne.getByRole('button', { name: 'Oui, désactiver' }).click();
