@@ -1,0 +1,5 @@
+# Mise en ligne sur statichost.eu (hébergement 100 % européen) : voir docs/MISE-EN-LIGNE.md.
+# À chaque envoi sur GitHub, statichost reconstruit l'app et publie le dossier « dist ».
+image: node:22
+command: npm ci && npm run build
+public: dist

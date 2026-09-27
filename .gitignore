@@ -1,0 +1,32 @@
+# Dépendances
+node_modules/
+
+# Build
+dist/
+dist-e2e/
+dist-a11y/
+captures/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environnement / secrets (jamais commités)
+.env
+.env.*
+!.env.example
+!.env.production.example
+# Réglages publics de la version en ligne (adresse Supabase + clé publique) : envoyés exprès
+!.env.production
+
+# Apps natives : fichiers générés à la compilation
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+
+# Système
+.DS_Store
