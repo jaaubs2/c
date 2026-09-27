@@ -68,6 +68,10 @@ function watch(phone) {
   });
 }
 
+// Le repère autour du titre ne s'affiche que pour la navigation au clavier (pas au toucher ni à la souris).
+document.addEventListener("keydown", (e) => { if (e.key === "Tab") document.documentElement.classList.add("kbd-nav"); }, true);
+document.addEventListener("pointerdown", () => document.documentElement.classList.remove("kbd-nav"), true);
+
 function start() {
   const phone = document.querySelector(".phone");
   if (phone) return watch(phone);

@@ -153,6 +153,8 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await shot(anne, '10-fiche-ia.png');
   await anne.getByRole('button', { name: /Créer le lien de partage/ }).click();
   await anne.locator('#to-name').fill('Claire');
+  ok((await anne.locator('#to-message').inputValue()).includes('Paul'), 'le petit mot reprend l\'introduction rédigée par l\'IA');
+  await anne.locator('#to-message').fill('Claire, merci de passer voir papa mercredi. Voici ce qui compte pour lui.');
   await anne.getByRole('checkbox').click();
   await anne.getByRole('button', { name: /Créer le lien sécurisé/ }).click();
   const linkEl = anne.getByText(/#fiche=/);
@@ -170,7 +172,7 @@ async function writeNote(page, text, buttonName = /Enregistrer/) {
   await see(claire, 'Paul', 'Claire voit la fiche de Paul');
   await see(claire, 'Parler lentement', 'avec ce qui a été partagé');
   await see(claire, "Toujours l'appeler Paul", 'et les « choses à savoir » telles qu\'Anne les a corrigées');
-  await see(claire, "Voici l'essentiel pour bien accompagner Paul.", 'avec l\'introduction rédigée pour elle');
+  await see(claire, 'Claire, merci de passer voir papa mercredi.', 'avec le petit mot écrit par Anne');
   await absent(claire, 'Appareil auditif', 'mais pas la santé (non incluse pour un proche)');
   await absent(claire, 'Roger', 'et aucun carnet de démonstration');
   await shot(claire, '4-relais-fiche.png');
