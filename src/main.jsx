@@ -22,6 +22,7 @@ import "./prototype/icons.jsx";
 import "./prototype/persona.jsx";
 import "./prototype/data.jsx";
 import "./prototype/ui.jsx";
+import "./brand/brand.jsx";
 import "./prototype/legal.jsx";
 import "./prototype/backend-ui.jsx";
 import "./prototype/tabbar-v2.jsx";
