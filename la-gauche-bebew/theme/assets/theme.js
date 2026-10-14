@@ -113,7 +113,15 @@
 
   function measureHeader() {
     var header = $('.section-header');
-    if (header) document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+    if (!header) return;
+    var root = document.documentElement.style;
+    root.setProperty('--header-h', header.offsetHeight + 'px');
+    // bandeau annonce + header : le hero prend exactement le reste de l'écran
+    root.setProperty('--chrome-h', (header.offsetTop + header.offsetHeight) + 'px');
+    // la colonne d'infos produit ne reste collée que si elle tient dans l'écran
+    $$('.product__info').forEach(function (info) {
+      info.style.position = info.offsetHeight > window.innerHeight - header.offsetHeight - 24 ? 'static' : '';
+    });
   }
 
   function initMenu() {

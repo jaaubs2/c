@@ -26,6 +26,7 @@
 
     {% render 'theme-styles' %}
     {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'fit.css' | asset_url | stylesheet_tag }}
 
     <script>
       window.theme = {
@@ -60,6 +61,12 @@
     <a class="skip-link" href="#MainContent">{{ 'general.skip_to_content' | t }}</a>
 
     {% sections 'header-group' %}
+    <script>
+      (function () {
+        var h = document.querySelector('.section-header');
+        if (h) document.documentElement.style.setProperty('--chrome-h', (h.offsetTop + h.offsetHeight) + 'px');
+      })();
+    </script>
 
     <main id="MainContent" class="main" role="main" tabindex="-1">
       {{ content_for_layout }}

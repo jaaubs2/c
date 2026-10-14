@@ -1,0 +1,64 @@
+/* ==========================================================================
+   Ajustement à l'écran — chargé après base.css.
+   Le hero occupe exactement la hauteur d'écran restante sous le bandeau + header
+   (--chrome-h, mesuré en JS), ni plus ni moins, du téléphone 320 px à l'écran 2560 px.
+   Les tailles suivent la plus petite contrainte : largeur (vw) ou hauteur disponible (--hu).
+   ========================================================================== */
+
+:root {
+  --chrome-h: 110px;
+  --hero-h: calc(100svh - var(--chrome-h));
+  --hu: calc(var(--hero-h) / 100);
+  --fs-hero-sign: clamp(calc(36px * var(--sc)), calc(min(9.5vw, 14 * var(--hu)) * var(--sc)), calc(150px * var(--sc)));
+  --fs-hero: clamp(calc(44px * var(--sc)), calc(min(13.5vw, 20 * var(--hu)) * var(--sc)), calc(220px * var(--sc)));
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  min-height: var(--hero-h);
+  gap: clamp(14px, min(3.6vw, calc(4 * var(--hu))), 52px);
+  padding: clamp(20px, min(6vw, calc(7 * var(--hu))), 96px) var(--pad);
+}
+.hero__sign--pancarte {
+  padding: clamp(16px, min(3.4vw, calc(4.5 * var(--hu))), 52px) clamp(18px, 4.2vw, 68px);
+  box-shadow: clamp(8px, 1vw, 14px) clamp(8px, 1vw, 14px) 0 var(--ink);
+}
+.hero__stick { height: clamp(32px, min(9vw, calc(10 * var(--hu))), 150px); }
+
+/* ---------- Grilles : 2 colonnes même sur un écran de 320 px, sans débordement ---------- */
+.product-grid {
+  grid-template-columns: repeat(auto-fill, minmax(max(min(150px, calc((100% - var(--grid-gap-x)) / 2)), calc((100% - (var(--cols) - 1) * var(--grid-gap-x)) / var(--cols))), 1fr));
+}
+.cortege__grid {
+  grid-template-columns: repeat(auto-fill, minmax(max(min(150px, calc((100% - 12px) / 2)), calc((100% - 3 * 12px) / 4)), 1fr));
+}
+
+/* ---------- Fiche produit : une photo ne dépasse jamais la hauteur de l'écran ---------- */
+/* Mobile / tablette : largeur = hauteur dispo × 4/5 (la photo suivante dépasse un peu, on devine le défilement) */
+.gallery { grid-auto-columns: min(100%, calc((var(--hero-h) - 110px) * 0.8)); }
+@media (min-width: 900px) {
+  .gallery { grid-auto-columns: auto; }
+  .gallery__item:first-child { width: min(100%, calc((var(--hero-h) - 72px) * 0.8)); justify-self: center; }
+}
+
+/* ---------- Téléphones ---------- */
+@media (max-width: 600px) {
+  /* Slogan plus grand, toujours limité par la hauteur disponible */
+  :root {
+    --fs-hero-sign: clamp(calc(34px * var(--sc)), calc(min(12.5vw, 9 * var(--hu)) * var(--sc)), calc(80px * var(--sc)));
+    --fs-hero: clamp(calc(40px * var(--sc)), calc(min(17vw, 13 * var(--hu)) * var(--sc)), calc(110px * var(--sc)));
+  }
+  /* Le tampon passe dans le flux, en bas à droite, au lieu de recouvrir le surtitre */
+  .stamp {
+    position: relative !important; top: auto; right: auto;
+    align-self: flex-end; margin: calc(-1 * clamp(8px, 2 * var(--hu), 24px)) 0 0;
+    width: 98px; height: 98px; outline-offset: -8px; border-width: 3px;
+  }
+  .stamp__big { font-size: 30px; }
+  .stamp__small { font-size: 8px; letter-spacing: .06em; }
+}
+/* Téléphones très courts (iPhone SE 1re gén.) : on retire le tampon et le surtitre pour que tout tienne.
+   L'offre reste visible dans le bandeau et la ligne prix. */
+@media (max-width: 600px) and (max-height: 620px) {
+  .stamp, .hero__kicker { display: none; }
+}
