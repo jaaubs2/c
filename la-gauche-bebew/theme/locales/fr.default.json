@@ -78,7 +78,8 @@
     "breadcrumb_shop": "Boutique",
     "size_guide": "Guide des tailles",
     "variant": "Modèle",
-    "add_to_cart_named": "Ajouter au cortège : {{ title }}"
+    "add_to_cart_named": "Ajouter au cortège : {{ title }}",
+    "added_short": "Ajouté ✓"
   },
   "collection": {
     "filter_label": "Filtrer les t-shirts",

@@ -19,7 +19,7 @@
                   <a href="{{ link.url }}">{{ link.title }}</a>
                 {%- endfor -%}
               {%- elsif block.settings.fallback == 'aide' -%}
-                <a href="/pages/faq">FAQ</a>
+                <a href="{{ routes.root_url }}#faq">FAQ</a>
                 <a href="/pages/contact">Contact</a>
                 <a href="/pages/livraison-retours">Livraison &amp; retours</a>
                 <a href="/pages/contact#commandes-groupees">Commandes groupées</a>
@@ -37,10 +37,6 @@
     </div>
   </div>
 
-  <div class="footer__bottom">
-    <p class="footer__small">{{ section.settings.payment_label | escape }}</p>
-    {% render 'payment-icons' %}
-  </div>
   <p class="footer__small">© {{ 'now' | date: '%Y' }} {{ shop.name }}{% if section.settings.legal_line != blank %} · {{ section.settings.legal_line | escape }}{% endif %}</p>
 </footer>
 
@@ -65,13 +61,7 @@
       "type": "textarea",
       "id": "about",
       "label": "Texte",
-      "default": "La Gauche Bebew — France\nIndépendante. Pas affiliée à un parti ni à un syndicat."
-    },
-    {
-      "type": "text",
-      "id": "payment_label",
-      "label": "Texte paiement",
-      "default": "Paiement sécurisé"
+      "default": "La Gauche Bebew — France"
     },
     {
       "type": "text",

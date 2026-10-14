@@ -38,6 +38,7 @@
         },
         strings: {
           added: {{ 'product.added' | t | json }},
+          addedShort: {{ 'product.added_short' | t | json }},
           adding: {{ 'product.adding' | t | json }},
           addToCart: {{ 'product.add_to_cart' | t | json }},
           soldOut: {{ 'product.sold_out' | t | json }},
@@ -63,8 +64,9 @@
     {% sections 'header-group' %}
     <script>
       (function () {
-        var h = document.querySelector('.section-header');
-        if (h) document.documentElement.style.setProperty('--chrome-h', (h.offsetTop + h.offsetHeight) + 'px');
+        var a = document.querySelector('.section-announce'), h = document.querySelector('.section-header'), r = document.documentElement.style;
+        r.setProperty('--announce-h', (a ? a.offsetHeight : 0) + 'px');
+        if (h) r.setProperty('--chrome-h', (h.offsetTop + h.offsetHeight) + 'px');
       })();
     </script>
 

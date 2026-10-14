@@ -28,7 +28,7 @@
       <a href="{{ routes.all_products_collection_url }}">{{ 'header.fallback_slogans' | t }}</a>
       <a href="{{ routes.root_url }}#manifeste">{{ 'header.fallback_manifesto' | t }}</a>
       <a href="{{ routes.root_url }}#cortege">{{ 'header.fallback_cortege' | t }}</a>
-      <a href="/pages/faq">FAQ</a>
+      <a href="{{ routes.root_url }}#faq">FAQ</a>
       <a href="/pages/contact">Contact</a>
     {%- endif -%}
     {%- if settings.instagram_url != blank or settings.tiktok_url != blank -%}

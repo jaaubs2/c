@@ -1,7 +1,8 @@
 {%- assign s = section.settings -%}
+<section id="{{ s.anchor | default: 'faq' }}" class="faq-home">
 <header class="page-head">
   {%- if s.kicker != blank -%}<p class="kicker">{{ s.kicker | escape }}</p>{%- endif -%}
-  <h1 class="display page-head__title">{{ s.title | escape }}</h1>
+  <h2 class="display h2">{{ s.title | escape }}</h2>
   {%- if s.intro != blank -%}<div class="page-head__intro">{{ s.intro }}</div>{%- endif -%}
 </header>
 
@@ -22,6 +23,7 @@
     </div>
   {%- endif -%}
 </div>
+</section>
 
 <script type="application/ld+json">
 {
@@ -48,6 +50,7 @@
     { "type": "text", "id": "title", "label": "Titre", "default": "T'as une question ?" },
     { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Les réponses courtes aux questions qu'on nous pose le plus. Pour le reste, écris-nous.</p>" },
     { "type": "checkbox", "id": "open_first", "label": "Première question ouverte", "default": false },
+    { "type": "text", "id": "anchor", "label": "Ancre (pour les liens #)", "default": "faq" },
     { "type": "text", "id": "cta_text", "label": "Phrase de fin", "default": "Pas trouvé ta réponse ?" },
     { "type": "text", "id": "cta_button", "label": "Bouton", "default": "Écris-nous" },
     { "type": "url", "id": "cta_link", "label": "Lien du bouton", "info": "Par défaut : /pages/contact" }

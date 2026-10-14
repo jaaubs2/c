@@ -114,13 +114,17 @@
   function measureHeader() {
     var header = $('.section-header');
     if (!header) return;
+    var announce = $('.section-announce');
+    var announceH = announce ? announce.offsetHeight : 0;
     var root = document.documentElement.style;
-    root.setProperty('--header-h', header.offsetHeight + 'px');
+    // bandeau d'annonce + header restent tous les deux collés en haut
+    root.setProperty('--announce-h', announceH + 'px');
+    root.setProperty('--header-h', (announceH + header.offsetHeight) + 'px');
     // bandeau annonce + header : le hero prend exactement le reste de l'écran
     root.setProperty('--chrome-h', (header.offsetTop + header.offsetHeight) + 'px');
     // la colonne d'infos produit ne reste collée que si elle tient dans l'écran
     $$('.product__info').forEach(function (info) {
-      info.style.position = info.offsetHeight > window.innerHeight - header.offsetHeight - 24 ? 'static' : '';
+      info.style.position = info.offsetHeight > window.innerHeight - announceH - header.offsetHeight - 24 ? 'static' : '';
     });
   }
 
@@ -179,6 +183,8 @@
               v.hidden = !on;
             });
           }
+          var buy = $('[data-card-buy]', card);
+          if (buy) updateCardBuy(buy);
           var qa = $('[data-quick-add]', card);
           if (qa) { if (state.color) qa.dataset.prefColor = state.color; else delete qa.dataset.prefColor; }
         });
@@ -495,6 +501,69 @@
     });
   }
 
+  /* ---------- Achat direct depuis une carte (coupe + taille cliquables) ---------- */
+
+  function cardState(buy) {
+    var card = buy.closest('[data-card]');
+    var variants = JSON.parse($('[data-card-variants]', buy).textContent);
+    var shown = card && $('[data-visual]:not([hidden])', card);
+    var colorWanted = shown ? shown.dataset.visual : null;
+    var ci = Number(buy.dataset.colorIndex), fi = Number(buy.dataset.fitIndex), si = Number(buy.dataset.sizeIndex);
+    var fitBtn = $('[data-pick="fit"][aria-pressed="true"]', buy);
+    var sizeBtn = $('[data-pick="size"][aria-pressed="true"]', buy);
+    function matches(v, size) {
+      if (ci > -1 && colorWanted && normColor(v.o[ci]) !== colorWanted) return false;
+      if (fi > -1 && fitBtn && v.o[fi] !== fitBtn.dataset.value) return false;
+      if (size !== undefined && v.o[si] !== size) return false;
+      return true;
+    }
+    return { variants: variants, matches: matches, sizeBtn: sizeBtn };
+  }
+
+  // grise les tailles indisponibles pour la couleur et la coupe choisies
+  function updateCardBuy(buy) {
+    var st = cardState(buy);
+    $$('[data-pick="size"]', buy).forEach(function (btn) {
+      var ok = st.variants.some(function (v) { return v.a && st.matches(v, btn.dataset.value); });
+      btn.classList.toggle('is-out', !ok);
+      btn.disabled = !ok;
+      if (!ok && btn.getAttribute('aria-pressed') === 'true') btn.setAttribute('aria-pressed', 'false');
+    });
+  }
+
+  function initCardBuy() {
+    $$('[data-card-buy]').forEach(updateCardBuy);
+    document.addEventListener('click', function (e) {
+      var pick = e.target.closest('[data-card-buy] [data-pick]');
+      if (pick) {
+        var buy = pick.closest('[data-card-buy]');
+        $$('[data-pick="' + pick.dataset.pick + '"]', buy).forEach(function (b) { b.setAttribute('aria-pressed', b === pick ? 'true' : 'false'); });
+        $('[data-card-status]', buy).textContent = '';
+        if (pick.dataset.pick === 'fit') updateCardBuy(buy);
+        return;
+      }
+      var add = e.target.closest('[data-card-add]');
+      if (!add) return;
+      var box = add.closest('[data-card-buy]');
+      var status = $('[data-card-status]', box);
+      var st = cardState(box);
+      if (!st.sizeBtn) { status.textContent = S.chooseSize; return; }
+      var variant = st.variants.find(function (v) { return v.a && st.matches(v, st.sizeBtn.dataset.value); });
+      if (!variant) { status.textContent = S.unavailable; return; }
+      var label = add.dataset.label || (add.dataset.label = add.textContent);
+      add.classList.add('is-loading');
+      add.textContent = S.adding;
+      addToCart(variant.id, 1).then(function () {
+        status.innerHTML = addedMessage();
+        add.textContent = S.addedShort || label;
+        setTimeout(function () { add.textContent = label; }, 2200);
+      }).catch(function (err) {
+        status.textContent = err.message || S.error;
+        add.textContent = label;
+      }).then(function () { add.classList.remove('is-loading'); });
+    });
+  }
+
   /* ---------- Guide des tailles en fenêtre ---------- */
 
   function initSizeGuide() {
@@ -574,6 +643,7 @@
     initFilters();
     initDialogs();
     initQuickAdd();
+    initCardBuy();
     initSizeGuide();
     initCart();
     initNewsletter();
