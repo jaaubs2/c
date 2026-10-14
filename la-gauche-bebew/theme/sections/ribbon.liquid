@@ -1,0 +1,51 @@
+{%- comment -%}
+  Ruban de manif qui défile. Le texte est répété 4 fois pour remplir la largeur (d'où la durée × 4),
+  puis la piste est doublée pour boucler sans saut.
+{%- endcomment -%}
+{%- assign text = section.settings.text | strip -%}
+<section class="ribbon" style="--ribbon-tilt: {{ section.settings.tilt }}deg; --ribbon-dur: {{ section.settings.speed | times: 4 }}s">
+  <div class="ribbon__band">
+    <p class="visually-hidden">{{ text | remove: ' ·' | escape }}</p>
+    <div class="ribbon__track" aria-hidden="true">
+      {%- for i in (1..8) -%}
+        <span class="ribbon__item">{{ text | escape }}</span>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Ruban de manif",
+  "class": "section-ribbon",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Texte",
+      "default": "2 T-SHIRTS = 35 € · LIVRAISON OFFERTE DÈS 50 € · EXPÉDIÉ SOUS 72 H ·"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Durée d'un tour (plus grand = plus lent)",
+      "min": 8,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "default": 26
+    },
+    {
+      "type": "range",
+      "id": "tilt",
+      "label": "Inclinaison",
+      "min": -4,
+      "max": 4,
+      "step": 0.5,
+      "unit": "°",
+      "default": -1.5
+    }
+  ],
+  "presets": [{ "name": "Ruban de manif" }]
+}
+{% endschema %}

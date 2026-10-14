@@ -1,0 +1,209 @@
+{%- comment -%}
+  Carte produit (grille des slogans).
+
+  Paramètres :
+  - product      : objet produit Shopify (laisser vide pour une carte d'exemple)
+  - ph_title     : slogan de la carte d'exemple
+  - ph_name      : nom affiché de la carte d'exemple
+  - ph_color     : 'noir' / 'blanc' (carte d'exemple)
+  - ph_back      : true si imprimé dos (carte d'exemple)
+  - card_visual  : 'flat' (photo à plat) ou 'worn' (photo portée)
+  - show_badge   : badge « 2 pour 35 € »
+  - show_sizes   : liste des tailles
+  - quick_add    : bouton « Ajouter au cortège »
+  - eager        : charge l'image en priorité (premières cartes)
+
+  Conventions produit (voir README) :
+  - options « Couleur » (Noir/Blanc), « Coupe » (Homme/Femme), « Taille » (XS → XXL)
+  - photos : 1re = à plat, 2e = portée ; une photo par couleur via les images de variantes
+  - métachamps facultatifs : custom.slogan (texte), custom.impression (« Devant » / « Dos »)
+    ou étiquette « imprime-dos »
+{%- endcomment -%}
+{%- liquid
+  assign badge_text = 'product.offer_badge' | t: pair_price: settings.pair_price
+  assign colors = ''
+  assign fits = ''
+  assign color_labels = ''
+  assign has_product = false
+  if product.id
+    assign has_product = true
+  endif
+
+  if has_product
+    assign slogan = product.metafields.custom.slogan.value | default: product.title
+    assign impression = product.metafields.custom.impression.value | append: '' | downcase
+    assign is_back = false
+    if impression contains 'dos' or product.tags contains 'imprime-dos' or product.tags contains 'dos'
+      assign is_back = true
+    endif
+
+    assign color_option = nil
+    assign fit_option = nil
+    assign size_option = nil
+    for option in product.options_with_values
+      assign oname = option.name | downcase
+      if oname contains 'couleur' or oname contains 'color' or oname contains 'coloris'
+        assign color_option = option
+      elsif oname contains 'coupe' or oname contains 'fit' or oname contains 'genre' or oname contains 'mod'
+        assign fit_option = option
+      elsif oname contains 'taille' or oname contains 'size'
+        assign size_option = option
+      endif
+    endfor
+
+    if color_option
+      for value in color_option.values
+        assign v = value | handleize
+        if v contains 'noir' or v contains 'black'
+          assign v = 'noir'
+        elsif v contains 'blanc' or v contains 'white'
+          assign v = 'blanc'
+        endif
+        assign colors = colors | append: v | append: ' '
+        assign vl = value | downcase
+        if forloop.first
+          assign color_labels = vl
+        else
+          assign color_labels = color_labels | append: ' ou ' | append: vl
+        endif
+      endfor
+    else
+      if product.tags contains 'noir'
+        assign colors = 'noir '
+        assign color_labels = 'noir'
+      elsif product.tags contains 'blanc'
+        assign colors = 'blanc '
+        assign color_labels = 'blanc'
+      endif
+    endif
+
+    if fit_option
+      for value in fit_option.values
+        assign v = value | handleize
+        if v contains 'femme' or v contains 'women' or v contains 'woman'
+          assign v = 'femme'
+        elsif v contains 'homme' or v contains 'men' or v contains 'man'
+          assign v = 'homme'
+        endif
+        assign fits = fits | append: v | append: ' '
+      endfor
+    endif
+
+    assign color_list = colors | strip | split: ' '
+    assign url = product.url
+    assign title = product.title
+  else
+    assign slogan = ph_title
+    assign is_back = ph_back
+    assign colors = ph_color
+    assign color_list = ph_color | split: ' '
+    assign color_labels = ph_color
+    assign fits = 'homme femme'
+    assign url = routes.all_products_collection_url
+    assign title = ph_name | default: ph_title
+  endif
+
+  if is_back
+    assign print_label = 'product.print_back' | t
+  else
+    assign print_label = 'product.print_front' | t
+  endif
+-%}
+<article class="card" data-card data-colors="{{ colors | strip }}" data-fits="{{ fits | strip }}">
+  <a href="{{ url }}" class="card__media" aria-label="{{ 'product.see_tee' | t: title: title | escape }}" tabindex="-1">
+    {%- if has_product and product.media.size > 0 -%}
+      {%- if card_visual == 'worn' and product.media.size > 1 -%}
+        {%- assign img_alt = product.media[1].alt | default: title -%}
+        <div class="card__visual">
+          {{ product.media[1].preview_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+        </div>
+      {%- elsif color_option -%}
+        {%- assign color_key = 'option' | append: color_option.position -%}
+        {%- for value in color_option.values -%}
+          {%- assign cv = color_list[forloop.index0] -%}
+          {%- assign variant_for_color = product.variants | where: color_key, value | first -%}
+          {%- assign img = variant_for_color.featured_image | default: product.featured_image -%}
+          {%- assign img_alt = img.alt | default: title -%}
+          <div class="card__visual" data-visual="{{ cv }}" {% unless forloop.first %}hidden{% endunless %}>
+            {%- if eager and forloop.first -%}
+              {{ img | image_url: width: 900 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+            {%- else -%}
+              {{ img | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        {%- assign img_alt = product.featured_media.alt | default: title -%}
+        <div class="card__visual">
+          {%- if eager -%}
+            {{ product.featured_media.preview_image | image_url: width: 900 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+          {%- else -%}
+            {{ product.featured_media.preview_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- elsif card_visual == 'worn' -%}
+      <div class="card__visual">
+        <div class="ph-worn"><strong>{{ 'product.worn_photo' | t }}</strong><span>{{ title }}</span></div>
+      </div>
+    {%- else -%}
+      {%- if color_list.size == 0 -%}{%- assign color_list = 'blanc' | split: ' ' -%}{%- endif -%}
+      {%- for cv in color_list -%}
+        <div class="card__visual" data-visual="{{ cv }}" {% unless forloop.first %}hidden{% endunless %}>
+          {% render 'tee-flat', text: slogan, color: cv, back: is_back %}
+        </div>
+      {%- endfor -%}
+    {%- endif -%}
+
+    <div class="card__badges">
+      {%- if show_badge -%}<span class="badge">{{ badge_text }}</span>{%- endif -%}
+      {%- if is_back -%}<span class="badge badge--outline">{{ 'product.print_back_badge' | t }}</span>{%- endif -%}
+      {%- if has_product and product.available == false -%}<span class="badge badge--outline">{{ 'product.sold_out' | t }}</span>{%- endif -%}
+    </div>
+  </a>
+
+  <div class="card__row">
+    <h3 class="card__title"><a href="{{ url }}">{{ title | escape }}</a></h3>
+    <span class="card__price">
+      {%- if has_product -%}
+        {%- if product.compare_at_price > product.price -%}<s>{{ product.compare_at_price | money_without_trailing_zeros }}</s>{%- endif -%}
+        {%- if product.price_varies -%}{{ 'product.from' | t }} {% endif -%}
+        {{ product.price | money_without_trailing_zeros }}
+      {%- else -%}
+        {{ settings.unit_price }} €
+      {%- endif -%}
+    </span>
+  </div>
+  <p class="card__meta">{{ 'product.card_meta' | t: colors: color_labels, print: print_label }}</p>
+
+  {%- if show_sizes -%}
+    <div class="sizes" aria-label="{{ 'product.sizes_available' | t }}">
+      {%- if has_product and size_option -%}
+        {%- assign size_key = 'option' | append: size_option.position -%}
+        {%- for value in size_option.values -%}
+          {%- assign size_variants = product.variants | where: size_key, value | where: 'available', true -%}
+          <span{% if size_variants.size == 0 %} class="is-out" title="{{ 'product.sold_out' | t }}"{% endif %}>{{ value }}</span>
+        {%- endfor -%}
+      {%- else -%}
+        {%- assign default_sizes = 'XS,S,M,L,XL,XXL' | split: ',' -%}
+        {%- for z in default_sizes -%}<span>{{ z }}</span>{%- endfor -%}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if quick_add -%}
+    {%- if has_product -%}
+      {%- if product.available -%}
+        <button type="button" class="btn btn--small" data-quick-add
+          data-handle="{{ product.handle }}"
+          {% if product.has_only_default_variant or product.variants.size == 1 %}data-variant-id="{{ product.selected_or_first_available_variant.id }}"{% endif %}>
+          {{- 'product.add_to_cart' | t -}}
+        </button>
+      {%- else -%}
+        <button type="button" class="btn btn--small" disabled>{{ 'product.sold_out' | t }}</button>
+      {%- endif -%}
+    {%- else -%}
+      <a href="{{ url }}" class="btn btn--small">{{ 'product.add_to_cart' | t }}</a>
+    {%- endif -%}
+  {%- endif -%}
+</article>

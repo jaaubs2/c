@@ -1,0 +1,81 @@
+{
+  "sections": {
+    "main": {
+      "type": "size-guide",
+      "settings": {},
+      "blocks": {
+        "r_xs": {
+          "type": "row",
+          "settings": {
+            "size": "XS",
+            "v1": "47",
+            "v2": "68",
+            "v3": "41",
+            "v4": "60"
+          }
+        },
+        "r_s": {
+          "type": "row",
+          "settings": {
+            "size": "S",
+            "v1": "50",
+            "v2": "70",
+            "v3": "44",
+            "v4": "62"
+          }
+        },
+        "r_m": {
+          "type": "row",
+          "settings": {
+            "size": "M",
+            "v1": "53",
+            "v2": "72",
+            "v3": "47",
+            "v4": "64"
+          }
+        },
+        "r_l": {
+          "type": "row",
+          "settings": {
+            "size": "L",
+            "v1": "56",
+            "v2": "74",
+            "v3": "50",
+            "v4": "66"
+          }
+        },
+        "r_xl": {
+          "type": "row",
+          "settings": {
+            "size": "XL",
+            "v1": "59",
+            "v2": "76",
+            "v3": "53",
+            "v4": "68"
+          }
+        },
+        "r_xxl": {
+          "type": "row",
+          "settings": {
+            "size": "XXL",
+            "v1": "62",
+            "v2": "78",
+            "v3": "56",
+            "v4": "70"
+          }
+        }
+      },
+      "block_order": [
+        "r_xs",
+        "r_s",
+        "r_m",
+        "r_l",
+        "r_xl",
+        "r_xxl"
+      ]
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

@@ -1,0 +1,29 @@
+{%- comment -%}
+  Fenêtre « Ajouter au cortège » depuis une carte produit : couleur, coupe, taille.
+  Le contenu est construit par theme.js à partir de /products/<handle>.js
+{%- endcomment -%}
+<dialog class="dialog" id="QuickAdd" aria-labelledby="QuickAddTitle">
+  <div class="dialog__inner">
+    <div class="dialog__head">
+      <p class="dialog__title" id="QuickAddTitle"></p>
+      <button type="button" class="dialog__close" data-dialog-close aria-label="{{ 'general.close' | t }}">{% render 'icon', name: 'close' %}</button>
+    </div>
+    <p class="product__kicker" data-qa-price></p>
+    <form class="product__buy" data-qa-form novalidate>
+      <div data-qa-pickers style="display:flex;flex-direction:column;gap:18px"></div>
+      <button type="submit" class="btn">{{ 'product.add_to_cart' | t }}</button>
+      <p class="form-status" role="status" aria-live="polite" data-form-status></p>
+    </form>
+    <a class="link-mono" data-qa-link href="#">{{ 'product.see_details' | t }}</a>
+  </div>
+</dialog>
+
+<dialog class="dialog dialog--wide" id="SizeGuide" aria-labelledby="SizeGuideTitle">
+  <div class="dialog__inner">
+    <div class="dialog__head">
+      <p class="dialog__title" id="SizeGuideTitle">{{ 'product.size_guide' | t }}</p>
+      <button type="button" class="dialog__close" data-dialog-close aria-label="{{ 'general.close' | t }}">{% render 'icon', name: 'close' %}</button>
+    </div>
+    <div data-size-guide-content></div>
+  </div>
+</dialog>

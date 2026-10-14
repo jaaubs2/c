@@ -1,0 +1,44 @@
+{%- comment -%}
+  Polices auto-hébergées (pas d'appel à Google Fonts : mieux pour le RGPD et la vitesse)
+  + variables CSS issues des réglages du thème.
+{%- endcomment -%}
+{%- liquid
+  case settings.display_font
+    when 'bebas'
+      assign display_stack = "'Bebas Neue', Impact, 'Arial Narrow', sans-serif"
+      assign font_k = 1.12
+      assign display_file = 'bebas-neue-400.woff2'
+    when 'archivo-black'
+      assign display_stack = "'Archivo Black', 'Arial Black', sans-serif"
+      assign font_k = 0.74
+      assign display_file = 'archivo-black-400.woff2'
+    else
+      assign display_stack = "'Anton', Impact, 'Arial Narrow', sans-serif"
+      assign font_k = 1
+      assign display_file = 'anton-400.woff2'
+  endcase
+  assign grain = settings.grain | divided_by: 100.0
+  assign sc = settings.title_scale | divided_by: 100.0 | times: font_k
+-%}
+{{ display_file | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+{{ 'archivo-var.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+<style>
+  @font-face { font-family: 'Anton'; font-style: normal; font-weight: 400; font-display: swap; src: url({{ 'anton-400.woff2' | asset_url }}) format('woff2'); }
+  @font-face { font-family: 'Archivo Black'; font-style: normal; font-weight: 400; font-display: swap; src: url({{ 'archivo-black-400.woff2' | asset_url }}) format('woff2'); }
+  @font-face { font-family: 'Bebas Neue'; font-style: normal; font-weight: 400; font-display: swap; src: url({{ 'bebas-neue-400.woff2' | asset_url }}) format('woff2'); }
+  @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 100 900; font-stretch: 100%; font-display: swap; src: url({{ 'archivo-var.woff2' | asset_url }}) format('woff2'); }
+  @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url({{ 'plex-mono-400.woff2' | asset_url }}) format('woff2'); }
+  @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500; font-display: swap; src: url({{ 'plex-mono-500.woff2' | asset_url }}) format('woff2'); }
+  @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url({{ 'plex-mono-600.woff2' | asset_url }}) format('woff2'); }
+
+  :root {
+    --bg: {{ settings.color_bg }};
+    --ink: {{ settings.color_ink }};
+    --display: {{ display_stack }};
+    --font-k: {{ font_k }};
+    --sc: {{ sc }};
+    --radius: {{ settings.radius }}px;
+    --grain: {{ grain }};
+    --grain-wall: {{ grain | times: 1.4 | at_most: 1 }};
+  }
+</style>

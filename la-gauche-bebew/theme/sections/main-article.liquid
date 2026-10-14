@@ -1,0 +1,14 @@
+<div class="legal">
+  <header class="page-head page-head--rule">
+    <p class="kicker"><a href="{{ blog.url }}">{{ blog.title | escape }}</a> · {{ article.published_at | date: '%d/%m/%Y' }}</p>
+    <h1 class="display page-head__title">{{ article.title | escape }}</h1>
+  </header>
+  {%- if article.image -%}
+    <div style="margin-top: 32px; max-width: 1100px">{{ article.image | image_url: width: 1800 | image_tag: loading: 'eager', widths: '600, 900, 1200, 1800', sizes: '100vw', alt: article.image.alt }}</div>
+  {%- endif -%}
+  <div class="rte" style="margin-top: clamp(24px, 3vw, 44px)">{{ article.content }}</div>
+</div>
+
+{% schema %}
+{ "name": "Article" }
+{% endschema %}

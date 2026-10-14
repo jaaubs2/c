@@ -1,0 +1,78 @@
+{
+  "sections": {
+    "main": {
+      "type": "faq",
+      "settings": {
+        "kicker": "Questions fréquentes",
+        "title": "T'as une question ?",
+        "intro": "<p>Les réponses courtes aux questions qu'on nous pose le plus. Pour le reste, écris-nous.</p>",
+        "open_first": false,
+        "cta_text": "Pas trouvé ta réponse ?",
+        "cta_button": "Écris-nous"
+      },
+      "blocks": {
+        "q1": {
+          "type": "question",
+          "settings": {
+            "question": "Quand est-ce que je reçois ma commande ?",
+            "answer": "<p>On expédie sous 72 h après ta commande. Ensuite, compte le délai du transporteur : il est affiché au moment de payer, et tu reçois un mail de suivi dès que ton colis part.</p>"
+          }
+        },
+        "q2": {
+          "type": "question",
+          "settings": {
+            "question": "Comment choisir ma taille ?",
+            "answer": "<p>Tout est dans le <a href=\"/pages/guide-des-tailles\">guide des tailles</a> : mesures à plat, coupe Homme et coupe Femme, du XS au XXL. Entre deux tailles ? Prends au-dessus.</p>"
+          }
+        },
+        "q3": {
+          "type": "question",
+          "settings": {
+            "question": "Comment laver mon t-shirt ?",
+            "answer": "<p>À l'envers, à 30°. Pas de sèche-linge. Et ne repasse pas sur l'impression. Comme ça, ton slogan tient jusqu'à la prochaine manif. Et celle d'après.</p>"
+          }
+        },
+        "q4": {
+          "type": "question",
+          "settings": {
+            "question": "Je peux retourner ma commande ?",
+            "answer": "<p>Oui, tu as 14 jours après réception. L'article doit être non porté et dans son état d'origine. Les frais de retour sont à ta charge. Écris-nous à <a href=\"mailto:lagauchebebew@gmail.com\">lagauchebebew@gmail.com</a> avec ton numéro de commande. Tout est détaillé dans <a href=\"/pages/livraison-retours\">Livraison &amp; retours</a>.</p>"
+          }
+        },
+        "q5": {
+          "type": "question",
+          "settings": {
+            "question": "Vous livrez hors de France ?",
+            "answer": "<p>Non, on livre uniquement en France pour l'instant.</p>"
+          }
+        },
+        "q6": {
+          "type": "question",
+          "settings": {
+            "question": "Je peux commander en quantité pour mon collectif / ma section syndicale ?",
+            "answer": "<p>Oui ! Collectif, section syndicale, asso, lycée : <a href=\"/pages/contact\">écris-nous</a> avec les slogans, les couleurs, les tailles et les quantités. Commandes groupées sur demande.</p>"
+          }
+        },
+        "q7": {
+          "type": "question",
+          "settings": {
+            "question": "C'est qui, La Gauche Bebew ?",
+            "answer": "<p>Une marque indépendante, pas affiliée à un parti ni à un syndicat. Des t-shirts pour dire ce qu'on pense sans avoir à le crier pendant trois heures. Le reste, c'est dans le <a href=\"/#manifeste\">manifeste</a>.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6",
+        "q7"
+      ]
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

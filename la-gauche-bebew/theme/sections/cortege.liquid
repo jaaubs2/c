@@ -1,0 +1,84 @@
+{%- assign s = section.settings -%}
+<section id="{{ s.anchor | default: 'cortege' }}" class="cortege">
+  <div class="section-head">
+    <h2 class="display h2">{{ s.title | escape | newline_to_br }}</h2>
+    <div class="cortege__intro">
+      {%- if s.text != blank -%}<div>{{ s.text }}</div>{%- endif -%}
+      <div class="social-links">
+        <a class="link-mono" href="{{ settings.instagram_url | default: '#' }}"{% if settings.instagram_url != blank %} target="_blank" rel="noopener"{% endif %}>Instagram ↗</a>
+        <a class="link-mono" href="{{ settings.tiktok_url | default: '#' }}"{% if settings.tiktok_url != blank %} target="_blank" rel="noopener"{% endif %}>TikTok ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="cortege__grid">
+    {%- for block in section.blocks -%}
+      <figure class="cortege__photo grain{% if forloop.first %} cortege__photo--big{% endif %}" {{ block.shopify_attributes }}>
+        {%- if block.settings.image != blank -%}
+          {%- if forloop.first -%}
+            {%- assign sizes = '(min-width: 750px) 50vw, 100vw' -%}
+          {%- else -%}
+            {%- assign sizes = '(min-width: 750px) 25vw, 50vw' -%}
+          {%- endif -%}
+          {%- assign alt = block.settings.image.alt | default: block.settings.caption -%}
+          {{ block.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '300, 500, 700, 1000, 1400', sizes: sizes, alt: alt }}
+        {%- else -%}
+          <div class="cortege__photo-ph">{{ 'sections.cortege.placeholder' | t }}</div>
+        {%- endif -%}
+        {%- if block.settings.caption != blank -%}
+          <figcaption class="cortege__caption">{{ block.settings.caption | escape }}</figcaption>
+        {%- endif -%}
+      </figure>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Porte-le en cortège",
+  "class": "section-cortege",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "title",
+      "label": "Titre",
+      "default": "Porte-le\nen cortège"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Texte",
+      "default": "<p>Tes photos de manif ont leur place ici. Tague La Gauche Bebew sur Instagram et TikTok.</p>"
+    },
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Ancre (pour les liens #)",
+      "default": "cortege"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "photo",
+      "name": "Photo portée",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Photo" },
+        { "type": "text", "id": "caption", "label": "Légende", "default": "Cortège 01" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Porte-le en cortège",
+      "blocks": [
+        { "type": "photo", "settings": { "caption": "Cortège 01" } },
+        { "type": "photo", "settings": { "caption": "Cortège 02" } },
+        { "type": "photo", "settings": { "caption": "Cortège 03" } },
+        { "type": "photo", "settings": { "caption": "Cortège 04" } },
+        { "type": "photo", "settings": { "caption": "Cortège 05" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

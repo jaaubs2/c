@@ -1,0 +1,107 @@
+{%- liquid
+  assign s = section.settings
+  if s.card_visual == 'worn'
+    assign card_visual = 'worn'
+  else
+    assign card_visual = 'flat'
+  endif
+-%}
+<div data-filter-scope>
+  <header class="page-head">
+    {%- if s.kicker != blank -%}<p class="kicker">{{ s.kicker | escape }}</p>{%- endif -%}
+    <h1 class="display page-head__title">
+      {%- if collection.handle == 'all' or collection.handle == blank -%}{{ s.title_all | escape }}{%- else -%}{{ collection.title | escape }}{%- endif -%}
+    </h1>
+    {%- if collection.description != blank -%}
+      <div class="page-head__intro rte">{{ collection.description }}</div>
+    {%- elsif s.intro != blank -%}
+      <div class="page-head__intro">{{ s.intro }}</div>
+    {%- endif -%}
+  </header>
+
+  {%- paginate collection.products by s.per_page -%}
+    <div class="collection">
+      <div class="collection__bar">
+        {% render 'filter-chips', show_fit: s.filter_fit %}
+        <p class="collection__count">{{ 'collection.count' | t: count: collection.products_count }}</p>
+      </div>
+
+      {%- if collection.products.size > 0 -%}
+        <div class="product-grid" style="--cols: {{ s.columns }}">
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign eager = false
+              if forloop.index <= 2
+                assign eager = true
+              endif
+            -%}
+            {% render 'product-card', product: product, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add, eager: eager %}
+          {%- endfor -%}
+        </div>
+        <p class="empty-filter" data-filter-empty hidden>{{ 'collection.filter_empty' | t }}</p>
+      {%- else -%}
+        <p class="empty-filter">{{ 'collection.empty' | t }}</p>
+      {%- endif -%}
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="pagination" aria-label="{{ 'general.pagination' | t }}">
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              <a href="{{ part.url }}">{{ part.title }}</a>
+            {%- elsif part.title == paginate.current_page -%}
+              <span class="current" aria-current="page">{{ part.title }}</span>
+            {%- else -%}
+              <span>{{ part.title }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+    </div>
+  {%- endpaginate -%}
+</div>
+
+{% schema %}
+{
+  "name": "Boutique",
+  "class": "section-main-collection",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Surtitre", "default": "Noir ou blanc · Homme ou Femme · XS → XXL" },
+    { "type": "text", "id": "title_all", "label": "Titre de la boutique (collection « tous les produits »)", "default": "La boutique" },
+    { "type": "richtext", "id": "intro", "label": "Texte d'intro (si la collection n'a pas de description)", "default": "<p>Un t-shirt 20 €, deux t-shirts 35 €. Mélange les slogans, les couleurs et les coupes.</p>" },
+    {
+      "type": "range",
+      "id": "per_page",
+      "label": "T-shirts par page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Colonnes sur ordinateur",
+      "default": "4",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "card_visual",
+      "label": "Visuel des cartes",
+      "default": "flat",
+      "options": [
+        { "value": "flat", "label": "À plat" },
+        { "value": "worn", "label": "Porté" }
+      ]
+    },
+    { "type": "checkbox", "id": "filter_fit", "label": "Filtres Homme / Femme", "default": true },
+    { "type": "checkbox", "id": "badge", "label": "Badge « 2 pour 35 € »", "default": true },
+    { "type": "checkbox", "id": "sizes", "label": "Afficher les tailles", "default": true },
+    { "type": "checkbox", "id": "quick_add", "label": "Bouton « Ajouter au cortège »", "default": true }
+  ]
+}
+{% endschema %}

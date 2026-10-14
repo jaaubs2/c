@@ -1,0 +1,87 @@
+{%- assign s = section.settings -%}
+<header class="page-head">
+  {%- if s.kicker != blank -%}<p class="kicker">{{ s.kicker | escape }}</p>{%- endif -%}
+  <h1 class="display page-head__title">{{ s.title | escape }}</h1>
+  {%- if s.intro != blank -%}<div class="page-head__intro">{{ s.intro }}</div>{%- endif -%}
+</header>
+
+<div class="contact">
+  {%- assign form_id = 'ContactForm-' | append: section.id -%}
+  {%- form 'contact', id: form_id, class: 'contact__form' -%}
+    {%- if form.posted_successfully? -%}
+      <p class="success-msg" role="status">{{ s.success | escape }}</p>
+    {%- else -%}
+      {%- if form.errors -%}
+        <p class="form-error" role="alert">{{ s.error | escape }}</p>
+      {%- endif -%}
+      <div class="field">
+        <label class="label" for="ContactName-{{ section.id }}">{{ 'contact.name' | t }}</label>
+        <input class="input" id="ContactName-{{ section.id }}" type="text" name="contact[{{ 'contact.name' | t }}]" autocomplete="name" value="{{ form.name }}">
+      </div>
+      <div class="field">
+        <label class="label" for="ContactEmail-{{ section.id }}">{{ 'contact.email' | t }} <span aria-hidden="true">*</span></label>
+        <input class="input" id="ContactEmail-{{ section.id }}" type="email" name="contact[email]" autocomplete="email" autocapitalize="off" spellcheck="false" required value="{{ form.email }}"{% if form.errors contains 'email' %} aria-invalid="true"{% endif %}>
+      </div>
+      <div class="field">
+        <label class="label" for="ContactSubject-{{ section.id }}">{{ 'contact.subject' | t }}</label>
+        <select class="input" id="ContactSubject-{{ section.id }}" name="contact[{{ 'contact.subject' | t }}]">
+          <option>{{ 'contact.subject_order' | t }}</option>
+          <option>{{ 'contact.subject_group' | t }}</option>
+          <option>{{ 'contact.subject_other' | t }}</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label" for="ContactGroup-{{ section.id }}">{{ 'contact.group' | t }}</label>
+        <input class="input" id="ContactGroup-{{ section.id }}" type="text" name="contact[{{ 'contact.group_short' | t }}]">
+      </div>
+      <div class="field">
+        <label class="label" for="ContactBody-{{ section.id }}">{{ 'contact.message' | t }} <span aria-hidden="true">*</span></label>
+        <textarea class="input" id="ContactBody-{{ section.id }}" name="contact[body]" required>{{ form.body }}</textarea>
+      </div>
+      <div>
+        <button type="submit" class="btn">{{ s.button | escape }} {% render 'icon', name: 'arrow' %}</button>
+      </div>
+    {%- endif -%}
+  {%- endform -%}
+
+  <aside class="contact__aside">
+    <div class="note-card">
+      <p class="note-card__title">{{ s.email_title | escape }}</p>
+      <a href="mailto:{{ settings.contact_email }}">{{ settings.contact_email }}</a>
+      {%- if s.email_text != blank -%}<p>{{ s.email_text | escape }}</p>{%- endif -%}
+    </div>
+    <div class="note-card note-card--dark on-dark" id="commandes-groupees">
+      <p class="note-card__title">{{ s.group_title | escape }}</p>
+      <div class="rte" style="font-size:16px">{{ s.group_text }}</div>
+    </div>
+    <div class="social-links">
+      <a class="link-mono" href="{{ settings.instagram_url | default: '#' }}"{% if settings.instagram_url != blank %} target="_blank" rel="noopener"{% endif %}>Instagram ↗</a>
+      <a class="link-mono" href="{{ settings.tiktok_url | default: '#' }}"{% if settings.tiktok_url != blank %} target="_blank" rel="noopener"{% endif %}>TikTok ↗</a>
+    </div>
+  </aside>
+</div>
+
+{% schema %}
+{
+  "name": "Contact",
+  "class": "section-contact",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Surtitre", "default": "Contact" },
+    { "type": "text", "id": "title", "label": "Titre", "default": "Écris-nous, bebew" },
+    { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Une question sur ta commande, une taille, un slogan que tu veux voir sortir ? On répond à tout le monde.</p>" },
+    { "type": "text", "id": "button", "label": "Bouton", "default": "Envoyer" },
+    { "type": "text", "id": "success", "label": "Message envoyé", "default": "C'est envoyé, bebew. On te répond vite." },
+    { "type": "text", "id": "error", "label": "Message d'erreur", "default": "Il manque un mail valide ou ton message, bebew." },
+    { "type": "header", "content": "Encadrés" },
+    { "type": "text", "id": "email_title", "label": "Titre email", "default": "Par mail" },
+    { "type": "text", "id": "email_text", "label": "Texte email", "default": "Indique ton numéro de commande si ça concerne une commande." },
+    { "type": "text", "id": "group_title", "label": "Titre commandes groupées", "default": "Commandes groupées sur demande" },
+    {
+      "type": "richtext",
+      "id": "group_text",
+      "label": "Texte commandes groupées",
+      "default": "<p>Pour ton collectif, ta section syndicale, ton asso ou ton lycée. Dis-nous les slogans, les couleurs, les tailles et les quantités : on revient vers toi.</p>"
+    }
+  ]
+}
+{% endschema %}

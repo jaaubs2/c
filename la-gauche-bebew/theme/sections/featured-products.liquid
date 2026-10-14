@@ -1,0 +1,164 @@
+{%- liquid
+  assign s = section.settings
+  assign collection = s.collection | default: collections.all
+  if s.card_visual == 'worn'
+    assign card_visual = 'worn'
+  else
+    assign card_visual = 'flat'
+  endif
+-%}
+<section id="{{ s.anchor | default: 'slogans' }}" class="products-section" data-filter-scope>
+  <div class="section-head">
+    <div class="section-head__text">
+      {%- if s.kicker != blank -%}<p class="kicker">{{ s.kicker | escape }}</p>{%- endif -%}
+      <h2 class="display h2">{{ s.title | escape }}</h2>
+    </div>
+    {%- if s.filters -%}
+      {% render 'filter-chips', show_fit: s.filter_fit %}
+    {%- endif -%}
+  </div>
+
+  <div class="product-grid" style="--cols: {{ s.columns }}">
+    {%- if collection.products_count > 0 -%}
+      {%- for product in collection.products limit: s.count -%}
+        {%- liquid
+          assign eager = false
+          if forloop.index <= 2
+            assign eager = true
+          endif
+        -%}
+        {% render 'product-card', product: product, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add, eager: eager %}
+      {%- endfor -%}
+    {%- else -%}
+      {%- liquid
+        assign ph_titles = 'MACRON PAS DU TOUT BEBEW|LE PLEIN OU LE FRIGO|ON LÂCHE RIEN BEBEW|LA GAUCHE BEBEW|LE PLEIN OU LE FRIGO|MACRON PAS DU TOUT BEBEW|LA GAUCHE BEBEW|ON LÂCHE RIEN BEBEW|[SLOGAN 9]|[SLOGAN 10]' | split: '|'
+        assign ph_names = 'Macron pas du tout bebew|Le plein ou le frigo|On lâche rien bebew|La Gauche Bebew|Le plein ou le frigo|Macron pas du tout bebew|La Gauche Bebew|On lâche rien bebew|[Slogan 9]|[Slogan 10]' | split: '|'
+        assign ph_colors = 'noir|blanc|noir|blanc|noir|blanc|noir|blanc|noir|blanc' | split: '|'
+        assign ph_backs = '0|0|1|0|0|1|1|0|0|0' | split: '|'
+      -%}
+      {%- for i in (1..s.count) -%}
+        {%- liquid
+          assign idx = forloop.index0
+          assign back = false
+          if ph_backs[idx] == '1'
+            assign back = true
+          endif
+        -%}
+        {% render 'product-card', product: nil, ph_title: ph_titles[idx], ph_name: ph_names[idx], ph_color: ph_colors[idx], ph_back: back, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add %}
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+  <p class="empty-filter" data-filter-empty hidden>{{ 'collection.filter_empty' | t }}</p>
+
+  {%- if s.button_label != blank -%}
+    <div class="products-section__more">
+      <a href="{{ s.button_link | default: collection.url | default: routes.all_products_collection_url }}" class="btn">{{ s.button_label | escape }}</a>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Grille de slogans",
+  "class": "section-products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Surtitre",
+      "default": "Noir ou blanc · Homme ou Femme · XS → XXL"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Titre",
+      "default": "Les slogans"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Par défaut : tous les produits. Tant que la boutique n'a aucun produit, la grille affiche les slogans d'exemple de la maquette."
+    },
+    {
+      "type": "range",
+      "id": "count",
+      "label": "Nombre de t-shirts",
+      "min": 4,
+      "max": 10,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Colonnes sur ordinateur",
+      "default": "4",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "card_visual",
+      "label": "Visuel des cartes",
+      "default": "flat",
+      "options": [
+        { "value": "flat", "label": "À plat" },
+        { "value": "worn", "label": "Porté" }
+      ],
+      "info": "Porté = 2e photo du produit."
+    },
+    {
+      "type": "checkbox",
+      "id": "badge",
+      "label": "Badge « 2 pour 35 € »",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "sizes",
+      "label": "Afficher les tailles",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "quick_add",
+      "label": "Bouton « Ajouter au cortège »",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "filters",
+      "label": "Filtres Noir / Blanc",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "filter_fit",
+      "label": "Ajouter les filtres Homme / Femme",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texte du bouton",
+      "default": "Toute la boutique"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Lien du bouton"
+    },
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Ancre (pour les liens #)",
+      "default": "slogans"
+    }
+  ],
+  "presets": [{ "name": "Grille de slogans" }]
+}
+{% endschema %}

@@ -1,0 +1,118 @@
+<footer class="footer{% unless section.settings.dark %} footer--light{% else %} on-dark{% endunless %}">
+  <div class="footer__top">
+    <div class="footer__brand">
+      <p class="footer__name">{{ section.settings.brand_name | newline_to_br }}</p>
+      <p class="footer__about">{{ section.settings.about | newline_to_br }}</p>
+      {%- if settings.contact_email != blank -%}
+        <a class="footer__email" href="mailto:{{ settings.contact_email }}">{{ settings.contact_email }}</a>
+      {%- endif -%}
+    </div>
+
+    <div class="footer__cols">
+      {%- for block in section.blocks -%}
+        <div class="footer__col" {{ block.shopify_attributes }}>
+          <p class="footer__col-title">{{ block.settings.title | escape }}</p>
+          {%- case block.type -%}
+            {%- when 'menu' -%}
+              {%- if block.settings.menu.links.size > 0 -%}
+                {%- for link in block.settings.menu.links -%}
+                  <a href="{{ link.url }}">{{ link.title }}</a>
+                {%- endfor -%}
+              {%- elsif block.settings.fallback == 'aide' -%}
+                <a href="/pages/faq">FAQ</a>
+                <a href="/pages/contact">Contact</a>
+                <a href="/pages/livraison-retours">Livraison &amp; retours</a>
+                <a href="/pages/contact#commandes-groupees">Commandes groupées</a>
+              {%- elsif block.settings.fallback == 'legal' -%}
+                <a href="/pages/mentions-legales">Mentions légales</a>
+                <a href="/pages/cgv">CGV</a>
+                <a href="/pages/confidentialite">Confidentialité</a>
+              {%- endif -%}
+            {%- when 'social' -%}
+              {%- if settings.instagram_url != blank -%}<a href="{{ settings.instagram_url }}" target="_blank" rel="noopener">Instagram ↗</a>{%- else -%}<a href="#">Instagram ↗</a>{%- endif -%}
+              {%- if settings.tiktok_url != blank -%}<a href="{{ settings.tiktok_url }}" target="_blank" rel="noopener">TikTok ↗</a>{%- else -%}<a href="#">TikTok ↗</a>{%- endif -%}
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <p class="footer__small">{{ section.settings.payment_label | escape }}</p>
+    {% render 'payment-icons' %}
+  </div>
+  <p class="footer__small">© {{ 'now' | date: '%Y' }} {{ shop.name }}{% if section.settings.legal_line != blank %} · {{ section.settings.legal_line | escape }}{% endif %}</p>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "class": "section-footer",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "dark",
+      "label": "Footer noir",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "brand_name",
+      "label": "Nom",
+      "default": "La Gauche\nBebew"
+    },
+    {
+      "type": "textarea",
+      "id": "about",
+      "label": "Texte",
+      "default": "La Gauche Bebew — France\nIndépendante. Pas affiliée à un parti ni à un syndicat."
+    },
+    {
+      "type": "text",
+      "id": "payment_label",
+      "label": "Texte paiement",
+      "default": "Paiement sécurisé"
+    },
+    {
+      "type": "text",
+      "id": "legal_line",
+      "label": "Mention en bas de page",
+      "default": "SIRET 98194886200025"
+    },
+    {
+      "type": "paragraph",
+      "content": "L'email et les liens Instagram / TikTok se règlent dans Paramètres du thème > Réseaux & contact."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Colonne de liens",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "Aide" },
+        { "type": "link_list", "id": "menu", "label": "Menu" },
+        {
+          "type": "select",
+          "id": "fallback",
+          "label": "Liens par défaut si aucun menu n'est choisi",
+          "default": "aide",
+          "options": [
+            { "value": "aide", "label": "Aide (FAQ, Contact, Livraison…)" },
+            { "value": "legal", "label": "Légal (Mentions, CGV, Confidentialité)" },
+            { "value": "none", "label": "Aucun" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "social",
+      "name": "Réseaux sociaux",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "Suis-nous" }
+      ]
+    }
+  ],
+  "enabled_on": { "groups": ["footer"] }
+}
+{% endschema %}

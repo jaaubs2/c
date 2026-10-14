@@ -1,0 +1,32 @@
+{
+  "current": {
+    "color_bg": "#F6F5F1",
+    "color_ink": "#111111",
+    "display_font": "anton",
+    "title_scale": 100,
+    "grain": 18,
+    "radius": 0,
+    "button_style": "plein",
+    "unit_price": 20,
+    "pair_price": 35,
+    "free_shipping_threshold": 50,
+    "show_cart_bar": true,
+    "contact_email": "lagauchebebew@gmail.com"
+  },
+  "presets": {
+    "La Gauche Bebew": {
+      "color_bg": "#F6F5F1",
+      "color_ink": "#111111",
+      "display_font": "anton",
+      "title_scale": 100,
+      "grain": 18,
+      "radius": 0,
+      "button_style": "plein",
+      "unit_price": 20,
+      "pair_price": 35,
+      "free_shipping_threshold": 50,
+      "show_cart_bar": true,
+      "contact_email": "lagauchebebew@gmail.com"
+    }
+  }
+}

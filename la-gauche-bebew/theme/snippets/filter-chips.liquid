@@ -1,0 +1,15 @@
+{%- comment -%}
+  Filtres simples, côté navigateur (pas d'appli de filtres à configurer).
+  Paramètres :
+  - show_fit : ajoute Homme / Femme en plus de Noir / Blanc
+{%- endcomment -%}
+<div class="chips" role="group" aria-label="{{ 'collection.filter_label' | t }}">
+  <button type="button" class="chip" data-filter-chip data-group="all" aria-pressed="true">{{ 'collection.filter_all' | t }}</button>
+  <button type="button" class="chip" data-filter-chip data-group="color" data-value="noir" aria-pressed="false">{{ 'collection.filter_black' | t }}</button>
+  <button type="button" class="chip" data-filter-chip data-group="color" data-value="blanc" aria-pressed="false">{{ 'collection.filter_white' | t }}</button>
+  {%- if show_fit -%}
+    <span class="chips__sep" aria-hidden="true"></span>
+    <button type="button" class="chip" data-filter-chip data-group="fit" data-value="homme" aria-pressed="false">{{ 'collection.filter_men' | t }}</button>
+    <button type="button" class="chip" data-filter-chip data-group="fit" data-value="femme" aria-pressed="false">{{ 'collection.filter_women' | t }}</button>
+  {%- endif -%}
+</div>

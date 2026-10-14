@@ -1,0 +1,56 @@
+{%- assign s = section.settings -%}
+<section class="newsletter" id="inscription-{{ section.id }}">
+  <h2 class="display newsletter__title">{{ s.title | escape }}</h2>
+  {%- if s.text != blank -%}<p class="newsletter__text">{{ s.text | escape }}</p>{%- endif -%}
+
+  {%- assign form_id = 'NewsletterForm-' | append: section.id -%}
+  {%- form 'customer', id: form_id, class: 'newsletter__form' -%}
+    <input type="hidden" name="contact[tags]" value="newsletter">
+    {%- if form.posted_successfully? -%}
+      <p class="display newsletter__done" role="status">{{ s.success | escape }}</p>
+    {%- else -%}
+      <label for="NewsletterEmail-{{ section.id }}" class="label">{{ s.label | escape }}</label>
+      <div class="newsletter__row">
+        <input
+          id="NewsletterEmail-{{ section.id }}"
+          class="input"
+          type="email"
+          name="contact[email]"
+          value="{{ form.email }}"
+          placeholder="{{ s.placeholder | escape }}"
+          autocomplete="email"
+          autocapitalize="off"
+          spellcheck="false"
+          required
+          aria-describedby="NewsletterError-{{ section.id }}"
+          {% if form.errors %}aria-invalid="true"{% endif %}
+        >
+        <button type="submit" class="btn">{{ s.button | escape }}</button>
+      </div>
+      <p class="form-error" id="NewsletterError-{{ section.id }}" data-newsletter-error {% unless form.errors %}hidden{% endunless %}>
+        {{- s.error | escape -}}
+      </p>
+    {%- endif -%}
+  {%- endform -%}
+</section>
+
+{% schema %}
+{
+  "name": "Inscription email",
+  "class": "section-newsletter",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Les inscrit·es sont enregistré·es dans Clients, avec l'étiquette « newsletter » et l'accord marketing."
+    },
+    { "type": "text", "id": "title", "label": "Titre", "default": "Avant la prochaine manif" },
+    { "type": "text", "id": "text", "label": "Texte", "default": "Les nouveaux slogans sortent avant les prochaines manifs. Laisse ton mail." },
+    { "type": "text", "id": "label", "label": "Libellé du champ", "default": "Ton email" },
+    { "type": "text", "id": "placeholder", "label": "Exemple dans le champ", "default": "toi@exemple.fr" },
+    { "type": "text", "id": "button", "label": "Bouton", "default": "Je m'inscris" },
+    { "type": "text", "id": "success", "label": "Message de confirmation", "default": "C'est noté, bebew." },
+    { "type": "text", "id": "error", "label": "Message d'erreur", "default": "Il manque un mail valide, bebew." }
+  ],
+  "presets": [{ "name": "Inscription email" }]
+}
+{% endschema %}

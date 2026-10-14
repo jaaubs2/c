@@ -1,0 +1,33 @@
+{
+  "type": "footer",
+  "name": "Footer",
+  "sections": {
+    "reassurance": {
+      "type": "reassurance",
+      "blocks": {
+        "r1": { "type": "item", "settings": { "icon": "truck", "text": "Livraison offerte dès 50 €" } },
+        "r2": { "type": "item", "settings": { "icon": "clock", "text": "Expédié sous 72 h" } },
+        "r3": { "type": "item", "settings": { "icon": "tee", "text": "2 t-shirts = 35 €" } },
+        "r4": { "type": "item", "settings": { "icon": "return", "text": "Retours sous 14 jours" } }
+      },
+      "block_order": ["r1", "r2", "r3", "r4"]
+    },
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "dark": true,
+        "brand_name": "La Gauche\nBebew",
+        "about": "La Gauche Bebew — France\nIndépendante. Pas affiliée à un parti ni à un syndicat.",
+        "payment_label": "Paiement sécurisé",
+        "legal_line": "SIRET 98194886200025"
+      },
+      "blocks": {
+        "aide": { "type": "menu", "settings": { "title": "Aide", "menu": "", "fallback": "aide" } },
+        "legal": { "type": "menu", "settings": { "title": "Légal", "menu": "", "fallback": "legal" } },
+        "social": { "type": "social", "settings": { "title": "Suis-nous" } }
+      },
+      "block_order": ["aide", "legal", "social"]
+    }
+  },
+  "order": ["reassurance", "footer"]
+}

@@ -1,0 +1,27 @@
+<header class="page-head page-head--rule">
+  <p class="kicker">{{ shop.name }}</p>
+  <h1 class="display page-head__title">{{ blog.title | escape }}</h1>
+</header>
+<div class="collection">
+  {%- paginate blog.articles by 12 -%}
+    <div class="product-grid" style="--cols: 3; padding-top: 32px">
+      {%- for article in blog.articles -%}
+        <article class="card">
+          <a href="{{ article.url }}" class="card__media" tabindex="-1" aria-hidden="true">
+            {%- if article.image -%}
+              <div class="card__visual">{{ article.image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 600, 900', sizes: '(min-width: 1000px) 33vw, 100vw', alt: '' }}</div>
+            {%- else -%}
+              <div class="ph-worn"><strong>{{ article.title | escape }}</strong></div>
+            {%- endif -%}
+          </a>
+          <p class="card__meta">{{ article.published_at | date: '%d/%m/%Y' }}</p>
+          <h2 class="card__title" style="font-size:20px"><a href="{{ article.url }}">{{ article.title | escape }}</a></h2>
+        </article>
+      {%- endfor -%}
+    </div>
+  {%- endpaginate -%}
+</div>
+
+{% schema %}
+{ "name": "Blog" }
+{% endschema %}

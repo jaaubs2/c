@@ -1,0 +1,76 @@
+{%- assign s = section.settings -%}
+<header class="page-head">
+  {%- if s.kicker != blank -%}<p class="kicker">{{ s.kicker | escape }}</p>{%- endif -%}
+  <h1 class="display page-head__title">{{ s.title | escape }}</h1>
+  {%- if s.intro != blank -%}<div class="page-head__intro">{{ s.intro }}</div>{%- endif -%}
+</header>
+
+<div class="faq">
+  <div class="accordion accordion--big">
+    {%- for block in section.blocks -%}
+      <details {{ block.shopify_attributes }}{% if forloop.first and s.open_first %} open{% endif %}>
+        <summary>{{ block.settings.question | escape }}</summary>
+        <div class="accordion__content">{{ block.settings.answer }}</div>
+      </details>
+    {%- endfor -%}
+  </div>
+
+  {%- if s.cta_text != blank -%}
+    <div class="faq__cta">
+      <p class="display" style="font-size: clamp(30px, 3.6vw, 52px)">{{ s.cta_text | escape }}</p>
+      <a class="btn" href="{{ s.cta_link | default: '/pages/contact' }}">{{ s.cta_button | escape }}</a>
+    </div>
+  {%- endif -%}
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {%- for block in section.blocks -%}
+    {
+      "@type": "Question",
+      "name": {{ block.settings.question | json }},
+      "acceptedAnswer": { "@type": "Answer", "text": {{ block.settings.answer | strip_html | json }} }
+    }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ]
+}
+</script>
+
+{% schema %}
+{
+  "name": "FAQ (accordéon)",
+  "class": "section-faq",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Surtitre", "default": "Questions fréquentes" },
+    { "type": "text", "id": "title", "label": "Titre", "default": "T'as une question ?" },
+    { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Les réponses courtes aux questions qu'on nous pose le plus. Pour le reste, écris-nous.</p>" },
+    { "type": "checkbox", "id": "open_first", "label": "Première question ouverte", "default": false },
+    { "type": "text", "id": "cta_text", "label": "Phrase de fin", "default": "Pas trouvé ta réponse ?" },
+    { "type": "text", "id": "cta_button", "label": "Bouton", "default": "Écris-nous" },
+    { "type": "url", "id": "cta_link", "label": "Lien du bouton", "info": "Par défaut : /pages/contact" }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Ta question ?" },
+        { "type": "richtext", "id": "answer", "label": "Réponse", "default": "<p>La réponse.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ (accordéon)",
+      "blocks": [
+        { "type": "question" },
+        { "type": "question" },
+        { "type": "question" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,49 @@
+<section class="reassurance" aria-label="{{ 'general.reassurance' | t }}">
+  {%- for block in section.blocks -%}
+    <div class="reassurance__item" {{ block.shopify_attributes }}>
+      {% render 'icon', name: block.settings.icon %}
+      <span>{{ block.settings.text | escape }}</span>
+    </div>
+  {%- endfor -%}
+</section>
+
+{% schema %}
+{
+  "name": "Réassurance",
+  "class": "section-reassurance",
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Argument",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icône",
+          "default": "truck",
+          "options": [
+            { "value": "truck", "label": "Camion" },
+            { "value": "clock", "label": "Horloge" },
+            { "value": "tee", "label": "T-shirt" },
+            { "value": "return", "label": "Retour" },
+            { "value": "mail", "label": "Enveloppe" }
+          ]
+        },
+        { "type": "text", "id": "text", "label": "Texte", "default": "Livraison offerte dès 50 €" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Réassurance",
+      "blocks": [
+        { "type": "item", "settings": { "icon": "truck", "text": "Livraison offerte dès 50 €" } },
+        { "type": "item", "settings": { "icon": "clock", "text": "Expédié sous 72 h" } },
+        { "type": "item", "settings": { "icon": "tee", "text": "2 t-shirts = 35 €" } },
+        { "type": "item", "settings": { "icon": "return", "text": "Retours sous 14 jours" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

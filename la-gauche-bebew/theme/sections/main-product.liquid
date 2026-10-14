@@ -1,0 +1,283 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign slogan = product.metafields.custom.slogan.value | default: product.title
+  assign impression = product.metafields.custom.impression.value | append: '' | downcase
+  assign is_back = false
+  if impression contains 'dos' or product.tags contains 'imprime-dos' or product.tags contains 'dos'
+    assign is_back = true
+  endif
+
+  assign color_option = nil
+  assign color_labels = ''
+  for option in product.options_with_values
+    assign oname = option.name | downcase
+    if oname contains 'couleur' or oname contains 'color' or oname contains 'coloris'
+      assign color_option = option
+    endif
+  endfor
+  if color_option
+    assign color_labels = color_option.values | join: ' ou ' | downcase
+    assign current_color = color_option.selected_value | handleize
+  else
+    assign current_color = 'blanc'
+    if product.tags contains 'noir'
+      assign current_color = 'noir'
+      assign color_labels = 'noir'
+    endif
+  endif
+  if current_color contains 'noir' or current_color contains 'black'
+    assign current_color = 'noir'
+  else
+    assign current_color = 'blanc'
+  endif
+
+  if is_back
+    assign print_label = 'product.print_back' | t
+  else
+    assign print_label = 'product.print_front' | t
+  endif
+  assign form_id = 'ProductForm-' | append: section.id
+  assign size_guide_url = settings.size_guide_page.url | default: '/pages/guide-des-tailles'
+-%}
+
+<section class="product" data-product data-section-id="{{ section.id }}" data-url="{{ product.url }}">
+  <script type="application/json" data-product-json>{{ product | json }}</script>
+
+  {%- comment -%} Visuels {%- endcomment -%}
+  <div class="product__media">
+    <div class="gallery" data-gallery aria-label="{{ 'product.gallery' | t }}">
+      {%- if product.media.size > 0 -%}
+        {%- for media in product.media -%}
+          {%- liquid
+            assign loading = 'lazy'
+            if forloop.first
+              assign loading = 'eager'
+            endif
+            assign media_alt = media.alt | default: product.title
+          -%}
+          <div class="gallery__item" data-media-id="{{ media.id }}">
+            {%- case media.media_type -%}
+              {%- when 'video' -%}
+                {{ media | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, image_size: '1200x' }}
+              {%- when 'external_video' -%}
+                {{ media | external_video_tag }}
+              {%- else -%}
+                {{ media.preview_image | image_url: width: 1600 | image_tag: loading: loading, widths: '400, 600, 800, 1000, 1200, 1600', sizes: '(min-width: 900px) 55vw, 100vw', alt: media_alt }}
+            {%- endcase -%}
+            {%- if section.settings.labels -%}
+              {%- if forloop.index == 1 -%}<span class="gallery__label">{{ 'product.flat_view' | t }}</span>{%- elsif forloop.index == 2 -%}<span class="gallery__label">{{ 'product.worn_photo' | t }}</span>{%- endif -%}
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        <div class="gallery__item" data-tee-placeholder>
+          {%- if color_option -%}
+            {%- for value in color_option.values -%}
+              {%- assign cv = value | handleize -%}
+              {%- if cv contains 'noir' or cv contains 'black' -%}{%- assign cv = 'noir' -%}{%- else -%}{%- assign cv = 'blanc' -%}{%- endif -%}
+              <div class="card__visual" data-visual="{{ cv }}" {% if cv != current_color %}hidden{% endif %}>
+                {% render 'tee-flat', text: slogan, color: cv, back: is_back %}
+              </div>
+            {%- endfor -%}
+          {%- else -%}
+            {% render 'tee-flat', text: slogan, color: current_color, back: is_back %}
+          {%- endif -%}
+          <span class="gallery__label">{{ 'product.flat_view' | t }}</span>
+        </div>
+        <div class="gallery__item">
+          <div class="ph-worn"><strong>{{ 'product.worn_photo' | t }}</strong><span>{{ product.title | escape }}</span></div>
+        </div>
+      {%- endif -%}
+    </div>
+    {%- assign media_count = product.media.size | at_least: 2 -%}
+    <p class="gallery__count" aria-hidden="true"><span data-gallery-index>1</span> / {{ media_count }}</p>
+  </div>
+
+  {%- comment -%} Infos {%- endcomment -%}
+  <div class="product__info">
+    <nav class="breadcrumb" aria-label="{{ 'general.breadcrumb' | t }}">
+      <a href="{{ routes.all_products_collection_url }}">{{ 'product.breadcrumb_shop' | t }}</a><span aria-hidden="true">/</span>{{ product.title | escape }}
+    </nav>
+
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'kicker' -%}
+          <p class="product__kicker" {{ block.shopify_attributes }}>{{ 'product.card_meta' | t: colors: color_labels, print: print_label }}</p>
+
+        {%- when 'title' -%}
+          <h1 class="display product__title" {{ block.shopify_attributes }}>{{ slogan | escape }}</h1>
+
+        {%- when 'price' -%}
+          <div class="product__price-row" {{ block.shopify_attributes }}>
+            <p class="product__price" data-price>
+              {%- if current_variant.compare_at_price > current_variant.price -%}<s>{{ current_variant.compare_at_price | money_without_trailing_zeros }}</s>{%- endif -%}
+              {{ current_variant.price | money_without_trailing_zeros }}
+            </p>
+            <span class="badge">{{ 'product.offer_badge' | t: pair_price: settings.pair_price }}</span>
+            {%- if block.settings.tax_note != blank -%}<p class="product__tax">{{ block.settings.tax_note | escape }}</p>{%- endif -%}
+          </div>
+
+        {%- when 'offer' -%}
+          <div class="offer-box on-dark" {{ block.shopify_attributes }}>
+            <p class="offer-box__big">{{ block.settings.big | escape | newline_to_br }}</p>
+            <p class="offer-box__mono">{{ block.settings.mono | escape }}</p>
+            <p class="offer-box__text">{{ block.settings.text | escape }}</p>
+          </div>
+
+        {%- when 'variant_picker' -%}
+          {%- unless product.has_only_default_variant -%}
+            <div class="product__pickers" data-variant-picker style="display:flex;flex-direction:column;gap:20px" {{ block.shopify_attributes }}>
+              {%- for option in product.options_with_values -%}
+                {%- assign oname = option.name | downcase -%}
+                {%- assign is_color = false -%}
+                {%- assign is_size = false -%}
+                {%- if oname contains 'couleur' or oname contains 'color' or oname contains 'coloris' -%}{%- assign is_color = true -%}{%- endif -%}
+                {%- if oname contains 'taille' or oname contains 'size' -%}{%- assign is_size = true -%}{%- endif -%}
+                {%- comment -%} La taille n'est jamais pré-cochée : on évite les commandes en XS par erreur. {%- endcomment -%}
+                {%- assign preselect = true -%}
+                {%- if is_size and product.selected_variant == blank and option.values.size > 1 -%}{%- assign preselect = false -%}{%- endif -%}
+                <fieldset class="picker" data-option-index="{{ forloop.index0 }}"{% if is_size %} data-size-option{% endif %}>
+                  <legend>
+                    <span class="picker__head">
+                      <span class="picker__label">{{ option.name | escape }}<span class="picker__value" data-option-value>{% if preselect %}{{ option.selected_value | escape }}{% endif %}</span></span>
+                      {%- if is_size and block.settings.size_guide -%}
+                        <a href="{{ size_guide_url }}" class="link-btn" data-size-guide-open>{{ 'product.size_guide' | t }}</a>
+                      {%- endif -%}
+                    </span>
+                  </legend>
+                  <div class="picker__options">
+                    {%- for value in option.values -%}
+                      {%- assign input_id = section.id | append: '-' | append: option.position | append: '-' | append: forloop.index0 -%}
+                      <div class="opt">
+                        <input type="radio" id="{{ input_id }}" name="{{ section.id }}-{{ option.name | handleize }}" value="{{ value | escape }}"{% if preselect and option.selected_value == value %} checked{% endif %}>
+                        <label for="{{ input_id }}">
+                          {%- if is_color -%}
+                            {%- assign sv = value | handleize -%}
+                            {%- if sv contains 'noir' or sv contains 'black' -%}<span class="swatch swatch--noir" aria-hidden="true"></span>{%- elsif sv contains 'blanc' or sv contains 'white' -%}<span class="swatch swatch--blanc" aria-hidden="true"></span>{%- endif -%}
+                          {%- endif -%}
+                          {{- value | escape -}}
+                        </label>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                </fieldset>
+              {%- endfor -%}
+            </div>
+          {%- endunless -%}
+
+        {%- when 'buy_buttons' -%}
+          {%- form 'product', product, id: form_id, class: 'product__buy', novalidate: 'novalidate', data-product-form: '' -%}
+            <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+            <noscript>
+              <select name="id" class="input" aria-label="{{ 'product.variant' | t }}">
+                {%- for variant in product.variants -%}
+                  <option value="{{ variant.id }}"{% if variant == current_variant %} selected{% endif %}{% unless variant.available %} disabled{% endunless %}>{{ variant.title }}</option>
+                {%- endfor -%}
+              </select>
+            </noscript>
+            <button type="submit" name="add" class="btn" data-add-button {% unless current_variant.available %}disabled{% endunless %} {{ block.shopify_attributes }}>
+              {%- if current_variant.available -%}{{ 'product.add_to_cart' | t }}{%- else -%}{{ 'product.sold_out' | t }}{%- endif -%}
+            </button>
+            <p class="form-status" role="status" aria-live="polite" data-form-status></p>
+          {%- endform -%}
+
+        {%- when 'facts' -%}
+          <p class="product__facts" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</p>
+
+        {%- when 'description' -%}
+          {%- if product.description != blank -%}
+            <div class="product__desc rte" {{ block.shopify_attributes }}>{{ product.description }}</div>
+          {%- endif -%}
+
+        {%- when 'collapsible' -%}
+          <div class="accordion" {{ block.shopify_attributes }}>
+            <details{% if block.settings.open %} open{% endif %}>
+              <summary>{{ block.settings.heading | escape }}</summary>
+              <div class="accordion__content">
+                {%- if block.settings.show_description and product.description != blank -%}
+                  <div class="rte">{{ product.description }}</div>
+                {%- endif -%}
+                {{ block.settings.content }}
+              </div>
+            </details>
+          </div>
+
+        {%- when 'payment' -%}
+          <div {{ block.shopify_attributes }}>{% render 'payment-icons' %}</div>
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+<script type="application/ld+json">
+  {{ product | structured_data }}
+</script>
+
+{% schema %}
+{
+  "name": "Fiche produit",
+  "class": "section-main-product",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "labels",
+      "label": "Étiquettes « Vue à plat » / « Photo portée » sur les 2 premières photos",
+      "default": true
+    },
+    {
+      "type": "paragraph",
+      "content": "Ordre conseillé des photos : 1) t-shirt à plat, 2) photo portée, puis les autres. Associe une photo à chaque couleur dans les variantes."
+    }
+  ],
+  "blocks": [
+    { "type": "kicker", "name": "Couleur et impression", "limit": 1 },
+    { "type": "title", "name": "Slogan", "limit": 1 },
+    {
+      "type": "price",
+      "name": "Prix",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "tax_note", "label": "Mention sous le prix", "info": "Ex. en micro-entreprise sans TVA : « TVA non applicable, art. 293 B du CGI »" }
+      ]
+    },
+    {
+      "type": "offer",
+      "name": "Rappel 2 pour 35 €",
+      "limit": 1,
+      "settings": [
+        { "type": "textarea", "id": "big", "label": "Grand texte", "default": "2 = 35 €" },
+        { "type": "text", "id": "mono", "label": "Petit titre", "default": "Prends-en un deuxième" },
+        { "type": "text", "id": "text", "label": "Texte", "default": "Le deuxième te coûte 15 €. Mélange les slogans, les couleurs et les coupes : la réduction s'applique toute seule dans ton panier." }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Couleur, coupe, taille",
+      "limit": 1,
+      "settings": [
+        { "type": "checkbox", "id": "size_guide", "label": "Lien « Guide des tailles »", "default": true }
+      ]
+    },
+    { "type": "buy_buttons", "name": "Bouton d'ajout", "limit": 1 },
+    {
+      "type": "facts",
+      "name": "Ligne d'infos",
+      "settings": [
+        { "type": "text", "id": "text", "label": "Texte", "default": "Expédié sous 72 h · Livraison offerte dès 50 € · France uniquement" }
+      ]
+    },
+    { "type": "description", "name": "Description", "limit": 1 },
+    {
+      "type": "collapsible",
+      "name": "Accordéon",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Titre", "default": "Livraison" },
+        { "type": "richtext", "id": "content", "label": "Contenu" },
+        { "type": "checkbox", "id": "show_description", "label": "Afficher la description du produit dedans", "default": false },
+        { "type": "checkbox", "id": "open", "label": "Ouvert par défaut", "default": false }
+      ]
+    },
+    { "type": "payment", "name": "Logos de paiement", "limit": 1 }
+  ]
+}
+{% endschema %}

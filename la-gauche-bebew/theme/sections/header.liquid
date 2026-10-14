@@ -1,0 +1,75 @@
+{%- liquid
+  assign menu = section.settings.menu
+  assign brand_tilt = section.settings.brand_tilt
+-%}
+<header class="header" data-header data-section-id="{{ section.id }}" style="--brand-tilt: {{ brand_tilt }}deg">
+  <div class="header__bar">
+    <button type="button" class="header__btn header__menu-btn" data-menu-toggle aria-expanded="false" aria-controls="MainNav-{{ section.id }}">
+      {% render 'icon', name: 'menu' %}
+      <span data-menu-label data-open="{{ 'header.menu' | t }}" data-close="{{ 'header.close' | t }}">{{ 'header.menu' | t }}</span>
+    </button>
+
+    <a href="{{ routes.root_url }}" class="header__brand">{{ section.settings.brand_name | default: shop.name }}</a>
+
+    <a href="{{ routes.cart_url }}" class="header__btn header__cart" data-refresh="cart-link" aria-label="{{ 'header.cart_aria' | t: count: cart.item_count }}">
+      {% render 'icon', name: 'bag' %}
+      <span><span class="header__cart-label">{{ 'header.cart' | t }} </span>({{ cart.item_count }})</span>
+    </a>
+  </div>
+
+  {% render 'cart-bar' %}
+
+  <nav class="header__nav" id="MainNav-{{ section.id }}" aria-label="{{ 'header.main_menu' | t }}" hidden>
+    {%- if menu.links.size > 0 -%}
+      {%- for link in menu.links -%}
+        <a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a>
+      {%- endfor -%}
+    {%- else -%}
+      <a href="{{ routes.all_products_collection_url }}">{{ 'header.fallback_slogans' | t }}</a>
+      <a href="{{ routes.root_url }}#manifeste">{{ 'header.fallback_manifesto' | t }}</a>
+      <a href="{{ routes.root_url }}#cortege">{{ 'header.fallback_cortege' | t }}</a>
+      <a href="/pages/faq">FAQ</a>
+      <a href="/pages/contact">Contact</a>
+    {%- endif -%}
+    {%- if settings.instagram_url != blank or settings.tiktok_url != blank -%}
+      <div class="header__nav-social">
+        {%- if settings.instagram_url != blank -%}<a class="link-mono" href="{{ settings.instagram_url }}" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:13px;line-height:1">Instagram ↗</a>{%- endif -%}
+        {%- if settings.tiktok_url != blank -%}<a class="link-mono" href="{{ settings.tiktok_url }}" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:13px;line-height:1">TikTok ↗</a>{%- endif -%}
+      </div>
+    {%- endif -%}
+  </nav>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "text",
+      "id": "brand_name",
+      "label": "Nom affiché",
+      "default": "La Gauche Bebew",
+      "info": "Pas de logo : le nom en typo, traité comme un slogan."
+    },
+    {
+      "type": "range",
+      "id": "brand_tilt",
+      "label": "Inclinaison du nom",
+      "min": -4,
+      "max": 4,
+      "step": 0.5,
+      "unit": "°",
+      "default": 0
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu",
+      "info": "Liens conseillés : Les slogans, Manifeste (/#manifeste), Porte-le en cortège (/#cortege), FAQ, Contact."
+    }
+  ],
+  "enabled_on": { "groups": ["header"] }
+}
+{% endschema %}

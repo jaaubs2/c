@@ -1,0 +1,104 @@
+{%- assign s = section.settings -%}
+<section id="manifeste" class="manifesto grain grain--wall">
+  {%- if s.collage -%}
+    {%- if s.collage_1 != blank -%}<div class="collage collage--1" aria-hidden="true">{{ s.collage_1 | escape }}</div>{%- endif -%}
+    {%- if s.collage_2 != blank -%}<div class="collage collage--2" aria-hidden="true">{{ s.collage_2 | escape }}</div>{%- endif -%}
+    {%- if s.collage_3 != blank -%}<div class="collage collage--3" aria-hidden="true">{{ s.collage_3 | escape }}</div>{%- endif -%}
+  {%- endif -%}
+
+  <article class="manifesto__sheet grain" style="--tilt: {{ s.tilt }}deg">
+    {%- if s.tape -%}
+      <span class="tape tape--top" aria-hidden="true"></span>
+      <span class="tape tape--corner" aria-hidden="true"></span>
+    {%- endif -%}
+    {%- if s.kicker != blank -%}<p class="manifesto__kicker">{{ s.kicker | escape }}</p>{%- endif -%}
+    <h2 class="display manifesto__title">{{ s.title | escape }}</h2>
+    <div class="manifesto__body">{{ s.body }}</div>
+    {%- if s.punch != blank -%}<p class="manifesto__punch">{{ s.punch | escape }}</p>{%- endif -%}
+    {%- if s.closing != blank -%}<p class="manifesto__closing">{{ s.closing | escape }}</p>{%- endif -%}
+  </article>
+</section>
+
+{% schema %}
+{
+  "name": "Manifeste",
+  "class": "section-manifesto",
+  "settings": [
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Surtitre",
+      "default": "Manifeste"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Titre",
+      "default": "On est là."
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Texte",
+      "default": "<p>Le plein coûte un bras, le frigo est à moitié vide, les salaires bougent pas et on nous demande encore de serrer la ceinture. Alors on descend dans la rue. Les lycéen·nes, les travailleur·ses, les gilets jaunes, les syndiqué·es, les ronds-points, les cortèges : tout le monde.</p><p>La Gauche Bebew, c'est des t-shirts pour dire ce qu'on pense sans avoir à le crier pendant trois heures. Noir ou blanc. Un slogan. C'est tout. Pas de logo, pas de blabla, juste le message.</p><p>Parce qu'en manif, la pancarte finit sous la pluie. Le t-shirt, lui, tu le gardes pour la prochaine.</p>"
+    },
+    {
+      "type": "text",
+      "id": "punch",
+      "label": "Phrase en gras",
+      "default": "Et la prochaine, elle arrive vite."
+    },
+    {
+      "type": "text",
+      "id": "closing",
+      "label": "Phrase de fin",
+      "default": "Porte-le. Fais-le lire. On lâche rien, bebew."
+    },
+    {
+      "type": "range",
+      "id": "tilt",
+      "label": "Inclinaison de l'affiche",
+      "min": -4,
+      "max": 4,
+      "step": 0.5,
+      "unit": "°",
+      "default": -1
+    },
+    {
+      "type": "checkbox",
+      "id": "tape",
+      "label": "Scotch",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Collage autour de l'affiche"
+    },
+    {
+      "type": "checkbox",
+      "id": "collage",
+      "label": "Afficher le collage",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "collage_1",
+      "label": "Grand papier noir",
+      "default": "On lâche rien"
+    },
+    {
+      "type": "text",
+      "id": "collage_2",
+      "label": "Étiquette encadrée",
+      "default": "La Gauche Bebew"
+    },
+    {
+      "type": "text",
+      "id": "collage_3",
+      "label": "Petit papier",
+      "default": "Le plein ou le frigo"
+    }
+  ],
+  "presets": [{ "name": "Manifeste" }]
+}
+{% endschema %}

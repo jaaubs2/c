@@ -1,0 +1,147 @@
+{
+  "general": {
+    "skip_to_content": "Aller au contenu",
+    "close": "Fermer",
+    "error": "Ça a coincé. Réessaie, bebew.",
+    "breadcrumb": "Fil d'Ariane",
+    "pagination": "Pages",
+    "payment_methods": "Moyens de paiement",
+    "reassurance": "Nos engagements"
+  },
+  "header": {
+    "menu": "Menu",
+    "close": "Fermer",
+    "cart": "Panier",
+    "main_menu": "Menu principal",
+    "cart_aria": {
+      "one": "Panier, {{ count }} article",
+      "other": "Panier, {{ count }} articles"
+    },
+    "fallback_slogans": "Les slogans",
+    "fallback_manifesto": "Manifeste",
+    "fallback_cortege": "Porte-le en cortège"
+  },
+  "cart": {
+    "title": "Ton panier",
+    "count": {
+      "one": "{{ count }} t-shirt dans ton cortège",
+      "other": "{{ count }} t-shirts dans ton cortège"
+    },
+    "bar_one": "1 t-shirt dans ton cortège. Prends-en un deuxième : {{ pair_price }} € les deux.",
+    "bar_many": "{{ count }} t-shirts = {{ total }} avec l’offre 2 pour {{ pair_price }} €.",
+    "bar_free": "Livraison offerte, bebew.",
+    "bar_remaining": "Plus que {{ amount }} pour la livraison offerte.",
+    "see": "Voir le panier",
+    "shipping_progress": "Avancement vers la livraison offerte",
+    "decrease": "Un de moins : {{ title }}",
+    "increase": "Un de plus : {{ title }}",
+    "quantity": "Quantité",
+    "remove": "Retirer",
+    "update": "Mettre à jour",
+    "summary": "Récapitulatif",
+    "offer_missing_title": "Plus qu’un pour l’offre",
+    "offer_missing_text": "Ajoute un t-shirt : le deuxième te coûte {{ second_price }} €. 2 t-shirts = {{ pair_price }} €.",
+    "offer_ok_title": "2 pour {{ pair_price }} € : c’est bon",
+    "offer_ok_text": "Tu économises {{ amount }}. La réduction est déjà dans le total.",
+    "offer_ok_pending": "La réduction s’applique toute seule au moment de payer.",
+    "shipping_free_text": "Tu as passé le cap : on t’offre la livraison.",
+    "shipping_remaining_title": "Plus que {{ amount }}",
+    "shipping_remaining_text": "pour la livraison offerte (dès {{ threshold }} €).",
+    "subtotal": "Sous-total",
+    "shipping": "Livraison",
+    "shipping_free": "Offerte",
+    "shipping_at_checkout": "Calculée à l’étape suivante",
+    "total": "Total",
+    "checkout": "Passer commande"
+  },
+  "product": {
+    "add_to_cart": "Ajouter au cortège",
+    "adding": "Ça part…",
+    "added": "C’est dans ton cortège.",
+    "view_cart": "Voir le panier",
+    "sold_out": "Épuisé",
+    "unavailable": "Pas dispo dans cette combinaison",
+    "choose_size": "Choisis ta taille, bebew.",
+    "offer_badge": "2 pour {{ pair_price }} €",
+    "print_front": "imprimé devant",
+    "print_back": "imprimé dos",
+    "print_back_badge": "Imprimé dos",
+    "card_meta": "T-shirt {{ colors }} · {{ print }}",
+    "see_tee": "Voir le t-shirt {{ title }}",
+    "see_details": "Voir la fiche complète →",
+    "worn_photo": "Photo portée",
+    "flat_view": "Vue à plat",
+    "sizes_available": "Tailles disponibles",
+    "from": "dès",
+    "gallery": "Photos du t-shirt",
+    "breadcrumb_shop": "Boutique",
+    "size_guide": "Guide des tailles",
+    "variant": "Modèle"
+  },
+  "collection": {
+    "filter_label": "Filtrer les t-shirts",
+    "filter_all": "Tout",
+    "filter_black": "Noir",
+    "filter_white": "Blanc",
+    "filter_men": "Homme",
+    "filter_women": "Femme",
+    "filter_empty": "Rien dans cette combinaison pour l’instant. Reviens après la prochaine manif.",
+    "empty": "Pas encore de t-shirt ici. Les slogans arrivent.",
+    "count": {
+      "one": "{{ count }} slogan",
+      "other": "{{ count }} slogans"
+    }
+  },
+  "newsletter": {
+    "error": "Il manque un mail valide, bebew."
+  },
+  "contact": {
+    "name": "Ton prénom",
+    "email": "Ton email",
+    "subject": "Sujet",
+    "subject_order": "Ma commande",
+    "subject_group": "Commande groupée",
+    "subject_other": "Autre chose",
+    "group": "Ton collectif / ta section (facultatif)",
+    "group_short": "Collectif",
+    "message": "Ton message"
+  },
+  "search": {
+    "kicker": "Recherche",
+    "title": "Cherche un slogan",
+    "label": "Rechercher",
+    "placeholder": "carburant, salaires, bebew…",
+    "submit": "Chercher",
+    "results": {
+      "one": "{{ count }} résultat pour « {{ terms }} »",
+      "other": "{{ count }} résultats pour « {{ terms }} »"
+    },
+    "none": "Rien trouvé. Essaie un autre mot."
+  },
+  "not_found": {
+    "code": "Erreur 404"
+  },
+  "size_guide": {
+    "size": "Taille"
+  },
+  "sections": {
+    "hero": {
+      "photo_placeholder": "[Photo cortège plein écran — à remplacer]"
+    },
+    "cortege": {
+      "placeholder": "[Photo portée]"
+    }
+  },
+  "password": {
+    "owner": "Accès gérant·e",
+    "label": "Mot de passe",
+    "submit": "Entrer",
+    "error": "Mauvais mot de passe."
+  },
+  "gift_card": {
+    "title": "Ta carte cadeau",
+    "initial": "Valeur de départ : {{ value }}",
+    "expired": "Cette carte cadeau n’est plus valable.",
+    "shop": "Aller à la boutique"
+  }
+}

@@ -1,0 +1,44 @@
+{%- comment -%}
+  « Prends-en un deuxième » : d'autres slogans pour déclencher l'offre 2 pour 35 €.
+  Utilisé sur la fiche produit (exclut le t-shirt affiché).
+{%- endcomment -%}
+{%- liquid
+  assign s = section.settings
+  assign source = s.collection | default: collections.all
+  assign shown = 0
+  assign current_id = product.id
+-%}
+{%- if source.products_count > 1 or request.design_mode -%}
+  <section class="products-section" style="border-top: var(--rule)">
+    <div class="section-head">
+      <div class="section-head__text">
+        {%- if s.kicker != blank -%}<p class="kicker">{{ s.kicker | escape }}</p>{%- endif -%}
+        <h2 class="display h2">{{ s.title | escape }}</h2>
+      </div>
+      {%- if s.text != blank -%}<div class="section-head__desc">{{ s.text }}</div>{%- endif -%}
+    </div>
+    <div class="product-grid" style="--cols: 4">
+      {%- for item in source.products -%}
+        {%- if item.id != current_id and shown < s.count -%}
+          {%- assign shown = shown | plus: 1 -%}
+          {% render 'product-card', product: item, card_visual: 'flat', show_badge: true, show_sizes: false, quick_add: true %}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Prends-en un deuxième",
+  "class": "section-second",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Surtitre", "default": "2 t-shirts = 35 €" },
+    { "type": "text", "id": "title", "label": "Titre", "default": "Prends-en un deuxième" },
+    { "type": "richtext", "id": "text", "label": "Texte", "default": "<p>Le deuxième te coûte 15 €. La réduction s'applique toute seule dans ton panier.</p>" },
+    { "type": "collection", "id": "collection", "label": "Collection", "info": "Par défaut : tous les produits." },
+    { "type": "range", "id": "count", "label": "Nombre de t-shirts", "min": 2, "max": 8, "step": 1, "default": 4 }
+  ],
+  "presets": [{ "name": "Prends-en un deuxième" }]
+}
+{% endschema %}

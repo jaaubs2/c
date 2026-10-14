@@ -1,0 +1,23 @@
+<header class="page-head">
+  <h1 class="display page-head__title">{{ section.settings.title | escape }}</h1>
+</header>
+<div class="collection">
+  <div class="accordion accordion--big">
+    {%- for collection in collections -%}
+      {%- unless collection.handle == 'frontpage' -%}
+        <p><a href="{{ collection.url }}" class="display" style="display:flex;justify-content:space-between;gap:16px;padding:20px 0;border-bottom:var(--rule);text-decoration:none;font-size:clamp(32px,4vw,64px);line-height:1">
+          <span>{{ collection.title | escape }}</span><span class="mono" style="font-size:14px;align-self:center">{{ collection.products_count }}</span>
+        </a></p>
+      {%- endunless -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Liste des collections",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Titre", "default": "Les collections" }
+  ]
+}
+{% endschema %}

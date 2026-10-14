@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-cart",
+      "settings": {
+        "title": "Ton cortège",
+        "facts": "Expédié sous 72 h\nLivraison en France uniquement\nRetours sous 14 jours",
+        "empty_text": "Ton panier est vide, comme les promesses du gouvernement.",
+        "empty_button": "Voir les slogans",
+        "upsell": true,
+        "upsell_title": "Prends-en un deuxième"
+      }
+    }
+  },
+  "order": ["main"]
+}

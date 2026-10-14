@@ -1,0 +1,173 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "La Gauche Bebew",
+    "theme_version": "1.0.0",
+    "theme_author": "La Gauche Bebew",
+    "theme_documentation_url": "https://help.shopify.com/fr/manual/online-store/themes",
+    "theme_support_email": "lagauchebebew@gmail.com"
+  },
+  {
+    "name": "Couleurs",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Palette strictement noir et blanc, comme les t-shirts."
+      },
+      {
+        "type": "color",
+        "id": "color_bg",
+        "label": "Fond (papier)",
+        "default": "#F6F5F1",
+        "info": "Valeurs de la maquette : #FFFFFF, #FAFAF7, #F6F5F1, #EFEEE9"
+      },
+      {
+        "type": "color",
+        "id": "color_ink",
+        "label": "Encre",
+        "default": "#111111",
+        "info": "Valeurs de la maquette : #000000, #111111, #1E1E1C"
+      }
+    ]
+  },
+  {
+    "name": "Typographie",
+    "settings": [
+      {
+        "type": "select",
+        "id": "display_font",
+        "label": "Typo des titres et slogans",
+        "default": "anton",
+        "options": [
+          { "value": "anton", "label": "Anton" },
+          { "value": "archivo-black", "label": "Archivo Black" },
+          { "value": "bebas", "label": "Bebas Neue" }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "title_scale",
+        "label": "Taille des titres",
+        "min": 80,
+        "max": 130,
+        "step": 5,
+        "unit": "%",
+        "default": 100
+      }
+    ]
+  },
+  {
+    "name": "Style",
+    "settings": [
+      {
+        "type": "range",
+        "id": "grain",
+        "label": "Grain photocopie",
+        "min": 0,
+        "max": 60,
+        "step": 2,
+        "unit": "%",
+        "default": 18
+      },
+      {
+        "type": "range",
+        "id": "radius",
+        "label": "Arrondi des angles",
+        "min": 0,
+        "max": 14,
+        "step": 1,
+        "unit": "px",
+        "default": 0
+      },
+      {
+        "type": "select",
+        "id": "button_style",
+        "label": "Style des boutons",
+        "default": "plein",
+        "options": [
+          { "value": "plein", "label": "Plein" },
+          { "value": "contour", "label": "Contour" },
+          { "value": "tampon", "label": "Tampon" }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Offre & livraison",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Ces montants servent uniquement aux messages du site (bandeau panier, fiche produit). La vraie réduction se crée dans Réductions (Achetez X, obtenez Y) et la livraison offerte dans Paramètres > Expédition. Voir le README."
+      },
+      {
+        "type": "number",
+        "id": "unit_price",
+        "label": "Prix d'un t-shirt (€)",
+        "default": 20
+      },
+      {
+        "type": "number",
+        "id": "pair_price",
+        "label": "Prix des deux t-shirts (€)",
+        "default": 35
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Livraison offerte dès (€)",
+        "default": 50
+      },
+      {
+        "type": "checkbox",
+        "id": "show_cart_bar",
+        "label": "Afficher la barre d'avancement sous le header quand le panier n'est pas vide",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Réseaux & contact",
+    "settings": [
+      {
+        "type": "text",
+        "id": "contact_email",
+        "label": "Email de contact",
+        "default": "lagauchebebew@gmail.com"
+      },
+      {
+        "type": "url",
+        "id": "instagram_url",
+        "label": "Instagram",
+        "info": "Lien complet vers le compte Instagram"
+      },
+      {
+        "type": "url",
+        "id": "tiktok_url",
+        "label": "TikTok",
+        "info": "Lien complet vers le compte TikTok"
+      }
+    ]
+  },
+  {
+    "name": "Pages",
+    "settings": [
+      {
+        "type": "page",
+        "id": "size_guide_page",
+        "label": "Page « Guide des tailles »",
+        "info": "Page qui utilise le modèle page.guide-des-tailles. Elle s'ouvre en fenêtre sur la fiche produit."
+      }
+    ]
+  },
+  {
+    "name": "Favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "32 × 32 px"
+      }
+    ]
+  }
+]

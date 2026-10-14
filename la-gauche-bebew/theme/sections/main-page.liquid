@@ -1,0 +1,23 @@
+{%- comment -%}
+  Page de contenu sobre : pages légales (mentions, CGV, confidentialité, livraison & retours)
+  et toute page texte. Le contenu se saisit dans Boutique en ligne > Pages.
+{%- endcomment -%}
+<div class="legal">
+  <header class="page-head page-head--rule">
+    {%- if section.settings.kicker != blank -%}<p class="kicker">{{ section.settings.kicker | escape }}</p>{%- endif -%}
+    <h1 class="display page-head__title">{{ page.title | escape }}</h1>
+  </header>
+  <div class="rte" style="margin-top: clamp(24px, 3vw, 44px)">
+    {{ page.content }}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Contenu de la page",
+  "class": "section-main-page",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Surtitre", "default": "La Gauche Bebew" }
+  ]
+}
+{% endschema %}

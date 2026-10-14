@@ -1,0 +1,185 @@
+{%- liquid
+  assign s = section.settings
+  assign threshold = settings.free_shipping_threshold | times: 100
+  assign remaining = threshold | minus: cart.total_price
+  assign remaining_display = remaining | money_without_trailing_zeros
+  assign ship_progress = cart.total_price | times: 100 | divided_by: threshold | at_most: 100
+  if threshold == 0
+    assign ship_progress = 100
+  endif
+  assign second_price = settings.pair_price | minus: settings.unit_price
+  assign odd = cart.item_count | modulo: 2
+  assign saved_display = cart.total_discount | money_without_trailing_zeros
+-%}
+<div data-cart-section data-section-id="{{ section.id }}">
+  <div data-refresh="main-cart">
+    {%- if cart.item_count == 0 -%}
+      <div class="cart-empty">
+        <p class="kicker">{{ 'cart.title' | t }}</p>
+        <h1 class="display cart-empty__title">{{ s.empty_text | escape }}</h1>
+        <a href="{{ routes.all_products_collection_url }}" class="btn">{{ s.empty_button | escape }} {% render 'icon', name: 'arrow' %}</a>
+      </div>
+    {%- else -%}
+      <header class="page-head">
+        <p class="kicker">{{ 'cart.count' | t: count: cart.item_count }}</p>
+        <h1 class="display page-head__title">{{ s.title | escape }}</h1>
+      </header>
+
+      <div class="cart" data-cart>
+        <form action="{{ routes.cart_url }}" method="post" id="CartForm" novalidate>
+          <ul class="cart__items" role="list">
+            {%- for item in cart.items -%}
+              {%- liquid
+                assign line_color = 'blanc'
+                for opt in item.options_with_values
+                  assign ov = opt.value | handleize
+                  if ov contains 'noir' or ov contains 'black'
+                    assign line_color = 'noir'
+                  endif
+                endfor
+                assign line_slogan = item.product.metafields.custom.slogan.value | default: item.product.title
+                assign line_impression = item.product.metafields.custom.impression.value | append: '' | downcase
+                assign line_back = false
+                if line_impression contains 'dos' or item.product.tags contains 'imprime-dos'
+                  assign line_back = true
+                endif
+                assign minus_qty = item.quantity | minus: 1
+                assign plus_qty = item.quantity | plus: 1
+              -%}
+              <li class="line" data-line="{{ forloop.index }}">
+                <a href="{{ item.url }}" class="line__media" tabindex="-1" aria-hidden="true">
+                  {%- if item.image -%}
+                    {{ item.image | image_url: width: 300 | image_tag: loading: 'lazy', widths: '150, 300', sizes: '96px', alt: '' }}
+                  {%- else -%}
+                    {% render 'tee-flat', text: line_slogan, color: line_color, back: line_back %}
+                  {%- endif -%}
+                </a>
+                <div>
+                  <p class="line__title"><a href="{{ item.url }}">{{ item.product.title | escape }}</a></p>
+                  {%- unless item.product.has_only_default_variant -%}
+                    <p class="line__meta">{{ item.variant.options | join: ' · ' | escape }}</p>
+                  {%- endunless -%}
+                  {%- for allocation in item.line_level_discount_allocations -%}
+                    <p class="line__discount">{{ allocation.discount_application.title | escape }} (−{{ allocation.amount | money_without_trailing_zeros }})</p>
+                  {%- endfor -%}
+                </div>
+                <p class="line__price">
+                  {%- if item.original_line_price > item.final_line_price -%}<s>{{ item.original_line_price | money_without_trailing_zeros }}</s>{%- endif -%}
+                  {{ item.final_line_price | money_without_trailing_zeros }}
+                </p>
+                <div class="line__actions">
+                  <div class="qty">
+                    <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity={{ minus_qty }}" data-cart-change data-line="{{ forloop.index }}" data-quantity="{{ minus_qty }}" aria-label="{{ 'cart.decrease' | t: title: item.product.title }}">−</a>
+                    <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" inputmode="numeric" aria-label="{{ 'cart.quantity' | t }}" data-cart-qty data-line="{{ forloop.index }}">
+                    <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity={{ plus_qty }}" data-cart-change data-line="{{ forloop.index }}" data-quantity="{{ plus_qty }}" aria-label="{{ 'cart.increase' | t: title: item.product.title }}">+</a>
+                  </div>
+                  <a class="line__remove" href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity=0" data-cart-change data-line="{{ forloop.index }}" data-quantity="0">{{ 'cart.remove' | t }}</a>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <noscript><button type="submit" class="btn btn--small" style="margin-top:16px">{{ 'cart.update' | t }}</button></noscript>
+        </form>
+
+        <aside class="cart__summary" aria-label="{{ 'cart.summary' | t }}">
+          {%- comment -%} Offre 2 pour 35 € {%- endcomment -%}
+          <div class="meter meter--dark on-dark">
+            {%- if odd == 1 -%}
+              <p class="meter__title">{{ 'cart.offer_missing_title' | t }}</p>
+              <p class="meter__text">{{ 'cart.offer_missing_text' | t: second_price: second_price, pair_price: settings.pair_price }}</p>
+              <div class="progress" aria-hidden="true"><span style="width: 50%"></span></div>
+            {%- else -%}
+              <p class="meter__title">{{ 'cart.offer_ok_title' | t: pair_price: settings.pair_price }}</p>
+              <p class="meter__text">
+                {%- if cart.total_discount > 0 -%}
+                  {{ 'cart.offer_ok_text' | t: amount: saved_display }}
+                {%- else -%}
+                  {{ 'cart.offer_ok_pending' | t }}
+                {%- endif -%}
+              </p>
+              <div class="progress" aria-hidden="true"><span style="width: 100%"></span></div>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Livraison offerte {%- endcomment -%}
+          <div class="meter">
+            {%- if remaining <= 0 -%}
+              <p class="meter__title">{{ 'cart.bar_free' | t }}</p>
+              <p class="meter__text">{{ 'cart.shipping_free_text' | t }}</p>
+            {%- else -%}
+              <p class="meter__title">{{ 'cart.shipping_remaining_title' | t: amount: remaining_display }}</p>
+              <p class="meter__text">{{ 'cart.shipping_remaining_text' | t: threshold: settings.free_shipping_threshold }}</p>
+            {%- endif -%}
+            <div class="progress" role="progressbar" aria-label="{{ 'cart.shipping_progress' | t }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ ship_progress }}"><span style="width: {{ ship_progress }}%"></span></div>
+          </div>
+
+          <div class="totals">
+            <div class="totals__row"><span>{{ 'cart.subtotal' | t }}</span><span>{{ cart.original_total_price | money_without_trailing_zeros }}</span></div>
+            {%- for discount in cart.discount_applications -%}
+              <div class="totals__row"><span>{{ discount.title | escape }}</span><span>−{{ discount.total_allocated_amount | money_without_trailing_zeros }}</span></div>
+            {%- endfor -%}
+            <div class="totals__row"><span>{{ 'cart.shipping' | t }}</span><span>{% if remaining <= 0 %}{{ 'cart.shipping_free' | t }}{% else %}{{ 'cart.shipping_at_checkout' | t }}{% endif %}</span></div>
+            <div class="totals__row totals__row--total"><span>{{ 'cart.total' | t }}</span><span>{{ cart.total_price | money_without_trailing_zeros }}</span></div>
+          </div>
+
+          <div class="cart__checkout">
+            <button type="submit" name="checkout" form="CartForm" class="btn">{{ 'cart.checkout' | t }}</button>
+          </div>
+
+          <div class="cart__facts">
+            {%- assign facts = s.facts | newline_to_br | split: '<br />' -%}
+            {%- for f in facts -%}{%- assign ft = f | strip -%}{%- if ft != blank -%}<span>→ {{ ft | escape }}</span>{%- endif -%}{%- endfor -%}
+          </div>
+          {% render 'payment-icons' %}
+        </aside>
+      </div>
+
+      {%- comment -%} Prends-en un deuxième, quand le nombre est impair {%- endcomment -%}
+      {%- if odd == 1 and s.upsell -%}
+        {%- liquid
+          assign in_cart = ''
+          for item in cart.items
+            assign in_cart = in_cart | append: ',' | append: item.product_id | append: ','
+          endfor
+          assign shown = 0
+          assign source = s.upsell_collection | default: collections.all
+        -%}
+        <section class="products-section" style="border-top: var(--rule)">
+          <div class="section-head">
+            <div class="section-head__text">
+              <p class="kicker">{{ 'cart.offer_missing_text' | t: second_price: second_price, pair_price: settings.pair_price }}</p>
+              <h2 class="display h2">{{ s.upsell_title | escape }}</h2>
+            </div>
+          </div>
+          <div class="product-grid" style="--cols: 4">
+            {%- for p in source.products -%}
+              {%- assign key = ',' | append: p.id | append: ',' -%}
+              {%- unless in_cart contains key or shown >= 4 or p.available == false -%}
+                {%- assign shown = shown | plus: 1 -%}
+                {% render 'product-card', product: p, card_visual: 'flat', show_badge: true, show_sizes: false, quick_add: true %}
+              {%- endunless -%}
+            {%- endfor -%}
+          </div>
+        </section>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Panier",
+  "class": "section-main-cart",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Titre", "default": "Ton cortège" },
+    { "type": "textarea", "id": "facts", "label": "Infos sous le bouton (une ligne = une info)", "default": "Expédié sous 72 h\nLivraison en France uniquement\nRetours sous 14 jours" },
+    { "type": "header", "content": "Panier vide" },
+    { "type": "text", "id": "empty_text", "label": "Message", "default": "Ton panier est vide, comme les promesses du gouvernement." },
+    { "type": "text", "id": "empty_button", "label": "Bouton", "default": "Voir les slogans" },
+    { "type": "header", "content": "Prends-en un deuxième" },
+    { "type": "checkbox", "id": "upsell", "label": "Proposer d'autres slogans quand il manque un t-shirt pour l'offre", "default": true },
+    { "type": "text", "id": "upsell_title", "label": "Titre", "default": "Prends-en un deuxième" },
+    { "type": "collection", "id": "upsell_collection", "label": "Collection", "info": "Par défaut : tous les produits." }
+  ]
+}
+{% endschema %}

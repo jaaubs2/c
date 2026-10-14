@@ -1,0 +1,187 @@
+{%- liquid
+  assign s = section.settings
+  assign style = s.style
+  assign is_pancarte = false
+  if style == 'pancarte'
+    assign is_pancarte = true
+  endif
+  assign grain_class = 'grain'
+  assign btn_class = 'btn'
+  case style
+    when 'noir'
+      assign grain_class = 'grain grain--screen'
+      assign btn_class = 'btn btn--inverse'
+    when 'photo'
+      assign grain_class = 'grain grain--screen'
+      assign btn_class = 'btn btn--white'
+  endcase
+-%}
+<section class="hero hero--{{ style }} {{ grain_class }}{% if style == 'noir' or style == 'photo' %} on-dark{% endif %}" style="--tilt: {{ s.tilt }}deg; --hero-overlay: {{ s.overlay | divided_by: 100.0 }}">
+  {%- if style == 'photo' -%}
+    {%- if s.image != blank -%}
+      <div class="hero__photo">
+        {{ s.image | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '600, 900, 1200, 1600, 2000, 2400', sizes: '100vw', alt: s.image.alt }}
+      </div>
+    {%- else -%}
+      <p class="hero__photo-label">{{ 'sections.hero.photo_placeholder' | t }}</p>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if s.kicker != blank -%}
+    <p class="hero__kicker">{{ s.kicker | escape }}</p>
+  {%- endif -%}
+
+  <div class="hero__sign-wrap">
+    <div class="hero__sign{% if is_pancarte %} hero__sign--pancarte{% endif %}">
+      {%- if is_pancarte and s.tape -%}
+        <span class="tape tape--1" aria-hidden="true"></span>
+        <span class="tape tape--2" aria-hidden="true"></span>
+      {%- endif -%}
+      <h1 class="hero__title">{{ s.slogan | escape }}</h1>
+    </div>
+    {%- if is_pancarte -%}
+      <div class="hero__stick" aria-hidden="true"></div>
+    {%- endif -%}
+  </div>
+
+  <div class="hero__actions">
+    {%- if s.button_label != blank -%}
+      <a href="{{ s.button_link | default: routes.all_products_collection_url }}" class="{{ btn_class }}">
+        {{- s.button_label | escape }}
+        {% render 'icon', name: 'arrow' %}
+      </a>
+    {%- endif -%}
+    {%- if s.price_line != blank -%}
+      <div class="hero__price">{{ s.price_line }}</div>
+    {%- endif -%}
+  </div>
+
+  {%- if s.stamp -%}
+    <div class="stamp" aria-hidden="true">
+      <span class="stamp__small">{{ s.stamp_top | escape }}</span>
+      <span class="stamp__big">{{ s.stamp_big | escape }}</span>
+      <span class="stamp__small stamp__small--light">{{ s.stamp_bottom | escape }}</span>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Hero slogan",
+  "class": "section-hero",
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "default": "pancarte",
+      "options": [
+        { "value": "pancarte", "label": "Pancarte" },
+        { "value": "affiche", "label": "Affiche" },
+        { "value": "noir", "label": "Noir" },
+        { "value": "photo", "label": "Photo" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Surtitre",
+      "default": "T-shirts à slogans pour manifestant·es"
+    },
+    {
+      "type": "textarea",
+      "id": "slogan",
+      "label": "Slogan géant",
+      "default": "MACRON\nPAS DU TOUT\nBEBEW",
+      "info": "Un retour à la ligne = une ligne du slogan."
+    },
+    {
+      "type": "range",
+      "id": "tilt",
+      "label": "Inclinaison",
+      "min": -6,
+      "max": 6,
+      "step": 0.5,
+      "unit": "°",
+      "default": -2
+    },
+    {
+      "type": "checkbox",
+      "id": "tape",
+      "label": "Scotch sur la pancarte",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Bouton"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texte du bouton",
+      "default": "Voir les slogans"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Lien du bouton",
+      "info": "Par défaut : la boutique. Pour descendre vers la grille de l'accueil : #slogans"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "price_line",
+      "label": "Ligne prix",
+      "default": "20 € l'unité · <strong>35 € les deux</strong>"
+    },
+    {
+      "type": "header",
+      "content": "Tampon"
+    },
+    {
+      "type": "checkbox",
+      "id": "stamp",
+      "label": "Afficher le tampon",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "stamp_top",
+      "label": "Tampon : haut",
+      "default": "2 T-SHIRTS"
+    },
+    {
+      "type": "text",
+      "id": "stamp_big",
+      "label": "Tampon : centre",
+      "default": "35 €"
+    },
+    {
+      "type": "text",
+      "id": "stamp_bottom",
+      "label": "Tampon : bas",
+      "default": "au lieu de 40"
+    },
+    {
+      "type": "header",
+      "content": "Style Photo"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Photo de cortège plein écran",
+      "info": "Passée en noir et blanc automatiquement."
+    },
+    {
+      "type": "range",
+      "id": "overlay",
+      "label": "Assombrir la photo",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 45
+    }
+  ],
+  "presets": [{ "name": "Hero slogan" }]
+}
+{% endschema %}

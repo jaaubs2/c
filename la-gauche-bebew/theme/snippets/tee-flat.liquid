@@ -1,0 +1,39 @@
+{%- comment -%}
+  T-shirt à plat dessiné en SVG, avec le slogan imprimé.
+  Sert de visuel tant qu'un produit n'a pas de photo (et pour les cartes d'exemple).
+  Le parent doit avoir container-type: inline-size (la taille du texte est en cqi).
+
+  Paramètres :
+  - text  : slogan (string)
+  - color : 'noir' ou 'blanc'
+  - back  : true si imprimé dans le dos
+{%- endcomment -%}
+{%- liquid
+  assign words = text | upcase | split: ' '
+  assign longest = 1
+  for w in words
+    assign l = w | size
+    if l > longest
+      assign longest = l
+    endif
+  endfor
+  if back
+    assign k = 92.0 | divided_by: longest | at_most: 10.5
+    assign collar = 'M72 14 C86 22 114 22 128 14'
+  else
+    assign k = 78.0 | divided_by: longest | at_most: 8.6
+    assign collar = 'M70 12 C80 34 120 34 130 12'
+  endif
+  if color == 'noir'
+    assign tee_class = 'tee--noir'
+  else
+    assign tee_class = 'tee--blanc'
+  endif
+-%}
+<div class="tee {{ tee_class }}{% if back %} tee--dos{% endif %}" aria-hidden="true">
+  <svg viewBox="0 0 200 230" focusable="false">
+    <path class="tee__body" d="M70 12 C80 22 120 22 130 12 L160 22 L196 58 L170 88 L156 78 L156 222 L44 222 L44 78 L30 88 L4 58 L40 22 Z"/>
+    <path class="tee__collar" d="{{ collar }}"/>
+  </svg>
+  <div class="tee__text" style="--k: {{ k | round: 2 }}">{{ text | upcase | escape }}</div>
+</div>

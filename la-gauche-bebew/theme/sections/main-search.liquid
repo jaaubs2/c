@@ -1,0 +1,35 @@
+<header class="page-head">
+  <p class="kicker">{{ 'search.kicker' | t }}</p>
+  <h1 class="display page-head__title">{{ 'search.title' | t }}</h1>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="search-form">
+    <label for="SearchInput" class="visually-hidden">{{ 'search.label' | t }}</label>
+    <input class="input" id="SearchInput" type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'search.placeholder' | t }}">
+    <input type="hidden" name="type" value="product">
+    <button type="submit" class="btn">{{ 'search.submit' | t }}</button>
+  </form>
+</header>
+
+<div class="collection">
+  {%- if search.performed -%}
+    {%- paginate search.results by 24 -%}
+      <p class="collection__count">{{ 'search.results' | t: count: search.results_count, terms: search.terms }}</p>
+      {%- if search.results_count > 0 -%}
+        <div class="product-grid" style="--cols: 4">
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {% render 'product-card', product: item, card_visual: 'flat', show_badge: true, show_sizes: true, quick_add: true %}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <p class="empty-filter">{{ 'search.none' | t }}</p>
+      {%- endif -%}
+    {%- endpaginate -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Recherche"
+}
+{% endschema %}
