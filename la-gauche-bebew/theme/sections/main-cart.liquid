@@ -73,7 +73,7 @@
                     <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" inputmode="numeric" aria-label="{{ 'cart.quantity' | t }}" data-cart-qty data-line="{{ forloop.index }}">
                     <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity={{ plus_qty }}" data-cart-change data-line="{{ forloop.index }}" data-quantity="{{ plus_qty }}" aria-label="{{ 'cart.increase' | t: title: item.product.title }}">+</a>
                   </div>
-                  <a class="line__remove" href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity=0" data-cart-change data-line="{{ forloop.index }}" data-quantity="0">{{ 'cart.remove' | t }}</a>
+                  <a class="line__remove" href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity=0" data-cart-change data-line="{{ forloop.index }}" data-quantity="0" aria-label="{{ 'cart.remove_named' | t: title: item.product.title | escape }}">{{ 'cart.remove' | t }}</a>
                 </div>
               </li>
             {%- endfor -%}

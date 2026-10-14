@@ -135,6 +135,7 @@
       if (nav) nav.hidden = !open;
       if (label) label.textContent = open ? label.dataset.close : label.dataset.open;
       measureHeader();
+      if (open && nav) { var first = $('a', nav); if (first) first.focus(); }
     }
     btn.addEventListener('click', function () { set(btn.getAttribute('aria-expanded') !== 'true'); });
     if (nav) {

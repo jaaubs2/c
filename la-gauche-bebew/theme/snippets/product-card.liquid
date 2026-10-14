@@ -177,7 +177,8 @@
   <p class="card__meta">{{ 'product.card_meta' | t: colors: color_labels, print: print_label }}</p>
 
   {%- if show_sizes -%}
-    <div class="sizes" aria-label="{{ 'product.sizes_available' | t }}">
+    <div class="sizes">
+      <span class="visually-hidden">{{ 'product.sizes_available' | t }} :</span>
       {%- if has_product and size_option -%}
         {%- assign size_key = 'option' | append: size_option.position -%}
         {%- for value in size_option.values -%}
@@ -195,6 +196,7 @@
     {%- if has_product -%}
       {%- if product.available -%}
         <button type="button" class="btn btn--small" data-quick-add
+          aria-label="{{ 'product.add_to_cart_named' | t: title: title | escape }}"
           data-handle="{{ product.handle }}"
           {% if product.has_only_default_variant or product.variants.size == 1 %}data-variant-id="{{ product.selected_or_first_available_variant.id }}"{% endif %}>
           {{- 'product.add_to_cart' | t -}}

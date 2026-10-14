@@ -120,7 +120,7 @@
       {
         "type": "checkbox",
         "id": "show_cart_bar",
-        "label": "Afficher la barre d'avancement sous le header quand le panier n'est pas vide",
+        "label": "Barre d'avancement sous le header (panier non vide)",
         "default": true
       }
     ]

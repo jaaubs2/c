@@ -45,7 +45,7 @@
 
   {%- comment -%} Visuels {%- endcomment -%}
   <div class="product__media">
-    <div class="gallery" data-gallery aria-label="{{ 'product.gallery' | t }}">
+    <div class="gallery" data-gallery role="region" tabindex="0" aria-label="{{ 'product.gallery' | t }}">
       {%- if product.media.size > 0 -%}
         {%- for media in product.media -%}
           {%- liquid
@@ -221,7 +221,7 @@
     {
       "type": "checkbox",
       "id": "labels",
-      "label": "Étiquettes « Vue à plat » / « Photo portée » sur les 2 premières photos",
+      "label": "Étiquettes « À plat » / « Portée » sur les 2 premières photos",
       "default": true
     },
     {

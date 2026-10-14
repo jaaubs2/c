@@ -62,3 +62,11 @@
 @media (max-width: 600px) and (max-height: 620px) {
   .stamp, .hero__kicker { display: none; }
 }
+
+/* ---------- Vitesse : sections sous la ligne de flottaison rendues seulement à l'approche ---------- */
+.manifesto, .cortege, .newsletter, .section-reassurance, .footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+/* Galerie produit : contour visible quand on la parcourt au clavier */
+.gallery:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }

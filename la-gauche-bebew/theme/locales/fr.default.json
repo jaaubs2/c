@@ -52,7 +52,8 @@
     "shipping_free": "Offerte",
     "shipping_at_checkout": "Calculée à l’étape suivante",
     "total": "Total",
-    "checkout": "Passer commande"
+    "checkout": "Passer commande",
+    "remove_named": "Retirer {{ title }} du panier"
   },
   "product": {
     "add_to_cart": "Ajouter au cortège",
@@ -76,7 +77,8 @@
     "gallery": "Photos du t-shirt",
     "breadcrumb_shop": "Boutique",
     "size_guide": "Guide des tailles",
-    "variant": "Modèle"
+    "variant": "Modèle",
+    "add_to_cart_named": "Ajouter au cortège : {{ title }}"
   },
   "collection": {
     "filter_label": "Filtrer les t-shirts",
