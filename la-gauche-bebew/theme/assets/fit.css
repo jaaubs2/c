@@ -33,14 +33,6 @@
   grid-template-columns: repeat(auto-fill, minmax(max(min(150px, calc((100% - 12px) / 2)), calc((100% - 3 * 12px) / 4)), 1fr));
 }
 
-/* ---------- Fiche produit : une photo ne dépasse jamais la hauteur de l'écran ---------- */
-/* Mobile / tablette : largeur = hauteur dispo × 4/5 (la photo suivante dépasse un peu, on devine le défilement) */
-.gallery { grid-auto-columns: min(100%, calc((var(--hero-h) - 110px) * 0.8)); }
-@media (min-width: 900px) {
-  .gallery { grid-auto-columns: auto; }
-  .gallery__item:first-child { width: min(100%, calc((var(--hero-h) - 72px) * 0.8)); justify-self: center; }
-}
-
 /* ---------- Téléphones ---------- */
 @media (max-width: 600px) {
   /* Slogan plus grand, toujours limité par la hauteur disponible */
@@ -63,8 +55,6 @@
   .stamp, .hero__kicker { display: none; }
 }
 
-/* Galerie produit : contour visible quand on la parcourt au clavier */
-.gallery:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
 
 /* ---------- Achat direct depuis la carte : coupe + taille cliquables ---------- */
 .card__buy { display: flex; flex-direction: column; gap: 6px; }
@@ -156,3 +146,90 @@ select.input {
 .note-card__title { font-size: clamp(26px, 2.4vw, 36px); }
 .note-card p { font-size: 15px; }
 @media (min-width: 900px) { .contact__aside { position: sticky; top: calc(var(--header-h, 110px) + 24px); } }
+
+/* ==========================================================================
+   Fiche produit en deux écrans
+   1) photo(s) qui défilent + tout ce qu'il faut pour acheter, visibles à l'arrivée
+   2) photo portée + le t-shirt, la livraison, les retours, l'entretien
+   ========================================================================== */
+.gallery {
+  grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 100%;
+  overflow-x: auto; margin: 0; padding: 0; scroll-padding: 0;
+}
+.gallery__item:first-child { grid-column: auto; width: auto; justify-self: stretch; }
+.gallery:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.gallery__nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 10px; }
+.gallery__nav .gallery__count { display: block; margin: 0; min-width: 48px; }
+.gallery__arrow {
+  width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
+  border: 2px solid var(--ink); border-radius: var(--radius); background: transparent; color: var(--ink);
+  font-size: 18px; font-weight: 700; cursor: pointer;
+}
+@media (hover: hover) { .gallery__arrow:hover { background: var(--ink); color: var(--bg); } }
+
+.product__info { gap: 14px; }
+.product__pickers { display: flex; flex-wrap: wrap; gap: 14px 28px; }
+.picker__options { flex-wrap: nowrap; }
+.picker--size .picker__options { flex-wrap: wrap; }
+.picker--size { flex: 1 1 100%; }
+.picker { gap: 8px; }
+.opt label { min-height: 44px; min-width: 48px; }
+.offer-box { padding: 12px 16px; gap: 2px 14px; }
+.offer-box__big { font-size: clamp(28px, 2.8vw, 40px); }
+.offer-box__text { font-size: 13px; line-height: 1.4; }
+.product__buy { gap: 6px; }
+.product__buy .btn { min-height: 56px; font-size: 22px; }
+.product__info .accordion + .accordion { margin-top: 0; }
+
+.product-more { box-sizing: border-box; border-top: var(--rule); padding: clamp(28px, 4vw, 64px) var(--pad); display: grid; gap: clamp(24px, 4vw, 64px); }
+.product-more__info { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.product-more__info .accordion + .accordion { border-top: 0; }
+.product-more__info .accordion__content { max-width: 60ch; }
+.product-more__media { width: 100%; }
+
+/* Téléphone / tablette : photo limitée à ~60 % de l'écran pour voir le slogan et le prix tout de suite */
+@media (max-width: 899px) {
+  .product { padding-top: 12px; gap: 18px; }
+  .gallery { grid-auto-columns: min(100%, calc(var(--hero-h) * .5 * .8)); }
+  /* le bouton d'ajout reste visible en bas de l'écran tant qu'on est sur le bloc d'achat */
+  .product__buy { position: sticky; bottom: 0; z-index: 5; background: var(--bg); padding: 8px 0 6px; margin: 0 calc(-1 * var(--pad)); padding-left: var(--pad); padding-right: var(--pad); }
+  .product__buy .form-status:empty { display: none; }
+  .gallery:has(> .gallery__item:only-child) { justify-content: center; }
+  .gallery__nav { margin-top: 8px; }
+  .gallery__arrow { width: 36px; height: 36px; }
+  .product__title { font-size: clamp(calc(38px * var(--sc)), calc(11vw * var(--sc)), calc(72px * var(--sc))); }
+  .product-more__media { order: -1; max-width: calc(var(--hero-h) * .8); justify-self: center; }
+}
+
+/* Ordinateur : chaque bloc tient dans la hauteur d'écran sous le header */
+@media (min-width: 900px) {
+  :root { --pp-pad: clamp(14px, calc(2.4 * var(--hu)), 36px); }
+  .product {
+    min-height: var(--hero-h);
+    padding: var(--pp-pad) var(--pad);
+    grid-template-columns: min(50%, calc((var(--hero-h) - 2 * var(--pp-pad) - 50px) * .8)) minmax(0, 620px);
+    justify-content: center; align-items: center; gap: clamp(28px, 4vw, 72px);
+  }
+  .product__info { position: static; gap: clamp(8px, calc(1.5 * var(--hu)), 18px); }
+  .product__title { font-size: clamp(calc(36px * var(--sc)), calc(min(4.6vw, 8.5 * var(--hu)) * var(--sc)), calc(100px * var(--sc))); }
+  .product__pickers { gap: clamp(8px, calc(1.4 * var(--hu)), 16px) 28px; }
+
+  .product-more {
+    min-height: var(--hero-h);
+    padding: var(--pp-pad) var(--pad);
+    grid-template-columns: minmax(0, 620px) min(46%, calc((var(--hero-h) - 2 * var(--pp-pad)) * .8));
+    justify-content: center; align-items: center;
+  }
+  .product-more--solo { grid-template-columns: minmax(0, 760px); min-height: 0; }
+}
+
+/* Écrans d'ordinateur peu hauts (portable 13", fenêtre réduite) : on resserre pour que le bouton reste visible */
+@media (min-width: 900px) and (max-height: 760px) {
+  .product .breadcrumb, .offer-box__text { display: none; }
+  .offer-box { padding: 8px 14px; }
+  .opt label { min-height: 38px; }
+  .product__buy .btn { min-height: 48px; font-size: 20px; }
+  .product__buy .form-status:empty { display: none; }
+  .gallery__nav { margin-top: 6px; }
+  .gallery__arrow { width: 34px; height: 34px; }
+}

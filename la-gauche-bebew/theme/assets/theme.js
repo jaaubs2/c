@@ -394,14 +394,24 @@
       });
     });
 
-    // compteur de photos sur mobile
+    // défilement des photos : flèches + compteur
     var counter = $('[data-gallery-index]', section);
+    function step() { return gallery.firstElementChild ? gallery.firstElementChild.offsetWidth + 12 : gallery.clientWidth; }
     if (gallery && counter) {
       gallery.addEventListener('scroll', function () {
-        var w = gallery.firstElementChild ? gallery.firstElementChild.offsetWidth + 12 : gallery.clientWidth;
-        counter.textContent = String(Math.round(gallery.scrollLeft / w) + 1);
+        counter.textContent = String(Math.round(gallery.scrollLeft / step()) + 1);
       }, { passive: true });
     }
+    $$('[data-gallery-prev], [data-gallery-next]', section).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var dir = btn.hasAttribute('data-gallery-next') ? 1 : -1;
+        var max = gallery.scrollWidth - gallery.clientWidth;
+        var target = gallery.scrollLeft + dir * step();
+        if (target > max + 2) target = 0;
+        if (target < -2) target = max;
+        gallery.scrollTo({ left: target, behavior: 'smooth' });
+      });
+    });
   }
 
   /* ---------- Ajout rapide depuis une carte ---------- */

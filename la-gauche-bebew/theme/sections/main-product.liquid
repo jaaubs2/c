@@ -38,68 +38,29 @@
   endif
   assign form_id = 'ProductForm-' | append: section.id
   assign size_guide_url = settings.size_guide_page.url | default: '/pages/guide-des-tailles'
+
+  comment
+    La 2e photo (photo portée) va dans le second écran, à côté des infos « Le t-shirt », « Livraison »…
+  endcomment
+  assign more_types = 'collapsible,description,payment' | split: ','
+  assign split_worn = false
+  assign worn_media = nil
+  if section.settings.split_worn and product.media.size > 1
+    assign split_worn = true
+    assign worn_media = product.media[1]
+    assign worn_alt = worn_media.alt | default: product.title
+  endif
+  assign gallery_count = product.media.size | at_least: 1
+  if split_worn
+    assign gallery_count = gallery_count | minus: 1
+  endif
 -%}
 
-<section class="product" data-product data-section-id="{{ section.id }}" data-url="{{ product.url }}">
-  <script type="application/json" data-product-json>{{ product | json }}</script>
-
-  {%- comment -%} Visuels {%- endcomment -%}
-  <div class="product__media">
-    <div class="gallery" data-gallery role="region" tabindex="0" aria-label="{{ 'product.gallery' | t }}">
-      {%- if product.media.size > 0 -%}
-        {%- for media in product.media -%}
-          {%- liquid
-            assign loading = 'lazy'
-            if forloop.first
-              assign loading = 'eager'
-            endif
-            assign media_alt = media.alt | default: product.title
-          -%}
-          <div class="gallery__item" data-media-id="{{ media.id }}">
-            {%- case media.media_type -%}
-              {%- when 'video' -%}
-                {{ media | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, image_size: '1200x' }}
-              {%- when 'external_video' -%}
-                {{ media | external_video_tag }}
-              {%- else -%}
-                {{ media.preview_image | image_url: width: 1600 | image_tag: loading: loading, widths: '400, 600, 800, 1000, 1200, 1600', sizes: '(min-width: 900px) 55vw, 100vw', alt: media_alt }}
-            {%- endcase -%}
-            {%- if section.settings.labels -%}
-              {%- if forloop.index == 1 -%}<span class="gallery__label">{{ 'product.flat_view' | t }}</span>{%- elsif forloop.index == 2 -%}<span class="gallery__label">{{ 'product.worn_photo' | t }}</span>{%- endif -%}
-            {%- endif -%}
-          </div>
-        {%- endfor -%}
-      {%- else -%}
-        <div class="gallery__item" data-tee-placeholder>
-          {%- if color_option -%}
-            {%- for value in color_option.values -%}
-              {%- assign cv = value | handleize -%}
-              {%- if cv contains 'noir' or cv contains 'black' -%}{%- assign cv = 'noir' -%}{%- else -%}{%- assign cv = 'blanc' -%}{%- endif -%}
-              <div class="card__visual" data-visual="{{ cv }}" {% if cv != current_color %}hidden{% endif %}>
-                {% render 'tee-flat', text: slogan, color: cv, back: is_back %}
-              </div>
-            {%- endfor -%}
-          {%- else -%}
-            {% render 'tee-flat', text: slogan, color: current_color, back: is_back %}
-          {%- endif -%}
-          <span class="gallery__label">{{ 'product.flat_view' | t }}</span>
-        </div>
-        <div class="gallery__item">
-          <div class="ph-worn"><strong>{{ 'product.worn_photo' | t }}</strong><span>{{ product.title | escape }}</span></div>
-        </div>
-      {%- endif -%}
-    </div>
-    {%- assign media_count = product.media.size | at_least: 2 -%}
-    <p class="gallery__count" aria-hidden="true"><span data-gallery-index>1</span> / {{ media_count }}</p>
-  </div>
-
-  {%- comment -%} Infos {%- endcomment -%}
-  <div class="product__info">
-    <nav class="breadcrumb" aria-label="{{ 'general.breadcrumb' | t }}">
-      <a href="{{ routes.all_products_collection_url }}">{{ 'product.breadcrumb_shop' | t }}</a><span aria-hidden="true">/</span>{{ product.title | escape }}
-    </nav>
-
-    {%- for block in section.blocks -%}
+{%- comment -%} Chaque bloc va soit dans l'écran d'achat, soit dans le second écran (infos) {%- endcomment -%}
+{%- capture buy_html -%}{%- endcapture -%}
+{%- capture more_html -%}{%- endcapture -%}
+{%- for block in section.blocks -%}
+  {%- capture block_html -%}
       {%- case block.type -%}
         {%- when 'kicker' -%}
           <p class="product__kicker" {{ block.shopify_attributes }}>{{ 'product.card_meta' | t: colors: color_labels, print: print_label }}</p>
@@ -126,7 +87,7 @@
 
         {%- when 'variant_picker' -%}
           {%- unless product.has_only_default_variant -%}
-            <div class="product__pickers" data-variant-picker style="display:flex;flex-direction:column;gap:20px" {{ block.shopify_attributes }}>
+            <div class="product__pickers" data-variant-picker {{ block.shopify_attributes }}>
               {%- for option in product.options_with_values -%}
                 {%- assign oname = option.name | downcase -%}
                 {%- assign is_color = false -%}
@@ -136,7 +97,7 @@
                 {%- comment -%} La taille n'est jamais pré-cochée : on évite les commandes en XS par erreur. {%- endcomment -%}
                 {%- assign preselect = true -%}
                 {%- if is_size and product.selected_variant == blank and option.values.size > 1 -%}{%- assign preselect = false -%}{%- endif -%}
-                <fieldset class="picker" data-option-index="{{ forloop.index0 }}"{% if is_size %} data-size-option{% endif %}>
+                <fieldset class="picker{% if is_size %} picker--size{% endif %}" data-option-index="{{ forloop.index0 }}"{% if is_size %} data-size-option{% endif %}>
                   <legend>
                     <span class="picker__head">
                       <span class="picker__label">{{ option.name | escape }}<span class="picker__value" data-option-value>{% if preselect %}{{ option.selected_value | escape }}{% endif %}</span></span>
@@ -205,9 +166,98 @@
         {%- when 'payment' -%}
           <div {{ block.shopify_attributes }}>{% render 'payment-icons' %}</div>
       {%- endcase -%}
-    {%- endfor -%}
+  {%- endcapture -%}
+  {%- if more_types contains block.type -%}
+    {%- assign more_html = more_html | append: block_html -%}
+  {%- else -%}
+    {%- assign buy_html = buy_html | append: block_html -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<section class="product" data-product data-section-id="{{ section.id }}" data-url="{{ product.url }}">
+  <script type="application/json" data-product-json>{{ product | json }}</script>
+
+  {%- comment -%} Visuels : la 1re photo et les suivantes défilent ; la photo portée passe dans le bloc du dessous {%- endcomment -%}
+  <div class="product__media">
+    <div class="gallery" data-gallery role="region" tabindex="0" aria-label="{{ 'product.gallery' | t }}">
+      {%- if product.media.size > 0 -%}
+        {%- for media in product.media -%}
+          {%- if split_worn and forloop.index == 2 -%}{%- continue -%}{%- endif -%}
+          {%- liquid
+            assign loading = 'lazy'
+            if forloop.first
+              assign loading = 'eager'
+            endif
+            assign media_alt = media.alt | default: product.title
+          -%}
+          <div class="gallery__item" data-media-id="{{ media.id }}">
+            {%- case media.media_type -%}
+              {%- when 'video' -%}
+                {{ media | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, image_size: '1200x' }}
+              {%- when 'external_video' -%}
+                {{ media | external_video_tag }}
+              {%- else -%}
+                {{ media.preview_image | image_url: width: 1600 | image_tag: loading: loading, widths: '400, 600, 800, 1000, 1200, 1600', sizes: '(min-width: 900px) 45vw, 100vw', alt: media_alt }}
+            {%- endcase -%}
+            {%- if section.settings.labels -%}
+              {%- if forloop.index == 1 -%}<span class="gallery__label">{{ 'product.flat_view' | t }}</span>{%- elsif forloop.index == 2 -%}<span class="gallery__label">{{ 'product.worn_photo' | t }}</span>{%- endif -%}
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        <div class="gallery__item" data-tee-placeholder>
+          {%- if color_option -%}
+            {%- for value in color_option.values -%}
+              {%- assign cv = value | handleize -%}
+              {%- if cv contains 'noir' or cv contains 'black' -%}{%- assign cv = 'noir' -%}{%- else -%}{%- assign cv = 'blanc' -%}{%- endif -%}
+              <div class="card__visual" data-visual="{{ cv }}" {% if cv != current_color %}hidden{% endif %}>
+                {% render 'tee-flat', text: slogan, color: cv, back: is_back %}
+              </div>
+            {%- endfor -%}
+          {%- else -%}
+            {% render 'tee-flat', text: slogan, color: current_color, back: is_back %}
+          {%- endif -%}
+          <span class="gallery__label">{{ 'product.flat_view' | t }}</span>
+        </div>
+      {%- endif -%}
+    </div>
+    {%- if gallery_count > 1 -%}
+      <div class="gallery__nav">
+        <button type="button" class="gallery__arrow" data-gallery-prev aria-label="{{ 'product.prev_photo' | t }}">←</button>
+        <p class="gallery__count" aria-hidden="true"><span data-gallery-index>1</span> / {{ gallery_count }}</p>
+        <button type="button" class="gallery__arrow" data-gallery-next aria-label="{{ 'product.next_photo' | t }}">→</button>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} Tout pour acheter, visible dès l'arrivée sur la page {%- endcomment -%}
+  <div class="product__info">
+    <nav class="breadcrumb" aria-label="{{ 'general.breadcrumb' | t }}">
+      <a href="{{ routes.all_products_collection_url }}">{{ 'product.breadcrumb_shop' | t }}</a><span aria-hidden="true">/</span>{{ product.title | escape }}
+    </nav>
+
+    {{ buy_html }}
   </div>
 </section>
+
+{%- comment -%} Second écran : la photo portée + le t-shirt, la livraison, les retours, l'entretien {%- endcomment -%}
+{%- if more_html != blank or worn_media or product.media.size == 0 -%}
+  <section class="product-more{% if worn_media == nil and product.media.size > 0 %} product-more--solo{% endif %}">
+    <div class="product-more__info">
+      {{ more_html }}
+    </div>
+    {%- if worn_media -%}
+      <div class="product-more__media gallery__item">
+        {{ worn_media.preview_image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '400, 600, 800, 1000, 1400', sizes: '(min-width: 900px) 45vw, 100vw', alt: worn_alt }}
+        {%- if section.settings.labels -%}<span class="gallery__label">{{ 'product.worn_photo' | t }}</span>{%- endif -%}
+      </div>
+    {%- elsif product.media.size == 0 -%}
+      <div class="product-more__media gallery__item">
+        <div class="ph-worn"><strong>{{ 'product.worn_photo' | t }}</strong><span>{{ product.title | escape }}</span></div>
+      </div>
+    {%- endif -%}
+  </section>
+{%- endif -%}
 
 <script type="application/ld+json">
   {{ product | structured_data }}
@@ -222,6 +272,12 @@
       "type": "checkbox",
       "id": "labels",
       "label": "Étiquettes « À plat » / « Portée » sur les 2 premières photos",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "split_worn",
+      "label": "Photo portée (2e photo) à côté des infos du t-shirt",
       "default": true
     },
     {

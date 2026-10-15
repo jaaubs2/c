@@ -2,11 +2,22 @@
   "sections": {
     "main": {
       "type": "main-product",
-      "settings": { "labels": true },
+      "settings": {
+        "labels": true
+      },
       "blocks": {
-        "kicker": { "type": "kicker" },
-        "title": { "type": "title" },
-        "price": { "type": "price", "settings": { "tax_note": "" } },
+        "kicker": {
+          "type": "kicker"
+        },
+        "title": {
+          "type": "title"
+        },
+        "price": {
+          "type": "price",
+          "settings": {
+            "tax_note": ""
+          }
+        },
         "offer": {
           "type": "offer",
           "settings": {
@@ -15,16 +26,28 @@
             "text": "Le deuxième te coûte 15 €. Mélange les slogans, les couleurs et les coupes : la réduction s'applique toute seule dans ton panier."
           }
         },
-        "picker": { "type": "variant_picker", "settings": { "size_guide": true } },
-        "buy": { "type": "buy_buttons" },
-        "facts": { "type": "facts", "settings": { "text": "Expédié sous 72 h · Livraison offerte dès 50 € · France uniquement" } },
+        "picker": {
+          "type": "variant_picker",
+          "settings": {
+            "size_guide": true
+          }
+        },
+        "buy": {
+          "type": "buy_buttons"
+        },
+        "facts": {
+          "type": "facts",
+          "settings": {
+            "text": "Expédié sous 72 h · Livraison offerte dès 50 € · France uniquement"
+          }
+        },
         "acc_tee": {
           "type": "collapsible",
           "settings": {
             "heading": "Le t-shirt",
             "content": "<p>T-shirt basique, impression en noir ou en blanc. Typo simple et brute, slogan devant ou dans le dos selon le modèle. Coupes Homme et Femme, du XS au XXL.</p>",
             "show_description": true,
-            "open": false
+            "open": true
           }
         },
         "acc_livraison": {
@@ -53,10 +76,21 @@
             "show_description": false,
             "open": false
           }
-        },
-        "payment": { "type": "payment" }
+        }
       },
-      "block_order": ["kicker", "title", "price", "offer", "picker", "buy", "facts", "acc_tee", "acc_livraison", "acc_retours", "acc_lavage", "payment"]
+      "block_order": [
+        "kicker",
+        "title",
+        "price",
+        "offer",
+        "picker",
+        "buy",
+        "facts",
+        "acc_tee",
+        "acc_livraison",
+        "acc_retours",
+        "acc_lavage"
+      ]
     },
     "second": {
       "type": "product-second",
@@ -68,5 +102,8 @@
       }
     }
   },
-  "order": ["main", "second"]
+  "order": [
+    "main",
+    "second"
+  ]
 }
