@@ -37,8 +37,8 @@
         default: return fmt(value, 2, '.', ',');
       }
     });
-    // équivalent de money_without_trailing_zeros
-    return out.replace(/[.,]00(?!\d)/, '');
+    // équivalent de money_without_trailing_zeros, toujours affiché « 20 € » (comme dans le thème)
+    return out.replace(/[.,]00(?!\d)/, '').replace('€', '').trim() + ' €';
   }
 
   function sectionIds() {

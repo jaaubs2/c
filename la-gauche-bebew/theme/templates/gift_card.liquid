@@ -13,8 +13,8 @@
     <div class="notfound">
       <p class="notfound__code">{{ shop.name }}</p>
       <h1 class="display notfound__title">{{ 'gift_card.title' | t }}</h1>
-      {%- assign initial_value = gift_card.initial_value | money_without_trailing_zeros -%}
-      <p class="display h2">{{ gift_card.balance | money_without_trailing_zeros }}</p>
+      {%- assign initial_value = gift_card.initial_value | money_without_trailing_zeros | remove: '€' | strip | append: ' €' -%}
+      <p class="display h2">{{ gift_card.balance | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</p>
       {%- if gift_card.balance != gift_card.initial_value -%}
         <p class="mono">{{ 'gift_card.initial' | t: value: initial_value }}</p>
       {%- endif -%}

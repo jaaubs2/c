@@ -173,9 +173,9 @@
     <h3 class="card__title"><a href="{{ url }}">{{ title | escape }}</a></h3>
     <span class="card__price">
       {%- if has_product -%}
-        {%- if product.compare_at_price > product.price -%}<s>{{ product.compare_at_price | money_without_trailing_zeros }}</s>{%- endif -%}
+        {%- if product.compare_at_price > product.price -%}<s>{{ product.compare_at_price | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</s>{%- endif -%}
         {%- if product.price_varies -%}{{ 'product.from' | t }} {% endif -%}
-        {{ product.price | money_without_trailing_zeros }}
+        {{ product.price | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}
       {%- else -%}
         {{ settings.unit_price }} €
       {%- endif -%}

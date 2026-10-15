@@ -2,14 +2,14 @@
   assign s = section.settings
   assign threshold = settings.free_shipping_threshold | times: 100
   assign remaining = threshold | minus: cart.total_price
-  assign remaining_display = remaining | money_without_trailing_zeros
+  assign remaining_display = remaining | money_without_trailing_zeros | remove: '€' | strip | append: ' €'
   assign ship_progress = cart.total_price | times: 100 | divided_by: threshold | at_most: 100
   if threshold == 0
     assign ship_progress = 100
   endif
   assign second_price = settings.pair_price | minus: settings.unit_price
   assign odd = cart.item_count | modulo: 2
-  assign saved_display = cart.total_discount | money_without_trailing_zeros
+  assign saved_display = cart.total_discount | money_without_trailing_zeros | remove: '€' | strip | append: ' €'
 -%}
 <div data-cart-section data-section-id="{{ section.id }}">
   <div data-refresh="main-cart">
@@ -60,12 +60,12 @@
                     <p class="line__meta">{{ item.variant.options | join: ' · ' | escape }}</p>
                   {%- endunless -%}
                   {%- for allocation in item.line_level_discount_allocations -%}
-                    <p class="line__discount">{{ allocation.discount_application.title | escape }} (−{{ allocation.amount | money_without_trailing_zeros }})</p>
+                    <p class="line__discount">{{ allocation.discount_application.title | escape }} (−{{ allocation.amount | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }})</p>
                   {%- endfor -%}
                 </div>
                 <p class="line__price">
-                  {%- if item.original_line_price > item.final_line_price -%}<s>{{ item.original_line_price | money_without_trailing_zeros }}</s>{%- endif -%}
-                  {{ item.final_line_price | money_without_trailing_zeros }}
+                  {%- if item.original_line_price > item.final_line_price -%}<s>{{ item.original_line_price | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</s>{%- endif -%}
+                  {{ item.final_line_price | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}
                 </p>
                 <div class="line__actions">
                   <div class="qty">
@@ -114,12 +114,12 @@
           </div>
 
           <div class="totals">
-            <div class="totals__row"><span>{{ 'cart.subtotal' | t }}</span><span>{{ cart.original_total_price | money_without_trailing_zeros }}</span></div>
+            <div class="totals__row"><span>{{ 'cart.subtotal' | t }}</span><span>{{ cart.original_total_price | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</span></div>
             {%- for discount in cart.discount_applications -%}
-              <div class="totals__row"><span>{{ discount.title | escape }}</span><span>−{{ discount.total_allocated_amount | money_without_trailing_zeros }}</span></div>
+              <div class="totals__row"><span>{{ discount.title | escape }}</span><span>−{{ discount.total_allocated_amount | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</span></div>
             {%- endfor -%}
             <div class="totals__row"><span>{{ 'cart.shipping' | t }}</span><span>{% if remaining <= 0 %}{{ 'cart.shipping_free' | t }}{% else %}{{ 'cart.shipping_at_checkout' | t }}{% endif %}</span></div>
-            <div class="totals__row totals__row--total"><span>{{ 'cart.total' | t }}</span><span>{{ cart.total_price | money_without_trailing_zeros }}</span></div>
+            <div class="totals__row totals__row--total"><span>{{ 'cart.total' | t }}</span><span>{{ cart.total_price | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</span></div>
           </div>
 
           <div class="cart__checkout">
