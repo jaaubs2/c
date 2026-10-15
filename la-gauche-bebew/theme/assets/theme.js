@@ -589,9 +589,17 @@
       function show(html) { box.innerHTML = html; openDialog(d); }
       if (cache) return show(cache);
       var url = link.getAttribute('href');
-      fetch(url + (url.indexOf('?') > -1 ? '&' : '?') + 'section_id=main')
+      // On charge la page du guide et on n'en garde que le contenu principal
+      // (section_id=main ne marche pas : les sections de modèle JSON ont un identifiant généré).
+      fetch(url)
         .then(function (r) { if (!r.ok) throw new Error(); return r.text(); })
-        .then(function (html) { cache = html; show(html); })
+        .then(function (html) {
+          var doc = new DOMParser().parseFromString(html, 'text/html');
+          var main = doc.querySelector('#MainContent');
+          if (!main) throw new Error();
+          cache = main.innerHTML;
+          show(cache);
+        })
         .catch(function () { window.location.href = url; });
     });
   }
