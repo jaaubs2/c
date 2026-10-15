@@ -40,7 +40,9 @@
         "filters": false,
         "filter_fit": false,
         "button_label": "Toute la boutique",
-        "anchor": "slogans"
+        "anchor": "slogans",
+        "collection": "",
+        "button_link": ""
       }
     },
     "offer": {
@@ -50,7 +52,8 @@
         "title": "2 t-shirts\n= 35 €",
         "text": "<p>Au lieu de 40 €. Mélange les slogans et les coupes : la réduction s'applique toute seule dans ton panier.</p>",
         "list": "Livraison offerte dès 50 €\nExpédié sous 72 h\nLivraison en France uniquement",
-        "button_label": "Prends-en deux"
+        "button_label": "Prends-en deux",
+        "button_link": ""
       }
     },
     "manifesto": {
@@ -80,31 +83,41 @@
         "p1": {
           "type": "photo",
           "settings": {
-            "caption": "Cortège 01"
+            "image": "shopify://shop_images/hf_20261015_125851_19bb05c7-0802-4b06-834f-393a7a2df986.png",
+            "focus": "center",
+            "caption": "Pas de fachos dans nos rues"
           }
         },
         "p2": {
           "type": "photo",
           "settings": {
-            "caption": "Cortège 02"
+            "image": "shopify://shop_images/hf_20261015_090025_3a16cff2-6675-4d9c-bbc1-87fe8efdecaa.png",
+            "focus": "top",
+            "caption": "Mai 68 continue"
           }
         },
         "p3": {
           "type": "photo",
           "settings": {
-            "caption": "Cortège 03"
+            "image": "shopify://shop_images/hf_20261015_125743_e9a75bb1-72b4-4196-8363-8d369c764bcf.png",
+            "focus": "center",
+            "caption": "La rue est à nous"
           }
         },
         "p4": {
           "type": "photo",
           "settings": {
-            "caption": "Cortège 04"
+            "image": "shopify://shop_images/hf_20261015_085736_8a9acc38-e614-4333-a8f4-fe76fd84058f.png",
+            "focus": "center",
+            "caption": "Antifa, toujours"
           }
         },
         "p5": {
           "type": "photo",
           "settings": {
-            "caption": "Cortège 05"
+            "image": "shopify://shop_images/hf_20261015_130213_a581691c-4e43-4ece-9c19-ff2feb1c6c83.png",
+            "focus": "center",
+            "caption": "On lâche rien"
           }
         }
       },
@@ -137,7 +150,8 @@
         "open_first": false,
         "cta_text": "Pas trouvé ta réponse ?",
         "cta_button": "Écris-nous",
-        "anchor": "faq"
+        "anchor": "faq",
+        "cta_link": ""
       },
       "blocks": {
         "q1": {

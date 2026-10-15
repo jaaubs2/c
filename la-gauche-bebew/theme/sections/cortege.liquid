@@ -21,7 +21,8 @@
             {%- assign sizes = '(min-width: 750px) 25vw, 50vw' -%}
           {%- endif -%}
           {%- assign alt = block.settings.image.alt | default: block.settings.caption -%}
-          {{ block.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '300, 500, 700, 1000, 1400', sizes: sizes, alt: alt }}
+          {%- assign focus = block.settings.focus | default: 'center' -%}
+          {{ block.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '300, 500, 700, 1000, 1400', sizes: sizes, alt: alt, style: 'object-position: center ' | append: focus }}
         {%- else -%}
           <div class="cortege__photo-ph">{{ 'sections.cortege.placeholder' | t }}</div>
         {%- endif -%}
@@ -64,7 +65,15 @@
       "name": "Photo portée",
       "settings": [
         { "type": "image_picker", "id": "image", "label": "Photo" },
-        { "type": "text", "id": "caption", "label": "Légende", "default": "Cortège 01" }
+        {
+          "type": "select", "id": "focus", "label": "Partie de la photo à garder visible", "default": "center",
+          "options": [
+            { "value": "top", "label": "Le haut" },
+            { "value": "center", "label": "Le centre" },
+            { "value": "bottom", "label": "Le bas" }
+          ]
+        },
+        { "type": "text", "id": "caption", "label": "Légende", "default": "On lâche rien" }
       ]
     }
   ],
@@ -72,11 +81,11 @@
     {
       "name": "Porte-le en cortège",
       "blocks": [
-        { "type": "photo", "settings": { "caption": "Cortège 01" } },
-        { "type": "photo", "settings": { "caption": "Cortège 02" } },
-        { "type": "photo", "settings": { "caption": "Cortège 03" } },
-        { "type": "photo", "settings": { "caption": "Cortège 04" } },
-        { "type": "photo", "settings": { "caption": "Cortège 05" } }
+        { "type": "photo", "settings": { "caption": "Pas de fachos dans nos rues" } },
+        { "type": "photo", "settings": { "caption": "Mai 68 continue" } },
+        { "type": "photo", "settings": { "caption": "La rue est à nous" } },
+        { "type": "photo", "settings": { "caption": "Antifa, toujours" } },
+        { "type": "photo", "settings": { "caption": "On lâche rien" } }
       ]
     }
   ]
