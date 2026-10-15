@@ -1,0 +1,78 @@
+{%- comment -%}
+  Bordereau d'expédition La Gauche Bebew.
+  À coller dans Paramètres > Expédition et livraison > Documents > Bordereau d'expédition (remplace tout le modèle).
+  Pas d'adresse d'expéditeur : seulement le nom, l'email et le site.
+{%- endcomment -%}
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  .lgb { font-family: 'Archivo', Arial, sans-serif; color: #111; font-size: 13px; line-height: 1.45; max-width: 720px; margin: 0 auto; }
+  .lgb * { box-sizing: border-box; }
+  .lgb-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-bottom: 4px solid #111; padding-bottom: 10px; }
+  .lgb-brand { font-family: 'Anton', Impact, sans-serif; font-size: 40px; line-height: .9; text-transform: uppercase; margin: 0; }
+  .lgb-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; text-align: right; margin: 0; }
+  .lgb-meta strong { font-size: 14px; }
+  .lgb-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; margin: 18px 0 6px; }
+  .lgb-address { margin: 0; }
+  .lgb-table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+  .lgb-table th { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; text-align: left; border-bottom: 2px solid #111; padding: 6px 4px; }
+  .lgb-table td { border-bottom: 1px solid #ccc; padding: 10px 4px; vertical-align: top; }
+  .lgb-table .qty { text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 600; white-space: nowrap; }
+  .lgb-title { font-weight: 700; }
+  .lgb-variant { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  .lgb-note { border: 2px solid #111; padding: 10px 12px; margin-top: 16px; }
+  .lgb-thanks { background: #111; color: #F6F5F1; padding: 18px 20px; margin-top: 22px; transform: rotate(-.6deg); }
+  .lgb-thanks p { margin: 0 0 6px; }
+  .lgb-thanks .big { font-family: 'Anton', Impact, sans-serif; font-size: 30px; line-height: .95; text-transform: uppercase; margin-bottom: 8px; }
+  .lgb-foot { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; text-align: center; margin-top: 20px; }
+  @media print { .lgb-thanks { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+
+<div class="lgb">
+  <div class="lgb-head">
+    <p class="lgb-brand">La Gauche<br>Bebew</p>
+    <p class="lgb-meta">Commande <strong>{{ order.order_name }}</strong><br>{{ order.created_at | date: "%d/%m/%Y" }}</p>
+  </div>
+
+  {%- if shipping_address != blank -%}
+    <p class="lgb-label">Livré à</p>
+    <p class="lgb-address">
+      {{ shipping_address.name }}<br>
+      {%- if shipping_address.company != blank %}{{ shipping_address.company }}<br>{% endif -%}
+      {{ shipping_address.address1 }}<br>
+      {%- if shipping_address.address2 != blank %}{{ shipping_address.address2 }}<br>{% endif -%}
+      {{ shipping_address.zip }} {{ shipping_address.city }}<br>
+      {{ shipping_address.country }}
+    </p>
+  {%- endif -%}
+
+  <table class="lgb-table">
+    <thead><tr><th>Ton cortège</th><th class="qty">Qté</th></tr></thead>
+    <tbody>
+      {%- for line_item in line_items_in_shipment -%}
+        <tr>
+          <td>
+            <span class="lgb-title">{{ line_item.title }}</span>
+            {%- if line_item.variant_title != blank -%}<br><span class="lgb-variant">{{ line_item.variant_title }}</span>{%- endif -%}
+          </td>
+          <td class="qty">{{ line_item.shipping_quantity }} / {{ line_item.quantity }}</td>
+        </tr>
+      {%- endfor -%}
+    </tbody>
+  </table>
+
+  {%- unless includes_all_line_items_in_order -%}
+    <p class="lgb-note">Le reste de ta commande arrive dans un autre colis.</p>
+  {%- endunless -%}
+  {%- if order.note != blank -%}
+    <p class="lgb-label">Ton mot</p>
+    <p>{{ order.note }}</p>
+  {%- endif -%}
+
+  <div class="lgb-thanks">
+    <p class="big">Merci, bebew.</p>
+    <p>Porte-le en cortège, prends une photo et tague-nous sur Instagram ou TikTok.</p>
+    <p>Un souci, une taille qui ne va pas ? Tu as 14 jours pour nous le renvoyer : écris à lagauchebebew@gmail.com avec ton numéro de commande.</p>
+  </div>
+
+  <p class="lgb-foot">La Gauche Bebew · gauchebebew.com · lagauchebebew@gmail.com</p>
+</div>

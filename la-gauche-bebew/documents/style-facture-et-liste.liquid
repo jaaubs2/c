@@ -1,0 +1,17 @@
+{%- comment -%}
+  Habillage La Gauche Bebew pour la FACTURE et la LISTE DE PRÉPARATION.
+  À coller TOUT EN HAUT du modèle existant (sans rien supprimer du reste) :
+  Paramètres > Expédition et livraison > Documents > Facture (puis Liste de préparation).
+  Ça change les polices, les couleurs et les tableaux sans toucher aux informations du document.
+{%- endcomment -%}
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body, td, th, p, div, span, li { font-family: 'Archivo', Arial, sans-serif !important; color: #111 !important; }
+  h1, h2, h3 { font-family: 'Anton', Impact, sans-serif !important; font-weight: 400 !important; text-transform: uppercase; letter-spacing: .01em; line-height: .95; }
+  h1 { font-size: 34px !important; border-bottom: 4px solid #111; padding-bottom: 8px; }
+  h2, h3 { font-size: 20px !important; }
+  table { border-collapse: collapse !important; width: 100%; }
+  th { font-family: 'IBM Plex Mono', monospace !important; font-size: 10px !important; letter-spacing: .1em; text-transform: uppercase; text-align: left; border-bottom: 2px solid #111 !important; padding: 6px 4px !important; }
+  td { border-bottom: 1px solid #ccc; padding: 8px 4px !important; }
+  img[src*="logo"] { filter: grayscale(1) contrast(1.2); }
+</style>
