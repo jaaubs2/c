@@ -51,7 +51,15 @@
                 assign line_slogan = item.product.metafields.custom.slogan.value | default: item.product.title
                 assign line_impression = item.product.metafields.custom.impression.value | append: '' | downcase
                 assign line_back = false
-                if line_impression contains 'dos' or item.product.tags contains 'imprime-dos'
+                comment
+                  Le champ « Impression » (Devant / Dos) décide ; l'étiquette « imprime-dos » ne sert que s'il est vide.
+                endcomment
+                if line_impression != blank
+                  assign print_from_field = true
+                else
+                  assign print_from_field = false
+                endif
+                if line_impression contains 'dos' or print_from_field == false and item.product.tags contains 'imprime-dos'
                   assign line_back = true
                 endif
                 assign minus_qty = item.quantity | minus: 1

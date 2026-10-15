@@ -35,7 +35,15 @@
     assign slogan = product.metafields.custom.slogan.value | default: product.title
     assign impression = product.metafields.custom.impression.value | append: '' | downcase
     assign is_back = false
-    if impression contains 'dos' or product.tags contains 'imprime-dos' or product.tags contains 'dos'
+    comment
+      Le champ « Impression » (Devant / Dos) décide ; l'étiquette « imprime-dos » ne sert que s'il est vide.
+    endcomment
+    if impression != blank
+      assign print_from_field = true
+    else
+      assign print_from_field = false
+    endif
+    if impression contains 'dos' or print_from_field == false and product.tags contains 'imprime-dos'
       assign is_back = true
     endif
 
