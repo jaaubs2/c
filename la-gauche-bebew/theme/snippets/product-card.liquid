@@ -135,8 +135,9 @@
     {%- if has_product and product.media.size > 0 -%}
       {%- if card_visual == 'worn' and product.media.size > 1 -%}
         {%- assign img_alt = product.media[1].alt | default: title -%}
+        {%- assign img_class = '' -%}{%- if product.media[1].preview_image.aspect_ratio < 0.8 -%}{%- assign img_class = 'is-tall' -%}{%- endif -%}
         <div class="card__visual">
-          {{ product.media[1].preview_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+          {{ product.media[1].preview_image | image_url: width: 900 | image_tag: class: img_class, loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
         </div>
       {%- elsif color_option -%}
         {%- assign color_key = 'option' | append: color_option.position -%}
@@ -153,21 +154,23 @@
             {%- assign img = variant_for_color.featured_image | default: product.featured_image -%}
           {%- endif -%}
           {%- assign img_alt = img.alt | default: title -%}
+          {%- assign img_class = '' -%}{%- if img.aspect_ratio < 0.8 -%}{%- assign img_class = 'is-tall' -%}{%- endif -%}
           <div class="card__visual" data-visual="{{ cv }}" {% unless cv == start_color %}hidden{% endunless %}>
             {%- if eager and cv == start_color -%}
-              {{ img | image_url: width: 900 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+              {{ img | image_url: width: 900 | image_tag: class: img_class, loading: 'eager', fetchpriority: 'high', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
             {%- else -%}
-              {{ img | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+              {{ img | image_url: width: 900 | image_tag: class: img_class, loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
             {%- endif -%}
           </div>
         {%- endfor -%}
       {%- else -%}
         {%- assign img_alt = product.featured_media.alt | default: title -%}
+        {%- assign img_class = '' -%}{%- if product.featured_media.preview_image.aspect_ratio < 0.8 -%}{%- assign img_class = 'is-tall' -%}{%- endif -%}
         <div class="card__visual">
           {%- if eager -%}
-            {{ product.featured_media.preview_image | image_url: width: 900 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+            {{ product.featured_media.preview_image | image_url: width: 900 | image_tag: class: img_class, loading: 'eager', fetchpriority: 'high', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
           {%- else -%}
-            {{ product.featured_media.preview_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
+            {{ product.featured_media.preview_image | image_url: width: 900 | image_tag: class: img_class, loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
           {%- endif -%}
         </div>
       {%- endif -%}

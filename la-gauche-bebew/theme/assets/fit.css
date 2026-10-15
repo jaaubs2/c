@@ -307,3 +307,8 @@ select.input {
   .gallery { grid-auto-columns: min(100%, calc(var(--hero-h) * .5 * var(--gallery-ar, 0.8))); }
   .product-more__media { max-width: calc(var(--hero-h) * var(--worn-ar, 0.8)); }
 }
+
+/* Fond blanc derrière les photos ; une photo plus haute que son cadre est calée en haut
+   (on voit toujours le haut, seul le bas peut être rogné). Les photos plus larges restent entières. */
+.card__media:has(img), .gallery__item:has(img), .line__media:has(img), .card__visual--hover { background: #FFFFFF; }
+.card__visual img.is-tall, .gallery__item img.is-tall, .card__visual--hover img { object-fit: cover; object-position: top center; }
