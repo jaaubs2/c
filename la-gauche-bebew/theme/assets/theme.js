@@ -175,7 +175,7 @@
           var visuals = $$('[data-visual]', card);
           if (visuals.length > 1) {
             var target = state.color && visuals.some(function (v) { return v.dataset.visual === state.color; })
-              ? state.color : visuals[0].dataset.visual;
+              ? state.color : (card.dataset.startColor || visuals[0].dataset.visual);
             var shown = false;
             visuals.forEach(function (v) {
               var on = !shown && v.dataset.visual === target;

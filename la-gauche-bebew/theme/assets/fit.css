@@ -107,7 +107,9 @@
 
 /* ---------- Porte-le en cortège : titre + photos dans un écran ---------- */
 .cortege { padding: clamp(40px, min(6vw, calc(7 * var(--hu))), 100px) var(--pad); gap: clamp(18px, min(2.4vw, calc(3 * var(--hu))), 36px); }
-.cortege__grid { grid-auto-rows: clamp(120px, min(15vw, calc(17 * var(--hu))), 260px); }
+/* La section remplit exactement la hauteur d'écran sous le header : les photos prennent toute la place restante. */
+.cortege { min-height: var(--hero-h); }
+.cortege__grid { flex: 1 1 auto; min-height: 0; grid-auto-rows: minmax(90px, 1fr); }
 
 /* FAQ sur l'accueil : séparée de la section précédente */
 .faq-home { border-top: var(--rule); }
@@ -126,6 +128,31 @@
   .cortege .section-head { gap: 10px; }
   .cortege__intro { gap: 6px; }
   .cortege__intro p { font-size: 15px; }
-  .cortege__grid { grid-template-columns: 1fr 1fr; grid-auto-rows: clamp(84px, calc(15 * var(--hu)), 140px); gap: 8px; }
+  .cortege__grid { grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(84px, 1fr); gap: 8px; }
   .cortege__photo--big { grid-column: span 2; grid-row: span 1; }
 }
+
+/* ---------- Pages intérieures : titre limité par la hauteur d'écran, l'accent du É ne touche plus le surtitre ---------- */
+:root {
+  --fs-h1-page: clamp(calc(44px * var(--sc)), calc(min(7vw, 12 * var(--hu)) * var(--sc)), calc(124px * var(--sc)));
+}
+.page-head { gap: 10px; }
+.page-head__title { line-height: .9; padding-top: .12em; }
+.page-head__intro { margin-top: 6px; }
+
+/* ---------- Contact : champs à hauteur normale (le flex du champ email de la newsletter ne s'applique plus ici) ---------- */
+.contact { padding-top: clamp(8px, 1.5vw, 20px); }
+.contact__form { gap: 16px; }
+.field { gap: 6px; }
+.field .input { flex: 0 0 auto; height: 52px; min-height: 52px; font-size: 16px; }
+.field textarea.input { height: auto; min-height: 150px; }
+select.input {
+  padding-right: 44px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23111' stroke-width='2.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 16px center;
+}
+.contact__aside { gap: 20px; }
+.note-card { padding: 22px 24px; }
+.note-card__title { font-size: clamp(26px, 2.4vw, 36px); }
+.note-card p { font-size: 15px; }
+@media (min-width: 900px) { .contact__aside { position: sticky; top: calc(var(--header-h, 110px) + 24px); } }

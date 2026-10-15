@@ -12,6 +12,7 @@
   - show_sizes   : liste des tailles
   - quick_add    : bouton « Ajouter au cortège »
   - eager        : charge l'image en priorité (premières cartes)
+  - card_index   : position dans la grille ; avec plusieurs couleurs, les cartes alternent noir / blanc
 
   Conventions produit (voir README) :
   - options « Couleur » (Noir/Blanc), « Coupe » (Homme/Femme), « Taille » (XS → XXL)
@@ -103,13 +104,19 @@
     assign title = ph_name | default: ph_title
   endif
 
+  assign start_color = color_list[0]
+  if card_index and color_list.size > 1
+    assign start_i = card_index | modulo: color_list.size
+    assign start_color = color_list[start_i]
+  endif
+
   if is_back
     assign print_label = 'product.print_back' | t
   else
     assign print_label = 'product.print_front' | t
   endif
 -%}
-<article class="card" data-card data-colors="{{ colors | strip }}" data-fits="{{ fits | strip }}">
+<article class="card" data-card data-start-color="{{ start_color }}" data-colors="{{ colors | strip }}" data-fits="{{ fits | strip }}">
   <a href="{{ url }}" class="card__media" aria-label="{{ 'product.see_tee' | t: title: title | escape }}" tabindex="-1">
     {%- if has_product and product.media.size > 0 -%}
       {%- if card_visual == 'worn' and product.media.size > 1 -%}
@@ -124,8 +131,8 @@
           {%- assign variant_for_color = product.variants | where: color_key, value | first -%}
           {%- assign img = variant_for_color.featured_image | default: product.featured_image -%}
           {%- assign img_alt = img.alt | default: title -%}
-          <div class="card__visual" data-visual="{{ cv }}" {% unless forloop.first %}hidden{% endunless %}>
-            {%- if eager and forloop.first -%}
+          <div class="card__visual" data-visual="{{ cv }}" {% unless cv == start_color %}hidden{% endunless %}>
+            {%- if eager and cv == start_color -%}
               {{ img | image_url: width: 900 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
             {%- else -%}
               {{ img | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
@@ -149,7 +156,7 @@
     {%- else -%}
       {%- if color_list.size == 0 -%}{%- assign color_list = 'blanc' | split: ' ' -%}{%- endif -%}
       {%- for cv in color_list -%}
-        <div class="card__visual" data-visual="{{ cv }}" {% unless forloop.first %}hidden{% endunless %}>
+        <div class="card__visual" data-visual="{{ cv }}" {% unless cv == start_color %}hidden{% endunless %}>
           {% render 'tee-flat', text: slogan, color: cv, back: is_back %}
         </div>
       {%- endfor -%}

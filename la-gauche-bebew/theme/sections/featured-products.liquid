@@ -27,7 +27,7 @@
             assign eager = true
           endif
         -%}
-        {% render 'product-card', product: product, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add, eager: eager %}
+        {% render 'product-card', product: product, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add, eager: eager, card_index: forloop.index0 %}
       {%- endfor -%}
     {%- else -%}
       {%- liquid
