@@ -29,7 +29,7 @@
     "slogans": {
       "type": "featured-products",
       "settings": {
-        "kicker": "Noir ou blanc · Homme ou Femme · XS → XXL",
+        "kicker": "T-shirts noirs · Homme ou Femme · XS → XXL",
         "title": "Les slogans",
         "count": 8,
         "columns": "4",
@@ -37,7 +37,7 @@
         "badge": true,
         "sizes": true,
         "quick_add": true,
-        "filters": true,
+        "filters": false,
         "filter_fit": false,
         "button_label": "Toute la boutique",
         "anchor": "slogans"
@@ -48,7 +48,7 @@
       "settings": {
         "style": "dark",
         "title": "2 t-shirts\n= 35 €",
-        "text": "<p>Au lieu de 40 €. Mélange les slogans, les couleurs et les coupes : la réduction s'applique toute seule dans ton panier.</p>",
+        "text": "<p>Au lieu de 40 €. Mélange les slogans et les coupes : la réduction s'applique toute seule dans ton panier.</p>",
         "list": "Livraison offerte dès 50 €\nExpédié sous 72 h\nLivraison en France uniquement",
         "button_label": "Prends-en deux"
       }
@@ -58,7 +58,7 @@
       "settings": {
         "kicker": "Manifeste",
         "title": "On est là.",
-        "body": "<p>Le plein coûte un bras, le frigo est à moitié vide, les salaires bougent pas et on nous demande encore de serrer la ceinture. Alors on descend dans la rue. Les lycéen·nes, les travailleur·ses, les gilets jaunes, les syndiqué·es, les ronds-points, les cortèges : tout le monde.</p><p>La Gauche Bebew, c'est des t-shirts pour dire ce qu'on pense sans avoir à le crier pendant trois heures. Noir ou blanc. Un slogan. C'est tout. Pas de logo, pas de blabla, juste le message.</p><p>Parce qu'en manif, la pancarte finit sous la pluie. Le t-shirt, lui, tu le gardes pour la prochaine.</p>",
+        "body": "<p>Le plein coûte un bras, le frigo est à moitié vide, les salaires bougent pas et on nous demande encore de serrer la ceinture. Alors on descend dans la rue. Les lycéen·nes, les travailleur·ses, les gilets jaunes, les syndiqué·es, les ronds-points, les cortèges : tout le monde.</p><p>La Gauche Bebew, c'est des t-shirts pour dire ce qu'on pense sans avoir à le crier pendant trois heures. Noir. Un slogan. C'est tout. Pas de logo, pas de blabla, juste le message.</p><p>Parce qu'en manif, la pancarte finit sous la pluie. Le t-shirt, lui, tu le gardes pour la prochaine.</p>",
         "punch": "Et la prochaine, elle arrive vite.",
         "closing": "Porte-le. Fais-le lire. On lâche rien, bebew.",
         "tilt": -1,
@@ -179,7 +179,7 @@
           "type": "question",
           "settings": {
             "question": "Je peux commander en quantité pour mon collectif / ma section syndicale ?",
-            "answer": "<p>Oui ! Collectif, section syndicale, asso, lycée : <a href=\"/pages/contact\">écris-nous</a> avec les slogans, les couleurs, les tailles et les quantités. Commandes groupées sur demande.</p>"
+            "answer": "<p>Oui ! Collectif, section syndicale, asso, lycée : <a href=\"/pages/contact\">écris-nous</a> avec les slogans, les tailles et les quantités. Commandes groupées sur demande.</p>"
           }
         },
         "q7": {

@@ -3,21 +3,29 @@
     "main": {
       "type": "main-collection",
       "settings": {
-        "kicker": "Noir ou blanc · Homme ou Femme · XS → XXL",
+        "kicker": "T-shirts noirs · Homme ou Femme · XS → XXL",
         "title_all": "La boutique",
         "per_page": 24,
         "columns": "4",
         "card_visual": "flat",
-        "filter_fit": true,
+        "filter_fit": false,
         "badge": true,
         "sizes": true,
-        "quick_add": true
+        "quick_add": true,
+        "filters": false
       }
     },
     "ribbon": {
       "type": "ribbon",
-      "settings": { "text": "2 T-SHIRTS = 35 € · LIVRAISON OFFERTE DÈS 50 € · EXPÉDIÉ SOUS 72 H ·", "speed": 26, "tilt": -1.5 }
+      "settings": {
+        "text": "2 T-SHIRTS = 35 € · LIVRAISON OFFERTE DÈS 50 € · EXPÉDIÉ SOUS 72 H ·",
+        "speed": 26,
+        "tilt": -1.5
+      }
     }
   },
-  "order": ["main", "ribbon"]
+  "order": [
+    "main",
+    "ribbon"
+  ]
 }

@@ -288,3 +288,22 @@ select.input {
   .meter__text, .meter .progress, .cart__facts, .totals__note { display: none; }
   .cart-head .kicker { display: none; }
 }
+
+/* ==========================================================================
+   Photos produit jamais recadrées : on voit toujours le t-shirt en entier
+   (seule la photo portée qui apparaît au survol des cartes remplit le cadre)
+   ========================================================================== */
+.card__visual:not(.card__visual--hover) img,
+.gallery__item img, .gallery__item video,
+.line__media img { object-fit: contain; }
+.card__visual--hover { background: var(--card-bg); }
+.gallery__item { aspect-ratio: var(--gallery-ar, 0.8); }
+.product-more__media.gallery__item { aspect-ratio: var(--worn-ar, 0.8); }
+@media (min-width: 900px) {
+  .product { grid-template-columns: min(50%, calc((var(--hero-h) - 2 * var(--pp-pad) - 50px) * var(--gallery-ar, 0.8))) minmax(0, 620px); }
+  .product-more { grid-template-columns: minmax(0, 620px) min(46%, calc((var(--hero-h) - 2 * var(--pp-pad)) * var(--worn-ar, 0.8))); }
+}
+@media (max-width: 899px) {
+  .gallery { grid-auto-columns: min(100%, calc(var(--hero-h) * .5 * var(--gallery-ar, 0.8))); }
+  .product-more__media { max-width: calc(var(--hero-h) * var(--worn-ar, 0.8)); }
+}

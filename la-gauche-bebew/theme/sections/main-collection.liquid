@@ -22,20 +22,58 @@
   {%- paginate collection.products by s.per_page -%}
     <div class="collection">
       <div class="collection__bar">
-        {% render 'filter-chips', show_fit: s.filter_fit %}
+        {%- if s.filters -%}{% render 'filter-chips', show_fit: s.filter_fit %}{%- endif -%}
         <p class="collection__count">{{ 'collection.count' | t: count: collection.products_count }}</p>
       </div>
 
       {%- if collection.products.size > 0 -%}
-        <div class="product-grid" style="--cols: {{ s.columns }}">
-          {%- for product in collection.products -%}
-            {%- liquid
-              assign eager = false
-              if forloop.index <= 2
-                assign eager = true
+        {%- comment -%}
+          Une carte par coloris : chaque slogan apparaît en noir ET en blanc.
+          1er passage : 1re couleur pour un slogan sur deux, 2e couleur pour les autres ; 2e passage : l'inverse.
+          Les cartes alternent ainsi noir / blanc sur toute la grille.
+        {%- endcomment -%}
+        {%- liquid
+          assign max_colors = 1
+          for product in collection.products
+            for option in product.options_with_values
+              assign oname = option.name | downcase
+              if oname contains 'couleur' or oname contains 'color' or oname contains 'coloris'
+                if option.values.size > max_colors
+                  assign max_colors = option.values.size
+                endif
               endif
-            -%}
-            {% render 'product-card', product: product, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add, eager: eager, card_index: forloop.index0 %}
+            endfor
+          endfor
+          assign last_pass = max_colors | minus: 1
+          assign card_n = 0
+        -%}
+        <div class="product-grid" style="--cols: {{ s.columns }}">
+          {%- for pass in (0..last_pass) -%}
+            {%- for product in collection.products -%}
+              {%- liquid
+                assign color_values = nil
+                for option in product.options_with_values
+                  assign oname = option.name | downcase
+                  if oname contains 'couleur' or oname contains 'color' or oname contains 'coloris'
+                    assign color_values = option.values
+                  endif
+                endfor
+                assign eager = false
+                if card_n < 2
+                  assign eager = true
+                endif
+              -%}
+              {%- if color_values == nil or color_values.size < 2 -%}
+                {%- if pass == 0 -%}
+                  {% render 'product-card', product: product, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add, eager: eager, card_index: card_n %}
+                  {%- assign card_n = card_n | plus: 1 -%}
+                {%- endif -%}
+              {%- elsif pass < color_values.size -%}
+                {%- assign color_i = forloop.index0 | plus: pass | modulo: color_values.size -%}
+                {% render 'product-card', product: product, card_visual: card_visual, show_badge: s.badge, show_sizes: s.sizes, quick_add: s.quick_add, eager: eager, card_index: card_n, only_color: color_values[color_i] %}
+                {%- assign card_n = card_n | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
           {%- endfor -%}
         </div>
         <p class="empty-filter" data-filter-empty hidden>{{ 'collection.filter_empty' | t }}</p>
@@ -65,9 +103,9 @@
   "name": "Boutique",
   "class": "section-main-collection",
   "settings": [
-    { "type": "text", "id": "kicker", "label": "Surtitre", "default": "Noir ou blanc · Homme ou Femme · XS → XXL" },
+    { "type": "text", "id": "kicker", "label": "Surtitre", "default": "T-shirts noirs · Homme ou Femme · XS → XXL" },
     { "type": "text", "id": "title_all", "label": "Titre de la boutique (collection « tous les produits »)", "default": "La boutique" },
-    { "type": "richtext", "id": "intro", "label": "Texte d'intro (si la collection n'a pas de description)", "default": "<p>Un t-shirt 20 €, deux t-shirts 35 €. Mélange les slogans, les couleurs et les coupes.</p>" },
+    { "type": "richtext", "id": "intro", "label": "Texte d'intro (si la collection n'a pas de description)", "default": "<p>Un t-shirt 20 €, deux t-shirts 35 €. Mélange les slogans et les coupes.</p>" },
     {
       "type": "range",
       "id": "per_page",
@@ -98,7 +136,8 @@
         { "value": "worn", "label": "Porté" }
       ]
     },
-    { "type": "checkbox", "id": "filter_fit", "label": "Filtres Homme / Femme", "default": true },
+    { "type": "checkbox", "id": "filters", "label": "Filtres Noir / Blanc", "default": false },
+    { "type": "checkbox", "id": "filter_fit", "label": "Filtres Homme / Femme", "default": false },
     { "type": "checkbox", "id": "badge", "label": "Badge « 2 pour 35 € »", "default": true },
     { "type": "checkbox", "id": "sizes", "label": "Afficher les tailles", "default": true },
     { "type": "checkbox", "id": "quick_add", "label": "Bouton « Ajouter au cortège »", "default": true }

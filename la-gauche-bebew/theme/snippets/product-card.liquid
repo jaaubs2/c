@@ -13,6 +13,7 @@
   - quick_add    : bouton « Ajouter au cortège »
   - eager        : charge l'image en priorité (premières cartes)
   - card_index   : position dans la grille ; avec plusieurs couleurs, les cartes alternent noir / blanc
+  - only_color   : valeur de couleur (« Noir », « Blanc »…) : la carte ne montre que ce coloris (page boutique)
 
   Conventions produit (voir README) :
   - options « Couleur » (Noir/Blanc), « Coupe » (Homme/Femme), « Taille » (XS → XXL)
@@ -54,6 +55,9 @@
 
     if color_option
       for value in color_option.values
+        if only_color and value != only_color
+          continue
+        endif
         assign v = value | handleize
         if v contains 'noir' or v contains 'black'
           assign v = 'noir'
@@ -92,6 +96,16 @@
 
     assign color_list = colors | strip | split: ' '
     assign url = product.url
+    if only_color and color_option
+      comment
+        Carte d'un seul coloris : le lien ouvre la fiche directement dans cette couleur
+      endcomment
+      assign color_key = 'option' | append: color_option.position
+      assign color_variant = product.variants | where: color_key, only_color | first
+      if color_variant.url != blank
+        assign url = color_variant.url
+      endif
+    endif
     assign title = product.title
   else
     assign slogan = ph_title
@@ -126,10 +140,18 @@
         </div>
       {%- elsif color_option -%}
         {%- assign color_key = 'option' | append: color_option.position -%}
+        {%- assign visual_i = 0 -%}
         {%- for value in color_option.values -%}
-          {%- assign cv = color_list[forloop.index0] -%}
-          {%- assign variant_for_color = product.variants | where: color_key, value | first -%}
-          {%- assign img = variant_for_color.featured_image | default: product.featured_image -%}
+          {%- if only_color and value != only_color -%}{%- continue -%}{%- endif -%}
+          {%- assign cv = color_list[visual_i] -%}
+          {%- assign visual_i = visual_i | plus: 1 -%}
+          {%- comment -%} 1re couleur : la 1re photo du produit ; autres couleurs : la photo de leur variante {%- endcomment -%}
+          {%- if value == color_option.values.first -%}
+            {%- assign img = product.featured_media.preview_image | default: product.featured_image -%}
+          {%- else -%}
+            {%- assign variant_for_color = product.variants | where: color_key, value | first -%}
+            {%- assign img = variant_for_color.featured_image | default: product.featured_image -%}
+          {%- endif -%}
           {%- assign img_alt = img.alt | default: title -%}
           <div class="card__visual" data-visual="{{ cv }}" {% unless cv == start_color %}hidden{% endunless %}>
             {%- if eager and cv == start_color -%}
@@ -147,6 +169,22 @@
           {%- else -%}
             {{ product.featured_media.preview_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: img_alt }}
           {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- comment -%} Au survol : une photo portée (4e photo, sinon la 2e) {%- endcomment -%}
+      {%- liquid
+        assign hover_media = nil
+        if card_visual != 'worn'
+          if product.media.size > 3
+            assign hover_media = product.media[3]
+          elsif product.media.size > 1
+            assign hover_media = product.media[1]
+          endif
+        endif
+      -%}
+      {%- if hover_media -%}
+        <div class="card__visual card__visual--hover" aria-hidden="true">
+          {{ hover_media.preview_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 1000px) 25vw, 50vw', alt: '' }}
         </div>
       {%- endif -%}
     {%- elsif card_visual == 'worn' -%}

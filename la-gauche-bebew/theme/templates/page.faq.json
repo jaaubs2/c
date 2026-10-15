@@ -50,7 +50,7 @@
           "type": "question",
           "settings": {
             "question": "Je peux commander en quantité pour mon collectif / ma section syndicale ?",
-            "answer": "<p>Oui ! Collectif, section syndicale, asso, lycée : <a href=\"/pages/contact\">écris-nous</a> avec les slogans, les couleurs, les tailles et les quantités. Commandes groupées sur demande.</p>"
+            "answer": "<p>Oui ! Collectif, section syndicale, asso, lycée : <a href=\"/pages/contact\">écris-nous</a> avec les slogans, les tailles et les quantités. Commandes groupées sur demande.</p>"
           }
         },
         "q7": {

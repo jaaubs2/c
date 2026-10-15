@@ -178,7 +178,15 @@
   {%- endif -%}
 {%- endfor -%}
 
-<section class="product" data-product data-section-id="{{ section.id }}" data-url="{{ product.url }}">
+{%- liquid
+  comment
+    Les photos ne sont jamais recadrées : la galerie prend le format de la 1re photo,
+    le bloc photo portée celui de la 2e.
+  endcomment
+  assign gallery_ar = product.featured_media.preview_image.aspect_ratio | default: 0.8
+  assign worn_ar = worn_media.preview_image.aspect_ratio | default: 0.8
+-%}
+<section class="product" data-product data-section-id="{{ section.id }}" data-url="{{ product.url }}" style="--gallery-ar: {{ gallery_ar }}">
   <script type="application/json" data-product-json>{{ product | json }}</script>
 
   {%- comment -%} Visuels : la 1re photo et les suivantes défilent ; la photo portée passe dans le bloc du dessous {%- endcomment -%}
@@ -246,7 +254,7 @@
 
 {%- comment -%} Second écran : la photo portée + le t-shirt, la livraison, les retours, l'entretien {%- endcomment -%}
 {%- if more_html != blank or worn_media or product.media.size == 0 -%}
-  <section class="product-more{% if worn_media == nil and product.media.size > 0 %} product-more--solo{% endif %}">
+  <section class="product-more{% if worn_media == nil and product.media.size > 0 %} product-more--solo{% endif %}" style="--worn-ar: {{ worn_ar }}">
     <div class="product-more__info">
       {{ more_html }}
     </div>
@@ -307,7 +315,7 @@
       "settings": [
         { "type": "textarea", "id": "big", "label": "Grand texte", "default": "2 = 35 €" },
         { "type": "text", "id": "mono", "label": "Petit titre", "default": "Prends-en un deuxième" },
-        { "type": "text", "id": "text", "label": "Texte", "default": "Le deuxième te coûte 15 €. Mélange les slogans, les couleurs et les coupes : la réduction s'applique toute seule dans ton panier." }
+        { "type": "text", "id": "text", "label": "Texte", "default": "Le deuxième te coûte 15 €. Mélange les slogans et les coupes : la réduction s'applique toute seule dans ton panier." }
       ]
     },
     {

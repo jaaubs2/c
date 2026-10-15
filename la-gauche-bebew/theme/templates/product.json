@@ -23,7 +23,7 @@
           "settings": {
             "big": "2 = 35 €",
             "mono": "Prends-en un deuxième",
-            "text": "Le deuxième te coûte 15 €. Mélange les slogans, les couleurs et les coupes : la réduction s'applique toute seule dans ton panier."
+            "text": "Le deuxième te coûte 15 €. Mélange les slogans et les coupes : la réduction s'applique toute seule dans ton panier."
           }
         },
         "picker": {
@@ -45,7 +45,7 @@
           "type": "collapsible",
           "settings": {
             "heading": "Le t-shirt",
-            "content": "<p>T-shirt basique, impression en noir ou en blanc. Typo simple et brute, slogan devant ou dans le dos selon le modèle. Coupes Homme et Femme, du XS au XXL.</p>",
+            "content": "<p>T-shirt noir basique. Typo simple et brute, slogan devant ou dans le dos selon le modèle. Coupes Homme et Femme, du XS au XXL.</p>",
             "show_description": true,
             "open": true
           }
