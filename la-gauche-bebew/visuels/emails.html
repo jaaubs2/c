@@ -1,111 +1,216 @@
-<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Emails La Gauche Bebew</title>
 <style>
-  :root { --bg:#F6F5F1; --ink:#111; --card:#fff; --muted:#555; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#161616; --ink:#F2F2EE; --card:#222; --muted:#aaa; } }
-  :root[data-theme="dark"] { --bg:#161616; --ink:#F2F2EE; --card:#222; --muted:#aaa; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 -apple-system, system-ui, sans-serif; }
-  main { max-width: 820px; margin: 0 auto; padding: 24px 16px 64px; }
-  h1 { font-size: 28px; margin: 0 0 8px; }
-  h2 { font-size: 20px; margin: 0; }
-  .intro, .how { color: var(--muted); }
-  .how { background: var(--card); border: 2px solid var(--ink); padding: 14px 16px; color: var(--ink); margin: 16px 0 24px; }
-  .how ol { margin: 6px 0 0 18px; padding: 0; }
-  section { background: var(--card); border: 2px solid var(--ink); padding: 16px; margin: 0 0 18px; }
-  .row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--muted); }
-  .row:first-of-type { border-top: 0; }
-  .lab { font: 600 11px/1.4 ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); grid-column: 1 / -1; }
-  .find { font-size: 13px; color: var(--muted); grid-column: 1 / -1; }
-  .txt { font-size: 16px; overflow-wrap: anywhere; }
-  code { font: 13px ui-monospace, monospace; }
-  button { background: var(--ink); color: var(--bg); border: 0; padding: 8px 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-</style>
-</head>
-<body>
-<main>
-  <h1>Emails aux couleurs de La Gauche Bebew</h1>
-  <p class="intro">Tutoiement, ton direct, pas de prix chiffrés : rien à changer si les tarifs bougent.</p>
+:root{--bg:#F6F5F1;--ink:#111;--card:#fff;--muted:#555}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161616;--ink:#F2F2EE;--card:#222;--muted:#aaa}}
+:root[data-theme="dark"]{--bg:#161616;--ink:#F2F2EE;--card:#222;--muted:#aaa}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px} h1{font-size:26px;margin:0 0 6px} h2{font-size:20px;margin:0 0 4px}
+.intro{color:var(--muted);margin:0 0 20px} section{background:var(--card);border:2px solid var(--ink);padding:16px;margin:0 0 18px}
+.step{font-size:14px;color:var(--muted);margin:0 0 12px} .box{margin:0 0 14px} .boxhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.lab{font:700 13px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}
+textarea{width:100%;font:12px/1.4 ui-monospace,monospace;border:1px solid var(--muted);background:var(--bg);color:var(--ink);padding:8px;resize:vertical}
+.hint{font-size:13px;color:var(--muted);margin:6px 0 0} button{background:var(--ink);color:var(--bg);border:0;padding:8px 12px;font-weight:700;cursor:pointer}
+</style></head><body><main>
+<h1>Emails La Gauche Bebew</h1>
+<p class="intro">Pour chaque email : A = l'objet, B = le corps. Après avoir collé : « Prévisualiser », puis « Enregistrer ». Si ça s'affiche mal : « Rétablir la valeur par défaut ».</p>
+<section>
+  <h2>1. Confirmation de commande</h2>
+  <p class="step">Paramètres &gt; Notifications &gt; Notifications clients &gt; <strong>Confirmation de commande</strong></p>
+  <div class="box"><div class="boxhead"><span class="lab">A · Objet</span><button data-copy>Copier l'objet</button></div>
+  <textarea readonly rows="1">Commande {{ name }} : c&#x27;est noté, bebew</textarea>
+  <p class="hint">Efface tout le champ « Objet de l'e-mail », colle.</p></div>
+  <div class="box"><div class="boxhead"><span class="lab">B · Corps</span><button data-copy>Copier le corps</button></div>
+  <textarea readonly rows="6">&lt;!doctype html&gt;
+&lt;html lang=&quot;fr&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Anton&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;title&gt;{{ shop.name }}&lt;/title&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background:#F6F5F1;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F6F5F1;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:24px 12px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:560px;background:#FFFFFF;border:3px solid #111111;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px 24px 14px;border-bottom:3px solid #111111;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:30px;line-height:1;text-transform:uppercase;color:#111111;letter-spacing:.01em;&quot;&gt;La Gauche Bebew&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111111;&quot;&gt;
+&lt;p style=&quot;margin:0 0 12px;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:34px;line-height:1;text-transform:uppercase;&quot;&gt;Merci, bebew.&lt;/p&gt;
+&lt;p style=&quot;margin:0 0 14px;&quot;&gt;Ta commande &lt;strong&gt;{{ name }}&lt;/strong&gt; est validée. On la prépare et on te prévient dès qu&#x27;elle part, sous 72 h.&lt;/p&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border-top:2px solid #111111;margin:8px 0 4px;&quot;&gt;
+{% for line in subtotal_line_items %}
+&lt;tr&gt;&lt;td style=&quot;padding:10px 0;border-bottom:1px solid #DDDDDD;&quot;&gt;&lt;strong&gt;{{ line.title }}&lt;/strong&gt;{% if line.variant.title != blank %}&lt;br&gt;&lt;span style=&quot;font-size:13px;color:#555555;&quot;&gt;{{ line.variant.title }}&lt;/span&gt;{% endif %}&lt;/td&gt;
+&lt;td align=&quot;right&quot; style=&quot;padding:10px 0;border-bottom:1px solid #DDDDDD;white-space:nowrap;&quot;&gt;{{ line.quantity }} × · {{ line.final_line_price | money }}&lt;/td&gt;&lt;/tr&gt;
+{% endfor %}
+&lt;/table&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;font-size:14px;margin-bottom:16px;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:4px 0;&quot;&gt;Sous-total&lt;/td&gt;&lt;td align=&quot;right&quot;&gt;{{ subtotal_price | money }}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:4px 0;&quot;&gt;Livraison&lt;/td&gt;&lt;td align=&quot;right&quot;&gt;{% if shipping_price == 0 %}Offerte{% else %}{{ shipping_price | money }}{% endif %}&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:8px 0;font-size:18px;font-weight:bold;border-top:2px solid #111111;&quot;&gt;Total&lt;/td&gt;&lt;td align=&quot;right&quot; style=&quot;padding:8px 0;font-size:18px;font-weight:bold;border-top:2px solid #111111;&quot;&gt;{{ total_price | money }}&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+{% if shipping_address %}&lt;p style=&quot;margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#555555;&quot;&gt;Livré à&lt;/p&gt;
+&lt;p style=&quot;margin:0 0 14px;&quot;&gt;{{ shipping_address.name }}&lt;br&gt;{{ shipping_address.address1 }}{% if shipping_address.address2 != blank %}&lt;br&gt;{{ shipping_address.address2 }}{% endif %}&lt;br&gt;{{ shipping_address.zip }} {{ shipping_address.city }}&lt;/p&gt;{% endif %}
+&lt;p style=&quot;margin:20px 0;&quot;&gt;&lt;a href=&quot;{{ order_status_url }}&quot; style=&quot;display:inline-block;background:#111111;color:#F6F5F1;text-decoration:none;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:18px;text-transform:uppercase;padding:12px 22px;&quot;&gt;Suivre ma commande&lt;/a&gt;&lt;/p&gt;
 
-  <div class="how">
-    <strong>1. Le style (une fois pour tous les emails)</strong>
-    <ol>
-      <li>Paramètres &gt; Notifications &gt; Notifications clients &gt; <strong>Personnaliser le modèle d'e-mail</strong>.</li>
-      <li>Logo : <code>logo-noir.png</code>, largeur 300 px.</li>
-      <li>Couleur : <code>#111111</code>. Enregistre.</li>
-    </ol>
-    <strong>2. Les textes (email par email)</strong>
-    <ol>
-      <li>Clique sur l'email (ex. « Confirmation de commande »), puis « Modifier le code ».</li>
-      <li><strong>Objet</strong> : remplace tout le champ « Objet de l'e-mail ».</li>
-      <li><strong>Titre et texte</strong> : dans le code, cherche (Cmd/Ctrl + F) la phrase indiquée en gris et remplace uniquement ce texte. Ne touche jamais à ce qui est entre <code>{{ }}</code> ou <code>{% %}</code>.</li>
-      <li>« Prévisualiser », puis « Enregistrer ». En cas de souci : « Rétablir la valeur par défaut ».</li>
-    </ol>
-  </div>
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 24px;background:#111111;color:#F6F5F1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;&quot;&gt;
+Une question ? Réponds à ce mail ou écris à &lt;a href=&quot;mailto:lagauchebebew@gmail.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;lagauchebebew@gmail.com&lt;/a&gt;.&lt;br&gt;
+&lt;a href=&quot;https://gauchebebew.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;gauchebebew.com&lt;/a&gt; · &lt;a href=&quot;https://www.tiktok.com/@la.gauche.bebew&quot; style=&quot;color:#F6F5F1;&quot;&gt;TikTok&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</textarea>
+  <p class="hint">« Modifier le code » → clique dans le code → <strong>Cmd + A</strong> (tout sélectionner) → <strong>Supprimer</strong> → colle.</p></div>
+</section><section>
+  <h2>2. Confirmation d&#x27;expédition</h2>
+  <p class="step">Paramètres &gt; Notifications &gt; Notifications clients &gt; <strong>Confirmation d&#x27;expédition</strong></p>
+  <div class="box"><div class="boxhead"><span class="lab">A · Objet</span><button data-copy>Copier l'objet</button></div>
+  <textarea readonly rows="1">Ta commande {{ name }} est partie</textarea>
+  <p class="hint">Efface tout le champ « Objet de l'e-mail », colle.</p></div>
+  <div class="box"><div class="boxhead"><span class="lab">B · Corps</span><button data-copy>Copier le corps</button></div>
+  <textarea readonly rows="6">&lt;!doctype html&gt;
+&lt;html lang=&quot;fr&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Anton&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;title&gt;{{ shop.name }}&lt;/title&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background:#F6F5F1;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F6F5F1;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:24px 12px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:560px;background:#FFFFFF;border:3px solid #111111;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px 24px 14px;border-bottom:3px solid #111111;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:30px;line-height:1;text-transform:uppercase;color:#111111;letter-spacing:.01em;&quot;&gt;La Gauche Bebew&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111111;&quot;&gt;
+&lt;p style=&quot;margin:0 0 12px;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:34px;line-height:1;text-transform:uppercase;&quot;&gt;C&#x27;est parti.&lt;/p&gt;
+&lt;p style=&quot;margin:0 0 14px;&quot;&gt;Ton colis est en route. Une fois reçu : porte-le en cortège, prends une photo et tague-nous.&lt;/p&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border-top:2px solid #111111;margin:8px 0 16px;&quot;&gt;
+{% for line in fulfillment.fulfillment_line_items %}
+&lt;tr&gt;&lt;td style=&quot;padding:10px 0;border-bottom:1px solid #DDDDDD;&quot;&gt;&lt;strong&gt;{{ line.line_item.title }}&lt;/strong&gt;&lt;/td&gt;&lt;td align=&quot;right&quot; style=&quot;padding:10px 0;border-bottom:1px solid #DDDDDD;&quot;&gt;{{ line.quantity }} ×&lt;/td&gt;&lt;/tr&gt;
+{% endfor %}
+&lt;/table&gt;
+{% if fulfillment.tracking_url %}&lt;p style=&quot;margin:20px 0;&quot;&gt;&lt;a href=&quot;{{ fulfillment.tracking_url }}&quot; style=&quot;display:inline-block;background:#111111;color:#F6F5F1;text-decoration:none;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:18px;text-transform:uppercase;padding:12px 22px;&quot;&gt;Suivre mon colis&lt;/a&gt;&lt;/p&gt;
+{% else %}&lt;p style=&quot;margin:20px 0;&quot;&gt;&lt;a href=&quot;{{ order_status_url }}&quot; style=&quot;display:inline-block;background:#111111;color:#F6F5F1;text-decoration:none;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:18px;text-transform:uppercase;padding:12px 22px;&quot;&gt;Voir ma commande&lt;/a&gt;&lt;/p&gt;
+{% endif %}{% if fulfillment.tracking_number %}&lt;p style=&quot;margin:0 0 14px;&quot;&gt;&lt;span style=&quot;font-size:13px;color:#555555;&quot;&gt;Numéro de suivi : {{ fulfillment.tracking_number }}&lt;/span&gt;&lt;/p&gt;
+{% endif %}
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 24px;background:#111111;color:#F6F5F1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;&quot;&gt;
+Une question ? Réponds à ce mail ou écris à &lt;a href=&quot;mailto:lagauchebebew@gmail.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;lagauchebebew@gmail.com&lt;/a&gt;.&lt;br&gt;
+&lt;a href=&quot;https://gauchebebew.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;gauchebebew.com&lt;/a&gt; · &lt;a href=&quot;https://www.tiktok.com/@la.gauche.bebew&quot; style=&quot;color:#F6F5F1;&quot;&gt;TikTok&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</textarea>
+  <p class="hint">« Modifier le code » → clique dans le code → <strong>Cmd + A</strong> (tout sélectionner) → <strong>Supprimer</strong> → colle.</p></div>
+</section><section>
+  <h2>3. Commande livrée</h2>
+  <p class="step">Paramètres &gt; Notifications &gt; Notifications clients &gt; <strong>Commande livrée</strong></p>
+  <div class="box"><div class="boxhead"><span class="lab">A · Objet</span><button data-copy>Copier l'objet</button></div>
+  <textarea readonly rows="1">Ta commande {{ name }} est arrivée</textarea>
+  <p class="hint">Efface tout le champ « Objet de l'e-mail », colle.</p></div>
+  <div class="box"><div class="boxhead"><span class="lab">B · Corps</span><button data-copy>Copier le corps</button></div>
+  <textarea readonly rows="6">&lt;!doctype html&gt;
+&lt;html lang=&quot;fr&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Anton&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;title&gt;{{ shop.name }}&lt;/title&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background:#F6F5F1;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F6F5F1;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:24px 12px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:560px;background:#FFFFFF;border:3px solid #111111;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px 24px 14px;border-bottom:3px solid #111111;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:30px;line-height:1;text-transform:uppercase;color:#111111;letter-spacing:.01em;&quot;&gt;La Gauche Bebew&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111111;&quot;&gt;
+&lt;p style=&quot;margin:0 0 12px;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:34px;line-height:1;text-transform:uppercase;&quot;&gt;Il est là.&lt;/p&gt;
+&lt;p style=&quot;margin:0 0 14px;&quot;&gt;Ton colis a été livré. Une taille qui ne va pas ? Tu as 14 jours pour nous le renvoyer : écris à lagauchebebew@gmail.com avec ton numéro de commande ({{ name }}).&lt;/p&gt;
+&lt;p style=&quot;margin:20px 0;&quot;&gt;&lt;a href=&quot;{{ order_status_url }}&quot; style=&quot;display:inline-block;background:#111111;color:#F6F5F1;text-decoration:none;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:18px;text-transform:uppercase;padding:12px 22px;&quot;&gt;Voir ma commande&lt;/a&gt;&lt;/p&gt;
 
-  <section>
-    <h2>Confirmation de commande</h2>
-    <div class="row"><span class="lab">Objet</span><span class="txt">Commande {{ name }} : c'est noté, bebew</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Titre</span><span class="find">À la place de « Merci pour votre achat ! »</span><span class="txt">Merci, bebew.</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Texte</span><span class="find">À la place de « Nous préparons votre commande pour l'expédition… »</span><span class="txt">Ta commande est validée. On la prépare et on te prévient dès qu'elle part, sous 72 h.</span><button data-copy>Copier</button></div>
-  </section>
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 24px;background:#111111;color:#F6F5F1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;&quot;&gt;
+Une question ? Réponds à ce mail ou écris à &lt;a href=&quot;mailto:lagauchebebew@gmail.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;lagauchebebew@gmail.com&lt;/a&gt;.&lt;br&gt;
+&lt;a href=&quot;https://gauchebebew.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;gauchebebew.com&lt;/a&gt; · &lt;a href=&quot;https://www.tiktok.com/@la.gauche.bebew&quot; style=&quot;color:#F6F5F1;&quot;&gt;TikTok&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</textarea>
+  <p class="hint">« Modifier le code » → clique dans le code → <strong>Cmd + A</strong> (tout sélectionner) → <strong>Supprimer</strong> → colle.</p></div>
+</section><section>
+  <h2>4. Paiement abandonné</h2>
+  <p class="step">Paramètres &gt; Notifications &gt; Notifications clients &gt; <strong>Paiement abandonné</strong></p>
+  <div class="box"><div class="boxhead"><span class="lab">A · Objet</span><button data-copy>Copier l'objet</button></div>
+  <textarea readonly rows="1">T&#x27;as oublié ton slogan, bebew</textarea>
+  <p class="hint">Efface tout le champ « Objet de l'e-mail », colle.</p></div>
+  <div class="box"><div class="boxhead"><span class="lab">B · Corps</span><button data-copy>Copier le corps</button></div>
+  <textarea readonly rows="6">&lt;!doctype html&gt;
+&lt;html lang=&quot;fr&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Anton&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;title&gt;{{ shop.name }}&lt;/title&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background:#F6F5F1;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F6F5F1;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:24px 12px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:560px;background:#FFFFFF;border:3px solid #111111;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px 24px 14px;border-bottom:3px solid #111111;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:30px;line-height:1;text-transform:uppercase;color:#111111;letter-spacing:.01em;&quot;&gt;La Gauche Bebew&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111111;&quot;&gt;
+&lt;p style=&quot;margin:0 0 12px;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:34px;line-height:1;text-transform:uppercase;&quot;&gt;Ton panier t&#x27;attend.&lt;/p&gt;
+&lt;p style=&quot;margin:0 0 14px;&quot;&gt;Tu as laissé des t-shirts dans ton panier. Il est encore là : reprends où tu t&#x27;étais arrêté·e. Et le deuxième t-shirt te coûte moins cher.&lt;/p&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border-top:2px solid #111111;margin:8px 0 16px;&quot;&gt;
+{% for line in line_items %}
+&lt;tr&gt;&lt;td style=&quot;padding:10px 0;border-bottom:1px solid #DDDDDD;&quot;&gt;&lt;strong&gt;{{ line.title }}&lt;/strong&gt;&lt;/td&gt;&lt;td align=&quot;right&quot; style=&quot;padding:10px 0;border-bottom:1px solid #DDDDDD;&quot;&gt;{{ line.quantity }} ×&lt;/td&gt;&lt;/tr&gt;
+{% endfor %}
+&lt;/table&gt;
+&lt;p style=&quot;margin:20px 0;&quot;&gt;&lt;a href=&quot;{{ url }}&quot; style=&quot;display:inline-block;background:#111111;color:#F6F5F1;text-decoration:none;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:18px;text-transform:uppercase;padding:12px 22px;&quot;&gt;Finir ma commande&lt;/a&gt;&lt;/p&gt;
 
-  <section>
-    <h2>Confirmation d'expédition</h2>
-    <div class="row"><span class="lab">Objet</span><span class="txt">Ta commande {{ name }} est partie</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Titre</span><span class="find">À la place de « Votre commande est en route »</span><span class="txt">C'est parti.</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Texte</span><span class="find">À la place du paragraphe qui commence par « Votre commande est en route… » ou « Suivez votre colis… »</span><span class="txt">Ton colis est en route, suis-le avec le lien ci-dessous. Une fois reçu : porte-le en cortège, prends une photo et tague-nous.</span><button data-copy>Copier</button></div>
-  </section>
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 24px;background:#111111;color:#F6F5F1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;&quot;&gt;
+Une question ? Réponds à ce mail ou écris à &lt;a href=&quot;mailto:lagauchebebew@gmail.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;lagauchebebew@gmail.com&lt;/a&gt;.&lt;br&gt;
+&lt;a href=&quot;https://gauchebebew.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;gauchebebew.com&lt;/a&gt; · &lt;a href=&quot;https://www.tiktok.com/@la.gauche.bebew&quot; style=&quot;color:#F6F5F1;&quot;&gt;TikTok&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</textarea>
+  <p class="hint">« Modifier le code » → clique dans le code → <strong>Cmd + A</strong> (tout sélectionner) → <strong>Supprimer</strong> → colle.</p></div>
+</section><section>
+  <h2>5. Commande annulée</h2>
+  <p class="step">Paramètres &gt; Notifications &gt; Notifications clients &gt; <strong>Commande annulée</strong></p>
+  <div class="box"><div class="boxhead"><span class="lab">A · Objet</span><button data-copy>Copier l'objet</button></div>
+  <textarea readonly rows="1">Ta commande {{ name }} est annulée</textarea>
+  <p class="hint">Efface tout le champ « Objet de l'e-mail », colle.</p></div>
+  <div class="box"><div class="boxhead"><span class="lab">B · Corps</span><button data-copy>Copier le corps</button></div>
+  <textarea readonly rows="6">&lt;!doctype html&gt;
+&lt;html lang=&quot;fr&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Anton&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;title&gt;{{ shop.name }}&lt;/title&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background:#F6F5F1;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F6F5F1;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:24px 12px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:560px;background:#FFFFFF;border:3px solid #111111;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px 24px 14px;border-bottom:3px solid #111111;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:30px;line-height:1;text-transform:uppercase;color:#111111;letter-spacing:.01em;&quot;&gt;La Gauche Bebew&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111111;&quot;&gt;
+&lt;p style=&quot;margin:0 0 12px;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:34px;line-height:1;text-transform:uppercase;&quot;&gt;Commande annulée.&lt;/p&gt;
+&lt;p style=&quot;margin:0 0 14px;&quot;&gt;Ta commande &lt;strong&gt;{{ name }}&lt;/strong&gt; a été annulée. Si tu avais payé, le remboursement arrive sur ton moyen de paiement sous quelques jours.&lt;/p&gt;
 
-  <section>
-    <h2>Commande livrée</h2>
-    <div class="row"><span class="lab">Objet</span><span class="txt">Ta commande {{ name }} est arrivée</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Titre</span><span class="find">À la place de « Votre commande a été livrée »</span><span class="txt">Il est là.</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Texte</span><span class="find">À la place du premier paragraphe sous le titre</span><span class="txt">Ton colis a été livré. Une taille qui ne va pas ? Tu as 14 jours pour nous le renvoyer : écris à lagauchebebew@gmail.com avec ton numéro de commande.</span><button data-copy>Copier</button></div>
-  </section>
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 24px;background:#111111;color:#F6F5F1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;&quot;&gt;
+Une question ? Réponds à ce mail ou écris à &lt;a href=&quot;mailto:lagauchebebew@gmail.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;lagauchebebew@gmail.com&lt;/a&gt;.&lt;br&gt;
+&lt;a href=&quot;https://gauchebebew.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;gauchebebew.com&lt;/a&gt; · &lt;a href=&quot;https://www.tiktok.com/@la.gauche.bebew&quot; style=&quot;color:#F6F5F1;&quot;&gt;TikTok&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</textarea>
+  <p class="hint">« Modifier le code » → clique dans le code → <strong>Cmd + A</strong> (tout sélectionner) → <strong>Supprimer</strong> → colle.</p></div>
+</section><section>
+  <h2>6. Remboursement</h2>
+  <p class="step">Paramètres &gt; Notifications &gt; Notifications clients &gt; <strong>Remboursement</strong></p>
+  <div class="box"><div class="boxhead"><span class="lab">A · Objet</span><button data-copy>Copier l'objet</button></div>
+  <textarea readonly rows="1">Remboursement de ta commande {{ name }}</textarea>
+  <p class="hint">Efface tout le champ « Objet de l'e-mail », colle.</p></div>
+  <div class="box"><div class="boxhead"><span class="lab">B · Corps</span><button data-copy>Copier le corps</button></div>
+  <textarea readonly rows="6">&lt;!doctype html&gt;
+&lt;html lang=&quot;fr&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;
+&lt;link href=&quot;https://fonts.googleapis.com/css2?family=Anton&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+&lt;title&gt;{{ shop.name }}&lt;/title&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background:#F6F5F1;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F6F5F1;&quot;&gt;&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:24px 12px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:560px;background:#FFFFFF;border:3px solid #111111;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px 24px 14px;border-bottom:3px solid #111111;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:30px;line-height:1;text-transform:uppercase;color:#111111;letter-spacing:.01em;&quot;&gt;La Gauche Bebew&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111111;&quot;&gt;
+&lt;p style=&quot;margin:0 0 12px;font-family:Anton,Impact,&#x27;Arial Narrow&#x27;,sans-serif;font-size:34px;line-height:1;text-transform:uppercase;&quot;&gt;C&#x27;est remboursé.&lt;/p&gt;
+&lt;p style=&quot;margin:0 0 14px;&quot;&gt;On t&#x27;a remboursé pour la commande &lt;strong&gt;{{ name }}&lt;/strong&gt;. Selon ta banque, l&#x27;argent apparaît sous 5 à 10 jours ouvrés.&lt;/p&gt;
 
-  <section>
-    <h2>Panier abandonné (paiement abandonné)</h2>
-    <div class="row"><span class="lab">Objet</span><span class="txt">T'as oublié ton slogan, bebew</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Titre</span><span class="find">À la place de « Vous avez oublié quelque chose ? » ou du titre en haut</span><span class="txt">Ton panier t'attend.</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Texte</span><span class="find">À la place du premier paragraphe sous le titre</span><span class="txt">Tu as laissé des t-shirts dans ton panier. Il est encore là : reprends où tu t'étais arrêté·e. Et le deuxième t-shirt te coûte moins cher.</span><button data-copy>Copier</button></div>
-  </section>
-
-  <section>
-    <h2>Commande annulée</h2>
-    <div class="row"><span class="lab">Objet</span><span class="txt">Ta commande {{ name }} est annulée</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Titre</span><span class="find">À la place du titre en haut</span><span class="txt">Commande annulée.</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Texte</span><span class="find">À la place du premier paragraphe sous le titre</span><span class="txt">Ta commande a été annulée. Si tu avais payé, le remboursement arrive sur ton moyen de paiement sous quelques jours. Une question ? lagauchebebew@gmail.com.</span><button data-copy>Copier</button></div>
-  </section>
-
-  <section>
-    <h2>Remboursement</h2>
-    <div class="row"><span class="lab">Objet</span><span class="txt">Remboursement de ta commande {{ name }}</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Titre</span><span class="find">À la place du titre en haut</span><span class="txt">C'est remboursé.</span><button data-copy>Copier</button></div>
-    <div class="row"><span class="lab">Texte</span><span class="find">À la place du premier paragraphe sous le titre</span><span class="txt">On t'a remboursé. Selon ta banque, l'argent apparaît sous 5 à 10 jours ouvrés.</span><button data-copy>Copier</button></div>
-  </section>
-
-  <section>
-    <h2>Bas de tous les emails</h2>
-    <div class="row"><span class="lab">Texte</span><span class="find">À la place de « Si vous avez des questions, répondez à cet e-mail… » (même phrase dans chaque email)</span><span class="txt">Une question ? Réponds à ce mail ou écris à lagauchebebew@gmail.com.</span><button data-copy>Copier</button></div>
-  </section>
-</main>
-<script>
-  document.querySelectorAll('[data-copy]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var t = btn.parentElement.querySelector('.txt').innerText;
-      var done = function () { btn.textContent = 'Copié ✓'; setTimeout(function () { btn.textContent = 'Copier'; }, 1600); };
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fallback); else fallback();
-      function fallback() {
-        var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); done(); } catch (e) {} ta.remove();
-      }
-    });
-  });
-</script>
-</body>
-</html>
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 24px;background:#111111;color:#F6F5F1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;&quot;&gt;
+Une question ? Réponds à ce mail ou écris à &lt;a href=&quot;mailto:lagauchebebew@gmail.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;lagauchebebew@gmail.com&lt;/a&gt;.&lt;br&gt;
+&lt;a href=&quot;https://gauchebebew.com&quot; style=&quot;color:#F6F5F1;&quot;&gt;gauchebebew.com&lt;/a&gt; · &lt;a href=&quot;https://www.tiktok.com/@la.gauche.bebew&quot; style=&quot;color:#F6F5F1;&quot;&gt;TikTok&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</textarea>
+  <p class="hint">« Modifier le code » → clique dans le code → <strong>Cmd + A</strong> (tout sélectionner) → <strong>Supprimer</strong> → colle.</p></div>
+</section>
+</main><script>
+document.querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){
+var t=b.closest('.box').querySelector('textarea');var lab=b.textContent;
+var ok=function(){b.textContent='Copié ✓';setTimeout(function(){b.textContent=lab},1600)};
+if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t.value).then(ok,fb)}else fb();
+function fb(){t.select();try{document.execCommand('copy');ok()}catch(e){}}
+})});
+</script></body></html>

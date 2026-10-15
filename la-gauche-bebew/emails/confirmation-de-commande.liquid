@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<title>{{ shop.name }}</title></head>
+<body style="margin:0;padding:0;background:#F6F5F1;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F5F1;"><tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:3px solid #111111;">
+<tr><td style="padding:22px 24px 14px;border-bottom:3px solid #111111;font-family:Anton,Impact,'Arial Narrow',sans-serif;font-size:30px;line-height:1;text-transform:uppercase;color:#111111;letter-spacing:.01em;">La Gauche Bebew</td></tr>
+<tr><td style="padding:24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111111;">
+<p style="margin:0 0 12px;font-family:Anton,Impact,'Arial Narrow',sans-serif;font-size:34px;line-height:1;text-transform:uppercase;">Merci, bebew.</p>
+<p style="margin:0 0 14px;">Ta commande <strong>{{ name }}</strong> est validée. On la prépare et on te prévient dès qu'elle part, sous 72 h.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111111;margin:8px 0 4px;">
+{% for line in subtotal_line_items %}
+<tr><td style="padding:10px 0;border-bottom:1px solid #DDDDDD;"><strong>{{ line.title }}</strong>{% if line.variant.title != blank %}<br><span style="font-size:13px;color:#555555;">{{ line.variant.title }}</span>{% endif %}</td>
+<td align="right" style="padding:10px 0;border-bottom:1px solid #DDDDDD;white-space:nowrap;">{{ line.quantity }} × · {{ line.final_line_price | money }}</td></tr>
+{% endfor %}
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin-bottom:16px;">
+<tr><td style="padding:4px 0;">Sous-total</td><td align="right">{{ subtotal_price | money }}</td></tr>
+<tr><td style="padding:4px 0;">Livraison</td><td align="right">{% if shipping_price == 0 %}Offerte{% else %}{{ shipping_price | money }}{% endif %}</td></tr>
+<tr><td style="padding:8px 0;font-size:18px;font-weight:bold;border-top:2px solid #111111;">Total</td><td align="right" style="padding:8px 0;font-size:18px;font-weight:bold;border-top:2px solid #111111;">{{ total_price | money }}</td></tr>
+</table>
+{% if shipping_address %}<p style="margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#555555;">Livré à</p>
+<p style="margin:0 0 14px;">{{ shipping_address.name }}<br>{{ shipping_address.address1 }}{% if shipping_address.address2 != blank %}<br>{{ shipping_address.address2 }}{% endif %}<br>{{ shipping_address.zip }} {{ shipping_address.city }}</p>{% endif %}
+<p style="margin:20px 0;"><a href="{{ order_status_url }}" style="display:inline-block;background:#111111;color:#F6F5F1;text-decoration:none;font-family:Anton,Impact,'Arial Narrow',sans-serif;font-size:18px;text-transform:uppercase;padding:12px 22px;">Suivre ma commande</a></p>
+
+</td></tr>
+<tr><td style="padding:16px 24px;background:#111111;color:#F6F5F1;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;">
+Une question ? Réponds à ce mail ou écris à <a href="mailto:lagauchebebew@gmail.com" style="color:#F6F5F1;">lagauchebebew@gmail.com</a>.<br>
+<a href="https://gauchebebew.com" style="color:#F6F5F1;">gauchebebew.com</a> · <a href="https://www.tiktok.com/@la.gauche.bebew" style="color:#F6F5F1;">TikTok</a>
+</td></tr>
+</table></td></tr></table>
+</body></html>
