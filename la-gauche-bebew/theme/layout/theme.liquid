@@ -5,24 +5,46 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="{{ settings.color_bg }}">
-    <link rel="canonical" href="{{ canonical_url }}">
+    {%- liquid
+      comment
+        SEO : /collections/all (et frontpage) montrent les mêmes t-shirts que la collection « Boutique » (en français) ;
+        on indique à Google la version à garder. Titre et description de l'accueil depuis les réglages du thème.
+      endcomment
+      assign seo_canonical = canonical_url
+      if template.name == 'collection' and settings.shop_collection.url != blank
+        if collection.handle == 'all' or collection.handle == 'frontpage'
+          assign seo_canonical = request.origin | append: settings.shop_collection.url
+        endif
+      endif
+      assign seo_title = page_title
+      assign seo_description = page_description
+      if request.page_type == 'index'
+        if page_title == shop.name and settings.seo_home_title != blank
+          assign seo_title = settings.seo_home_title
+        endif
+        if seo_description == blank
+          assign seo_description = settings.seo_home_description
+        endif
+      endif
+    -%}
+    <link rel="canonical" href="{{ seo_canonical }}">
 
     {%- if settings.favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
 
     <title>
-      {{ page_title }}
+      {{ seo_title }}
       {%- if current_tags %} &ndash; {{ current_tags | join: ', ' }}{% endif -%}
       {%- if current_page != 1 %} &ndash; page {{ current_page }}{% endif -%}
-      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+      {%- unless seo_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
     </title>
 
-    {%- if page_description -%}
-      <meta name="description" content="{{ page_description | escape }}">
+    {%- if seo_description != blank -%}
+      <meta name="description" content="{{ seo_description | strip_newlines | escape }}">
     {%- endif -%}
 
-    {% render 'meta-tags' %}
+    {% render 'meta-tags', seo_title: seo_title, seo_description: seo_description, seo_canonical: seo_canonical %}
 
     {% render 'theme-styles' %}
     {{ 'base.css' | asset_url | stylesheet_tag }}

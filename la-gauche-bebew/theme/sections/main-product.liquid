@@ -237,7 +237,7 @@
   {%- comment -%} Tout pour acheter, visible dès l'arrivée sur la page {%- endcomment -%}
   <div class="product__info">
     <nav class="breadcrumb" aria-label="{{ 'general.breadcrumb' | t }}">
-      <a href="{{ routes.all_products_collection_url }}">{{ 'product.breadcrumb_shop' | t }}</a><span aria-hidden="true">/</span>{{ product.title | escape }}
+      <a href="{{ settings.shop_collection.url | default: routes.all_products_collection_url }}">{{ 'product.breadcrumb_shop' | t }}</a><span aria-hidden="true">/</span>{{ product.title | escape }}
     </nav>
 
     {{ buy_html }}

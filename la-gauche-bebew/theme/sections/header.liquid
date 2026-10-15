@@ -25,7 +25,7 @@
         <a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title }}</a>
       {%- endfor -%}
     {%- else -%}
-      <a href="{{ routes.all_products_collection_url }}">{{ 'header.fallback_slogans' | t }}</a>
+      <a href="{{ settings.shop_collection.url | default: routes.all_products_collection_url }}">{{ 'header.fallback_slogans' | t }}</a>
       <a href="{{ routes.root_url }}#manifeste">{{ 'header.fallback_manifesto' | t }}</a>
       <a href="{{ routes.root_url }}#cortege">{{ 'header.fallback_cortege' | t }}</a>
       <a href="{{ routes.root_url }}#faq">FAQ</a>

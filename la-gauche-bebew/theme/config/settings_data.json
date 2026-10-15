@@ -12,7 +12,9 @@
     "free_shipping_threshold": 50,
     "show_cart_bar": true,
     "contact_email": "lagauchebebew@gmail.com",
-    "size_guide_page": "guide-des-tailles"
+    "size_guide_page": "guide-des-tailles",
+    "shipping_price": 4.9,
+    "shop_collection": "t-shirts"
   },
   "presets": {
     "La Gauche Bebew": {

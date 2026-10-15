@@ -52,7 +52,7 @@
 
   {%- if s.button_label != blank -%}
     <div class="products-section__more">
-      <a href="{{ s.button_link | default: collection.url | default: routes.all_products_collection_url }}" class="btn">{{ s.button_label | escape }}</a>
+      <a href="{{ s.button_link | default: collection.url | default: settings.shop_collection.url | default: routes.all_products_collection_url }}" class="btn">{{ s.button_label | escape }}</a>
     </div>
   {%- endif -%}
 </section>

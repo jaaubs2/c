@@ -6,7 +6,9 @@
     "breadcrumb": "Fil d'Ariane",
     "pagination": "Pages",
     "payment_methods": "Moyens de paiement",
-    "reassurance": "Nos engagements"
+    "reassurance": "Nos engagements",
+    "previous": "Précédent",
+    "next": "Suivant"
   },
   "header": {
     "menu": "Menu",
@@ -50,10 +52,10 @@
     "subtotal": "Sous-total",
     "shipping": "Livraison",
     "shipping_free": "Offerte",
-    "shipping_at_checkout": "Calculée à l’étape suivante",
     "total": "Total",
     "checkout": "Passer commande",
-    "remove_named": "Retirer {{ title }} du panier"
+    "remove_named": "Retirer {{ title }} du panier",
+    "shipping_note": "Livraison suivie en France, TVA comprise."
   },
   "product": {
     "add_to_cart": "Ajouter au cortège",

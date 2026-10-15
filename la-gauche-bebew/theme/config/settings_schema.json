@@ -39,9 +39,18 @@
         "label": "Typo des titres et slogans",
         "default": "anton",
         "options": [
-          { "value": "anton", "label": "Anton" },
-          { "value": "archivo-black", "label": "Archivo Black" },
-          { "value": "bebas", "label": "Bebas Neue" }
+          {
+            "value": "anton",
+            "label": "Anton"
+          },
+          {
+            "value": "archivo-black",
+            "label": "Archivo Black"
+          },
+          {
+            "value": "bebas",
+            "label": "Bebas Neue"
+          }
         ]
       },
       {
@@ -85,9 +94,18 @@
         "label": "Style des boutons",
         "default": "plein",
         "options": [
-          { "value": "plein", "label": "Plein" },
-          { "value": "contour", "label": "Contour" },
-          { "value": "tampon", "label": "Tampon" }
+          {
+            "value": "plein",
+            "label": "Plein"
+          },
+          {
+            "value": "contour",
+            "label": "Contour"
+          },
+          {
+            "value": "tampon",
+            "label": "Tampon"
+          }
         ]
       }
     ]
@@ -110,6 +128,13 @@
         "id": "pair_price",
         "label": "Prix des deux t-shirts (€)",
         "default": 35
+      },
+      {
+        "type": "number",
+        "id": "shipping_price",
+        "label": "Prix de la livraison standard (€)",
+        "default": 4.9,
+        "info": "À garder identique au tarif de Paramètres > Expédition. Affiché dans le panier pour montrer le total réel."
       },
       {
         "type": "number",
@@ -152,10 +177,37 @@
     "name": "Pages",
     "settings": [
       {
+        "type": "collection",
+        "id": "shop_collection",
+        "label": "Collection « Boutique »",
+        "info": "Page vers laquelle mènent les liens Boutique (fil d'Ariane, boutons). Par défaut : /collections/all."
+      },
+      {
         "type": "page",
         "id": "size_guide_page",
         "label": "Page « Guide des tailles »",
         "info": "Page qui utilise le modèle page.guide-des-tailles. Elle s'ouvre en fenêtre sur la fiche produit."
+      }
+    ]
+  },
+  {
+    "name": "Référencement (SEO)",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Utilisé pour la page d'accueil si rien n'est rempli dans Boutique en ligne > Préférences."
+      },
+      {
+        "type": "text",
+        "id": "seo_home_title",
+        "label": "Titre de la page d'accueil (Google)",
+        "default": "La Gauche Bebew – T-shirts à slogans militants"
+      },
+      {
+        "type": "textarea",
+        "id": "seo_home_description",
+        "label": "Description de la page d'accueil (Google)",
+        "default": "T-shirts noirs ou blancs à slogans de manif, coupes Homme et Femme du XS au XXL. Marque indépendante, imprimés pour les cortèges. Livraison en France."
       }
     ]
   },

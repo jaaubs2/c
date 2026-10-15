@@ -2,7 +2,7 @@
   <p class="notfound__code">{{ 'not_found.code' | t }}</p>
   <h1 class="display notfound__title">{{ section.settings.title | escape }}</h1>
   <p class="newsletter__text">{{ section.settings.text | escape }}</p>
-  <a href="{{ routes.all_products_collection_url }}" class="btn">{{ section.settings.button | escape }} {% render 'icon', name: 'arrow' %}</a>
+  <a href="{{ settings.shop_collection.url | default: routes.all_products_collection_url }}" class="btn">{{ section.settings.button | escape }} {% render 'icon', name: 'arrow' %}</a>
 </div>
 
 {% schema %}

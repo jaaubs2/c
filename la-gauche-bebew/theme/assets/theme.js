@@ -61,6 +61,7 @@
         if (current) current.replaceWith(fresh);
       });
     });
+    updateCarousels();
     measureHeader();
   }
 
@@ -644,6 +645,41 @@
     });
   }
 
+  /* ---------- Carrousels « Prends-en un deuxième » ---------- */
+
+  function carouselState(c) {
+    var track = $('[data-carousel-track]', c);
+    if (!track) return;
+    var max = track.scrollWidth - track.clientWidth;
+    var nav = $('.carousel__nav', c);
+    if (nav) nav.hidden = max <= 2;
+    var prev = $('[data-carousel-prev]', c), next = $('[data-carousel-next]', c);
+    if (prev) prev.disabled = track.scrollLeft <= 2;
+    if (next) next.disabled = track.scrollLeft >= max - 2;
+  }
+
+  function updateCarousels() { $$('[data-carousel]').forEach(carouselState); }
+
+  function initCarousels() {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-carousel-prev], [data-carousel-next]');
+      if (!btn) return;
+      var c = btn.closest('[data-carousel]');
+      var track = c && $('[data-carousel-track]', c);
+      if (!track) return;
+      var card = $('.card:not([hidden])', track);
+      var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      var step = card ? card.offsetWidth + gap : track.clientWidth;
+      track.scrollBy({ left: (btn.hasAttribute('data-carousel-next') ? 1 : -1) * step, behavior: 'smooth' });
+    });
+    // le défilement d'un élément ne remonte pas : écoute en phase de capture
+    document.addEventListener('scroll', function (e) {
+      if (e.target.closest && e.target.matches('[data-carousel-track]')) carouselState(e.target.closest('[data-carousel]'));
+    }, { passive: true, capture: true });
+    window.addEventListener('resize', updateCarousels, { passive: true });
+    updateCarousels();
+  }
+
   /* ---------- Démarrage ---------- */
 
   function init() {
@@ -657,6 +693,7 @@
     initSizeGuide();
     initCart();
     initNewsletter();
+    initCarousels();
     $$('[data-product]').forEach(initProduct);
   }
 
@@ -669,5 +706,6 @@
     initMenu();
     $$('[data-product]', e.target).forEach(initProduct);
     measureHeader();
+    updateCarousels();
   });
 })();

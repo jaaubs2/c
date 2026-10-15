@@ -9,6 +9,17 @@
   endif
   assign second_price = settings.pair_price | minus: settings.unit_price
   assign odd = cart.item_count | modulo: 2
+  comment
+    Livraison affichée dans le panier : le client voit le vrai total avant de payer.
+    Le prix vient du réglage du thème (à garder égal au tarif Shopify).
+  endcomment
+  assign shipping_cents = settings.shipping_price | times: 100 | round
+  if remaining <= 0
+    assign shipping_cents = 0
+  endif
+  assign shipping_display = shipping_cents | money_without_trailing_zeros | remove: '€' | strip | append: ' €'
+  assign grand_total = cart.total_price | plus: shipping_cents
+  assign grand_total_display = grand_total | money_without_trailing_zeros | remove: '€' | strip | append: ' €'
   assign saved_display = cart.total_discount | money_without_trailing_zeros | remove: '€' | strip | append: ' €'
 -%}
 <div data-cart-section data-section-id="{{ section.id }}">
@@ -17,10 +28,10 @@
       <div class="cart-empty">
         <p class="kicker">{{ 'cart.title' | t }}</p>
         <h1 class="display cart-empty__title">{{ s.empty_text | escape }}</h1>
-        <a href="{{ routes.all_products_collection_url }}" class="btn">{{ s.empty_button | escape }} {% render 'icon', name: 'arrow' %}</a>
+        <a href="{{ settings.shop_collection.url | default: routes.all_products_collection_url }}" class="btn">{{ s.empty_button | escape }} {% render 'icon', name: 'arrow' %}</a>
       </div>
     {%- else -%}
-      <header class="page-head">
+      <header class="page-head cart-head">
         <p class="kicker">{{ 'cart.count' | t: count: cart.item_count }}</p>
         <h1 class="display page-head__title">{{ s.title | escape }}</h1>
       </header>
@@ -118,29 +129,25 @@
             {%- for discount in cart.discount_applications -%}
               <div class="totals__row"><span>{{ discount.title | escape }}</span><span>−{{ discount.total_allocated_amount | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</span></div>
             {%- endfor -%}
-            <div class="totals__row"><span>{{ 'cart.shipping' | t }}</span><span>{% if remaining <= 0 %}{{ 'cart.shipping_free' | t }}{% else %}{{ 'cart.shipping_at_checkout' | t }}{% endif %}</span></div>
-            <div class="totals__row totals__row--total"><span>{{ 'cart.total' | t }}</span><span>{{ cart.total_price | money_without_trailing_zeros | remove: '€' | strip | append: ' €' }}</span></div>
+            <div class="totals__row"><span>{{ 'cart.shipping' | t }}</span><span>{% if shipping_cents == 0 %}{{ 'cart.shipping_free' | t }}{% else %}{{ shipping_display }}{% endif %}</span></div>
+            <div class="totals__row totals__row--total"><span>{{ 'cart.total' | t }}</span><span>{{ grand_total_display }}</span></div>
+            <p class="totals__note">{{ 'cart.shipping_note' | t }}</p>
           </div>
 
           <div class="cart__checkout">
-            <button type="submit" name="checkout" form="CartForm" class="btn">{{ 'cart.checkout' | t }}</button>
+            <button type="submit" name="checkout" form="CartForm" class="btn">{{ 'cart.checkout' | t }}<span class="cart__checkout-total"> · {{ grand_total_display }}</span></button>
           </div>
 
           <div class="cart__facts">
             {%- assign facts = s.facts | newline_to_br | split: '<br />' -%}
             {%- for f in facts -%}{%- assign ft = f | strip -%}{%- if ft != blank -%}<span>→ {{ ft | escape }}</span>{%- endif -%}{%- endfor -%}
           </div>
-          {% render 'payment-icons' %}
         </aside>
       </div>
 
       {%- comment -%} Prends-en un deuxième, quand le nombre est impair {%- endcomment -%}
       {%- if odd == 1 and s.upsell -%}
         {%- liquid
-          assign in_cart = ''
-          for item in cart.items
-            assign in_cart = in_cart | append: ',' | append: item.product_id | append: ','
-          endfor
           assign shown = 0
           assign source = s.upsell_collection | default: collections.all
         -%}
@@ -151,14 +158,16 @@
               <h2 class="display h2">{{ s.upsell_title | escape }}</h2>
             </div>
           </div>
-          <div class="product-grid" style="--cols: 4">
-            {%- for p in source.products -%}
-              {%- assign key = ',' | append: p.id | append: ',' -%}
-              {%- unless in_cart contains key or shown >= 4 or p.available == false -%}
-                {%- assign shown = shown | plus: 1 -%}
-                {% render 'product-card', product: p, card_visual: 'flat', show_badge: true, show_sizes: false, quick_add: true %}
-              {%- endunless -%}
-            {%- endfor -%}
+          <div class="carousel" data-carousel>
+            <div class="product-grid product-grid--carousel" data-carousel-track>
+              {%- for p in source.products -%}
+                {%- if p.available -%}
+                  {% render 'product-card', product: p, card_visual: 'flat', show_badge: true, show_sizes: true, quick_add: true, card_index: shown %}
+                  {%- assign shown = shown | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+            {% render 'carousel-nav' %}
           </div>
         </section>
       {%- endif -%}

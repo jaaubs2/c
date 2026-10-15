@@ -17,13 +17,17 @@
       </div>
       {%- if s.text != blank -%}<div class="section-head__desc">{{ s.text }}</div>{%- endif -%}
     </div>
-    <div class="product-grid" style="--cols: 4">
-      {%- for item in source.products -%}
-        {%- if item.id != current_id and shown < s.count -%}
-          {%- assign shown = shown | plus: 1 -%}
-          {% render 'product-card', product: item, card_visual: 'flat', show_badge: true, show_sizes: false, quick_add: true %}
-        {%- endif -%}
-      {%- endfor -%}
+    {%- comment -%} Carrousel : tous les slogans, les cartes alternent noir / blanc {%- endcomment -%}
+    <div class="carousel" data-carousel>
+      <div class="product-grid product-grid--carousel" data-carousel-track>
+        {%- for item in source.products -%}
+          {%- if item.id != current_id and shown < s.count -%}
+            {% render 'product-card', product: item, card_visual: 'flat', show_badge: true, show_sizes: true, quick_add: true, card_index: shown %}
+            {%- assign shown = shown | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      {% render 'carousel-nav' %}
     </div>
   </section>
 {%- endif -%}
@@ -37,7 +41,7 @@
     { "type": "text", "id": "title", "label": "Titre", "default": "Prends-en un deuxième" },
     { "type": "richtext", "id": "text", "label": "Texte", "default": "<p>Le deuxième te coûte 15 €. La réduction s'applique toute seule dans ton panier.</p>" },
     { "type": "collection", "id": "collection", "label": "Collection", "info": "Par défaut : tous les produits." },
-    { "type": "range", "id": "count", "label": "Nombre de t-shirts", "min": 2, "max": 8, "step": 1, "default": 4 }
+    { "type": "range", "id": "count", "label": "Nombre de t-shirts maximum", "min": 2, "max": 24, "step": 1, "default": 24 }
   ],
   "presets": [{ "name": "Prends-en un deuxième" }]
 }

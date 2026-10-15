@@ -100,7 +100,7 @@
     assign color_list = ph_color | split: ' '
     assign color_labels = ph_color
     assign fits = 'homme femme'
-    assign url = routes.all_products_collection_url
+    assign url = settings.shop_collection.url | default: routes.all_products_collection_url
     assign title = ph_name | default: ph_title
   endif
 
