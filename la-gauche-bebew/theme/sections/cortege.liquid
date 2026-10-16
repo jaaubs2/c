@@ -11,7 +11,7 @@
     </div>
   </div>
 
-  <div class="cortege__grid">
+  <div class="cortege__grid" data-cortege>
     {%- for block in section.blocks -%}
       <figure class="cortege__photo grain{% if forloop.first %} cortege__photo--big{% endif %}" {{ block.shopify_attributes }}>
         {%- if block.settings.image != blank -%}
@@ -38,6 +38,12 @@
       </figure>
     {%- endfor -%}
   </div>
+  {%- if section.blocks.size > 1 -%}
+    {%- comment -%} Téléphone : points du carrousel (masqués sur ordinateur) {%- endcomment -%}
+    <div class="cortege__dots" aria-hidden="true">
+      {%- for block in section.blocks -%}<span{% if forloop.first %} class="is-active"{% endif %}></span>{%- endfor -%}
+    </div>
+  {%- endif -%}
 </section>
 
 {% schema %}

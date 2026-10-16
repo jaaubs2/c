@@ -707,6 +707,58 @@
     updateCarousels();
   }
 
+  /* ---------- Porte-le en cortège : carrousel automatique sur téléphone ---------- */
+
+  function initCortege() {
+    $$('[data-cortege]').forEach(function (grid) {
+      if (grid.dataset.bound) return;
+      grid.dataset.bound = '1';
+      var section = grid.closest('.cortege');
+      var dots = section ? $$('.cortege__dots span', section) : [];
+      var photos = $$('.cortege__photo', grid);
+      var mobile = window.matchMedia('(max-width: 600px)');
+      var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+      var visible = false, pausedUntil = 0, timer = null;
+      if (photos.length < 2) return;
+
+      // la grille est positionnée : offsetLeft des photos est compté depuis son bord
+      function pad() { return parseFloat(getComputedStyle(grid).paddingLeft) || 0; }
+      function current() {
+        var best = 0, dist = Infinity;
+        photos.forEach(function (p, i) {
+          var d = Math.abs(p.offsetLeft - pad() - grid.scrollLeft);
+          if (d < dist) { dist = d; best = i; }
+        });
+        // tout au bout : la dernière photo est affichée
+        if (grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 4) best = photos.length - 1;
+        return best;
+      }
+      function paint() {
+        var i = current();
+        dots.forEach(function (d, k) { d.classList.toggle('is-active', k === i); });
+      }
+      function next() {
+        if (!mobile.matches || still.matches || !visible || document.hidden || Date.now() < pausedUntil) return;
+        var i = current() + 1;
+        if (i >= photos.length) i = 0;
+        grid.scrollTo({ left: photos[i].offsetLeft - pad(), behavior: 'smooth' });
+      }
+      function pause() { pausedUntil = Date.now() + 6000; }
+
+      grid.addEventListener('scroll', paint, { passive: true });
+      grid.addEventListener('touchstart', pause, { passive: true });
+      grid.addEventListener('pointerdown', pause, { passive: true });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          visible = entries[0].isIntersecting;
+        }, { threshold: 0.5 }).observe(grid);
+      } else {
+        visible = true;
+      }
+      timer = setInterval(next, 3500);
+    });
+  }
+
   /* ---------- Démarrage ---------- */
 
   function init() {
@@ -729,6 +781,7 @@
     initCart();
     initNewsletter();
     initCarousels();
+    initCortege();
     $$('[data-product]').forEach(initProduct);
   }
 
@@ -739,6 +792,7 @@
   document.addEventListener('shopify:section:load', function (e) {
     initFilters();
     initMenu();
+    initCortege();
     $$('[data-product]', e.target).forEach(initProduct);
     measureHeader();
     updateCarousels();

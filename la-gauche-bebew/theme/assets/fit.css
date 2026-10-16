@@ -365,3 +365,25 @@ select.input {
 }
 /* pas de survol au doigt : la photo portée de survol n'est pas chargée pour rien */
 @media (hover: none) { .card__visual--hover { display: none; } }
+
+/* ---------- Porte-le en cortège sur téléphone : grandes photos qui défilent ----------
+   Une photo presque plein écran, la suivante dépasse à droite pour inviter à glisser ;
+   theme.js les fait défiler toutes seules (pause dès qu'on touche). */
+.cortege__dots { display: none; }
+@media (max-width: 600px) {
+  .cortege { min-height: 0; }
+  .cortege__grid {
+    display: flex; flex: none; gap: 10px; position: relative;
+    margin: 0 calc(-1 * var(--pad)); padding: 0 var(--pad);
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--pad);
+    overscroll-behavior-x: contain; scrollbar-width: none;
+  }
+  .cortege__grid::-webkit-scrollbar { display: none; }
+  .cortege__photo, .cortege__photo--big {
+    flex: 0 0 88%; aspect-ratio: 4 / 5; height: auto; max-height: calc(var(--hero-h) * .75);
+    scroll-snap-align: start; position: relative;
+  }
+  .cortege__dots { display: flex; justify-content: center; gap: 8px; margin-top: -4px; }
+  .cortege__dots span { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--ink); transition: background .2s; }
+  .cortege__dots span.is-active { background: var(--ink); }
+}
