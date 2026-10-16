@@ -354,3 +354,14 @@ select.input {
   .size-btn--fit { padding: 0 8px; font-size: 10px; }
   .card__buy .btn--small { white-space: nowrap; font-size: 15px; padding-left: 8px; padding-right: 8px; }
 }
+
+/* ---------- Téléphone : images stables au défilement ----------
+   Sur iPhone, le grain (filtre SVG + mix-blend-mode) et les conteneurs
+   « container-type » font disparaître / clignoter les photos pendant le scroll. */
+@media (hover: none), (max-width: 899px) {
+  .grain::before { display: none; }
+  .card__media:has(img), .gallery__item:has(img), .line__media:has(img) { container-type: normal; }
+  .card__visual img, .gallery__item img, .line__media img, .cortege__photo img, .hero__photo img { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+}
+/* pas de survol au doigt : la photo portée de survol n'est pas chargée pour rien */
+@media (hover: none) { .card__visual--hover { display: none; } }

@@ -118,17 +118,20 @@
     var announce = $('.section-announce');
     var announceH = announce ? announce.offsetHeight : 0;
     var root = document.documentElement.style;
+    // n'écrit que ce qui change : sur iPhone la barre d'adresse déclenche des « resize » en plein scroll
+    function setVar(name, value) { if (root.getPropertyValue(name) !== value) root.setProperty(name, value); }
     // le menu ouvert ne compte pas : sinon toute la page se redimensionne quand on l'ouvre
     var nav = $('.header__nav', header);
     var headerH = header.offsetHeight - (nav && !nav.hidden ? nav.offsetHeight : 0);
     // bandeau d'annonce + header restent tous les deux collés en haut
-    root.setProperty('--announce-h', announceH + 'px');
-    root.setProperty('--header-h', (announceH + headerH) + 'px');
+    setVar('--announce-h', announceH + 'px');
+    setVar('--header-h', (announceH + headerH) + 'px');
     // bandeau annonce + header : le hero prend exactement le reste de l'écran
-    root.setProperty('--chrome-h', (header.offsetTop + headerH) + 'px');
+    setVar('--chrome-h', (header.offsetTop + headerH) + 'px');
     // la colonne d'infos produit ne reste collée que si elle tient dans l'écran
     $$('.product__info').forEach(function (info) {
-      info.style.position = info.offsetHeight > window.innerHeight - announceH - headerH - 24 ? 'static' : '';
+      var pos = info.offsetHeight > window.innerHeight - announceH - headerH - 24 ? 'static' : '';
+      if (info.style.position !== pos) info.style.position = pos;
     });
   }
 
@@ -701,7 +704,6 @@
     document.addEventListener('scroll', function (e) {
       if (e.target.closest && e.target.matches('[data-carousel-track]')) carouselState(e.target.closest('[data-carousel]'));
     }, { passive: true, capture: true });
-    window.addEventListener('resize', updateCarousels, { passive: true });
     updateCarousels();
   }
 
@@ -709,7 +711,15 @@
 
   function init() {
     measureHeader();
-    window.addEventListener('resize', measureHeader, { passive: true });
+    // seuls les vrais changements de largeur (rotation, fenêtre) relancent la mesure :
+    // la barre d'adresse du téléphone ne change que la hauteur
+    var lastW = window.innerWidth;
+    window.addEventListener('resize', function () {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      measureHeader();
+      updateCarousels();
+    }, { passive: true });
     initMenu();
     initFilters();
     initDialogs();
