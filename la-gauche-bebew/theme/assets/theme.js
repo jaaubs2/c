@@ -118,14 +118,17 @@
     var announce = $('.section-announce');
     var announceH = announce ? announce.offsetHeight : 0;
     var root = document.documentElement.style;
+    // le menu ouvert ne compte pas : sinon toute la page se redimensionne quand on l'ouvre
+    var nav = $('.header__nav', header);
+    var headerH = header.offsetHeight - (nav && !nav.hidden ? nav.offsetHeight : 0);
     // bandeau d'annonce + header restent tous les deux collés en haut
     root.setProperty('--announce-h', announceH + 'px');
-    root.setProperty('--header-h', (announceH + header.offsetHeight) + 'px');
+    root.setProperty('--header-h', (announceH + headerH) + 'px');
     // bandeau annonce + header : le hero prend exactement le reste de l'écran
-    root.setProperty('--chrome-h', (header.offsetTop + header.offsetHeight) + 'px');
+    root.setProperty('--chrome-h', (header.offsetTop + headerH) + 'px');
     // la colonne d'infos produit ne reste collée que si elle tient dans l'écran
     $$('.product__info').forEach(function (info) {
-      info.style.position = info.offsetHeight > window.innerHeight - announceH - header.offsetHeight - 24 ? 'static' : '';
+      info.style.position = info.offsetHeight > window.innerHeight - announceH - headerH - 24 ? 'static' : '';
     });
   }
 
@@ -395,22 +398,36 @@
       });
     });
 
-    // défilement des photos : flèches + compteur
+    // défilement des photos : flèches + compteur.
+    // On se cale toujours sur une photo précise (et non « + une largeur »), sinon sur téléphone
+    // la dernière photo était atteinte avant le dernier clic et on revenait à la première.
     var counter = $('[data-gallery-index]', section);
-    function step() { return gallery.firstElementChild ? gallery.firstElementChild.offsetWidth + 12 : gallery.clientWidth; }
+    function galleryItems() { return gallery ? Array.prototype.slice.call(gallery.children) : []; }
+    function galleryIndex() {
+      var items = galleryItems();
+      if (!items.length) return 0;
+      var max = gallery.scrollWidth - gallery.clientWidth;
+      if (gallery.scrollLeft >= max - 2) return items.length - 1;
+      var origin = items[0].offsetLeft, best = 0, dist = Infinity;
+      items.forEach(function (it, i) {
+        var d = Math.abs(it.offsetLeft - origin - gallery.scrollLeft);
+        if (d < dist) { dist = d; best = i; }
+      });
+      return best;
+    }
     if (gallery && counter) {
       gallery.addEventListener('scroll', function () {
-        counter.textContent = String(Math.round(gallery.scrollLeft / step()) + 1);
+        counter.textContent = String(galleryIndex() + 1);
       }, { passive: true });
     }
     $$('[data-gallery-prev], [data-gallery-next]', section).forEach(function (btn) {
       btn.addEventListener('click', function () {
+        var items = galleryItems();
+        if (!items.length) return;
         var dir = btn.hasAttribute('data-gallery-next') ? 1 : -1;
-        var max = gallery.scrollWidth - gallery.clientWidth;
-        var target = gallery.scrollLeft + dir * step();
-        if (target > max + 2) target = 0;
-        if (target < -2) target = max;
-        gallery.scrollTo({ left: target, behavior: 'smooth' });
+        var next = (galleryIndex() + dir + items.length) % items.length;
+        gallery.scrollTo({ left: items[next].offsetLeft - items[0].offsetLeft, behavior: 'smooth' });
+        if (counter) counter.textContent = String(next + 1);
       });
     });
   }

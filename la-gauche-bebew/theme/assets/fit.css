@@ -312,3 +312,45 @@ select.input {
    (on voit toujours le haut, seul le bas peut être rogné). Les photos plus larges restent entières. */
 .card__media:has(img), .gallery__item:has(img), .line__media:has(img), .card__visual--hover { background: #FFFFFF; }
 .card__visual img.is-tall, .gallery__item img.is-tall, .card__visual--hover img { object-fit: cover; object-position: top center; }
+
+/* ==========================================================================
+   Téléphone : galerie produit = une photo à la fois, sur toute la largeur
+   (hauteur limitée pour voir le slogan et le prix sans défiler)
+   ========================================================================== */
+@media (max-width: 899px) {
+  .gallery { grid-auto-columns: 100%; justify-content: start; }
+  .gallery__item {
+    aspect-ratio: auto;
+    height: min(calc((100vw - 2 * var(--pad)) / var(--gallery-ar, 0.8)), calc(var(--hero-h) * .58));
+  }
+  .product-more__media.gallery__item { height: auto; aspect-ratio: var(--worn-ar, 0.8); }
+}
+
+/* ==========================================================================
+   Haut de page sur téléphone : annonce + menu + barre panier restent collés,
+   mais en version compacte (avant : ~200 px, un tiers de l'écran)
+   ========================================================================== */
+.announce__copy, .announce__sep { display: none; }
+@media (max-width: 600px) {
+  .announce { padding: 7px 0; font-size: 11px; letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-align: left; }
+  .announce__track { display: inline-flex; width: max-content; animation: ribbon 22s linear infinite; }
+  .announce__text { padding-left: 0; }
+  .announce__copy, .announce__sep { display: inline; }
+  .header__bar { padding-top: 6px; padding-bottom: 6px; }
+  .cart-bar { padding: 6px var(--pad) 7px; gap: 5px; }
+  .cart-bar p { font-size: 11px; line-height: 1.3; }
+  .cart-bar .progress, .cart-bar .progress > span { height: 4px; }
+}
+@media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+  .announce__track { animation: none; }
+  .announce { text-overflow: ellipsis; }
+  .announce__copy { display: none; }
+}
+
+/* Téléphone : cartes plus lisibles (carrousel plus large, boutons de taille plus fins) */
+@media (max-width: 600px) {
+  .product-grid.product-grid--carousel { grid-auto-columns: calc((100% - var(--grid-gap-x)) / 1.55); }
+  .size-btn { min-width: 32px; height: 32px; padding: 0 5px; font-size: 11px; }
+  .size-btn--fit { padding: 0 8px; font-size: 10px; }
+  .card__buy .btn--small { white-space: nowrap; font-size: 15px; padding-left: 8px; padding-right: 8px; }
+}

@@ -1,10 +1,14 @@
 {%- if section.settings.text != blank -%}
+  {%- comment -%}
+    Le texte est doublé pour défiler en boucle sur téléphone (une seule ligne) ; la copie est masquée ailleurs.
+  {%- endcomment -%}
   <div class="announce" {{ section.shopify_attributes }}>
-    {%- if section.settings.link != blank -%}
-      <a href="{{ section.settings.link }}">{{ section.settings.text | escape }}</a>
-    {%- else -%}
-      {{ section.settings.text | escape }}
-    {%- endif -%}
+    {%- if section.settings.link != blank -%}<a href="{{ section.settings.link }}" class="announce__link">{%- endif -%}
+    <span class="announce__track">
+      <span class="announce__text">{{ section.settings.text | escape }}<span class="announce__sep" aria-hidden="true">&nbsp;·&nbsp;</span></span>
+      <span class="announce__text announce__copy" aria-hidden="true">{{ section.settings.text | escape }}<span class="announce__sep">&nbsp;·&nbsp;</span></span>
+    </span>
+    {%- if section.settings.link != blank -%}</a>{%- endif -%}
   </div>
 {%- endif -%}
 
