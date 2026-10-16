@@ -147,6 +147,8 @@ Après les avoir modifiées : `npm run app:icons`.
 | `docs/MISE-EN-LIGNE.md` | Guide pas à pas pour mettre l'app en ligne (et les documents légaux) |
 | `statichost.yml`, `.env.production.example` | Réglages de la version en ligne |
 | `src/prototype/legal.jsx` | Politique de confidentialité, conditions d'utilisation, mentions légales |
+| `src/brand/` | Le logo en SVG (`logo.svg` : symbole + nom ; `mark.svg` : symbole seul) et ses composants (`brand.jsx`) |
+| `scripts/brand-icons.cjs` | Refait toutes les icônes à partir du symbole : `node scripts/brand-icons.cjs`, puis `npm run app:icons` pour iPhone/Android |
 | `src/a11y.js` | Accessibilité transversale : focus, touche Échap, préférences au démarrage |
 | `src/main.jsx` | Point de départ : assemble les écrans dans l'ordre |
 | `src/device.js`, `src/device.css` | Plein écran sur téléphone, cadre sur ordinateur |

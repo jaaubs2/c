@@ -11,20 +11,8 @@ const { StatusBar: SBAuth, Avatar: AvatarAuth } = window.UI;
 
 /* ─── Brand logo — simple wordmark ─── */
 function BrandLogo({size = 28}){
-  return (
-    <span aria-hidden="true" style={{display:"inline-flex", alignItems:"center", gap:8}}>
-      <span style={{
-        width:size, height:size, borderRadius:"50%",
-        background:"radial-gradient(circle at 30% 30%, var(--accent-2), var(--accent))",
-        display:"inline-flex", alignItems:"center", justifyContent:"center",
-        color:"#FFFFFF", fontFamily:"var(--display)", fontWeight:600, fontSize:size*.55,
-        letterSpacing:"-.02em"
-      }}>c</span>
-      <span style={{fontFamily:"var(--display)", fontWeight:800, fontSize:size*.7, color:"var(--ink)", letterSpacing:"-.015em"}}>
-        Le carnet vivant
-      </span>
-    </span>
-  );
+  // Le logo officiel (symbole + « le carnet vivant »), à la couleur du texte.
+  return <span style={{display:"inline-flex", color:"var(--ink)"}}><window.Brand.Logo height={Math.round(size * 1.1)}/></span>;
 }
 
 /* ─── OAuth icons ─── */
@@ -76,6 +64,7 @@ function LaunchScreen({onSignup, onLogin}){
       <SBAuth/>
       <div className="scroll" style={{padding:"0 24px 28px", display:"flex", flexDirection:"column"}}>
         <div style={{flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", textAlign:"center", paddingTop:24}}>
+          <span style={{color:"var(--ink)", marginBottom:36}}><window.Brand.Logo height={34} label="Le carnet vivant"/></span>
           <h1 style={{fontSize:32, letterSpacing:"-.035em", lineHeight:1.1, textWrap:"pretty", maxWidth:300}}>Le savoir qui prend soin d'elle.</h1>
           <p className="meta" style={{marginTop:12, fontSize:15, lineHeight:1.5, maxWidth:300}}>Un carnet humain pour accompagner une personne en perte d'autonomie. Pas un dossier médical, juste l'essentiel.</p>
         </div>

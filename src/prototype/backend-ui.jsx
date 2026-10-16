@@ -44,6 +44,7 @@ function BootScreen({label="Ouverture du carnet…"}){
     <div className="screen fade-enter" role="status" aria-live="polite">
       <StatusBar/>
       <div className="scroll" style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", paddingBottom:0}}>
+        <span style={{color:"var(--ink)", marginBottom:26}}><window.Brand.Mark height={56}/></span>
         <div className="dots" aria-hidden="true" style={{transform:"scale(1.4)"}}><span className="on"/><span/><span/></div>
         <p className="meta" style={{marginTop:18, fontSize:15}}>{label}</p>
       </div>
