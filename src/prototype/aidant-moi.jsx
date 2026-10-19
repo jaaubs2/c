@@ -5,10 +5,17 @@ const { useState, useEffect, useMemo } = React;
 const { StatusBar, Avatar } = window.UI;
 const { IconChevron, IconCheck, IconMic, IconShare, CatHeart, CatLeaf, CatPeople, CatSun, IconCalendar, IconLock } = window.Icons;
 
-const KEY = "cv-moi-v2";
-const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ return {}; } };
-const save = (patch) => { try { localStorage.setItem(KEY, JSON.stringify({...load(), ...patch})); } catch(e){} };
+// Gardé sur ce téléphone seulement, un espace par compte.
+const KEY = "cv-moi-v3";
+const storeKey = () => KEY + ":" + (window.Who.demo ? "demo" : (window.Who.userId || "moi"));
+const load = () => { try { return JSON.parse(localStorage.getItem(storeKey()) || "{}"); } catch(e){ return {}; } };
+const save = (patch) => { try { localStorage.setItem(storeKey(), JSON.stringify({...load(), ...patch})); } catch(e){} };
 const DAY = 86400000;
+// Le ressenti est enregistré par date : « 2026-10-19 » → 1 à 4.
+const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const lastDays = (n) => Array.from({length:n}, (_, i) => { const d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate() - (n-1-i)); return d; });
+const DAY_LETTER = ["D","L","M","M","J","V","S"];
+const demoMoods = () => { const v = [2,2,3,1,2,3], out = {}; lastDays(7).slice(0,6).forEach((d,i) => { out[dayKey(d)] = v[i]; }); return out; };
 const Circle = ({Icon, bg="var(--ink)", color="#fff", size=44, isize=20}) => (
   <span aria-hidden="true" style={{width:size, height:size, borderRadius:"50%", background:bg, color, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><Icon size={isize} sw={1.8}/></span>
 );
@@ -51,19 +58,26 @@ function Breath(){
 }
 
 /* ── Page ── */
-function AidantMoi({notes=[], onOpenShare, onToast}){
+function AidantMoi({notes=[], lastShareAt=null, onOpenShare, onToast}){
   const st = load();
-  const [moods, setMoods] = useState(st.moods || [2,2,3,1,2,3,null]);
   const W = window.Who;
+  const [moodByDay, setMoodByDay] = useState(st.moodByDay || (W.demo ? demoMoods() : {}));
+  const week7 = lastDays(7);
+  const moods = week7.map(d => moodByDay[dayKey(d)] ?? null);
   const RELAYS = W.demo ? ["Léo","Claire","Auxiliaire"] : ["Un proche","Un voisin","Auxiliaire"];
   const [plan, setPlan] = useState(st.plan || { on:false, seuil:"orange", who:RELAYS[0], auto:true });
   const [triggered, setTriggered] = useState(st.triggered || false);
-  const [lastRelayDays, setLastRelayDays] = useState(st.lastRelayDays ?? 9);
-  const [mine, setMine] = useState(st.mine || [
+  // Dernier relais : le plus récent entre « X a pris le relais » et la dernière fiche partagée.
+  // Sans aucun relais, on compte depuis la première note du carnet.
+  const [relayedAt, setRelayedAt] = useState(st.relayedAt || (W.demo ? Date.now() - 9*DAY : 0));
+  const firstNoteAt = notes.length ? Math.min(...notes.map(n => n.ts)) : Date.now();
+  const lastRelayAt = Math.max(relayedAt || 0, lastShareAt || 0) || firstNoteAt;
+  const lastRelayDays = Math.max(0, Math.floor((Date.now() - lastRelayAt) / DAY));
+  const [mine, setMine] = useState(st.mine || (W.demo ? [
     { id:"m1", text:"Marcher jusqu'au marché le samedi matin, seule, sans téléphone.", ts:Date.now()-3*DAY },
     { id:"m2", text:"Le café avec Sophie. Elle ne me demande jamais « et ta mère ? » en premier.", ts:Date.now()-8*DAY },
     { id:"m3", text:"Dire non à une demande par semaine. Une seule. Ça suffit à me sentir exister.", ts:Date.now()-12*DAY },
-  ]);
+  ] : []));
   const [mineShared, setMineShared] = useState(st.mineShared || false);
   const [recording, setRecording] = useState(false);
   const [draft, setDraft] = useState("");
@@ -72,18 +86,23 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
 
   const charge = useCharge(notes, lastRelayDays, moods);
   const today = moods[6];
-  const DAYS = ["L","M","M","J","V","S","D"];
-  const LEVELS = [{v:1,l:"Épuisée"},{v:2,l:"Tendue"},{v:3,l:"Ça va"},{v:4,l:"Bien"}];
+  const LEVELS = [{v:1,l:"À bout"},{v:2,l:"Sous tension"},{v:3,l:"Ça va"},{v:4,l:"Bien"}];
   const ZONE = {
     vert:   { bg:"var(--c-sante)",    ink:"var(--c-sante-ink)",    title:"Charge soutenable", body:"Tu tiens parce que tu délègues. Garde ce rythme." },
     orange: { bg:"var(--c-histoire)", ink:"var(--c-histoire-ink)", title:"Charge élevée",     body:"C'est la zone où l'on tient « encore un peu ». C'est justement le moment de passer le relais, pas après." },
-    rouge:  { bg:"var(--c-apaise)",   ink:"var(--c-apaise-ink)",   title:"Charge critique",   body:"Personne ne peut porter ça seule sans s'abîmer. Ton plan de relais est prêt à partir." },
+    rouge:  { bg:"var(--c-apaise)",   ink:"var(--c-apaise-ink)",   title:"Charge critique",   body:"Personne ne peut porter autant sans s'abîmer. Ton plan de relais est prêt à partir." },
   }[charge.zone];
   const seuilHit = plan.on && !triggered && (plan.seuil === "orange" ? charge.zone !== "vert" : charge.zone === "rouge");
 
-  function pickMood(v){ const next = [...moods.slice(0,6), v]; setMoods(next); persist({moods:next}); }
-  function fire(){ setTriggered(true); persist({triggered:true}); onToast && onToast(`${plan.who} a reçu ton message et le carnet.`); }
-  function relayed(){ setLastRelayDays(0); setTriggered(false); persist({lastRelayDays:0, triggered:false}); onToast && onToast(`Relais noté. Bon repos${W.aidant ? ", " + W.aidant : ""}.`); }
+  function pickMood(v){ const k = dayKey(new Date()); const next = {...moodByDay}; if(next[k] === v) delete next[k]; else next[k] = v; setMoodByDay(next); persist({moodByDay:next}); }
+  function fire(){
+    setTriggered(true); persist({triggered:true});
+    // En démo, on simule l'envoi. Avec un vrai compte, on ouvre le partage : c'est toi qui envoies la fiche.
+    if(W.demo){ onToast && onToast(`${plan.who} a reçu ton message et le carnet.`); return; }
+    onToast && onToast(`Choisis ce que tu transmets à ${plan.who}.`); onOpenShare && onOpenShare();
+  }
+  function relayed(){ const now = Date.now(); setRelayedAt(now); setTriggered(false); persist({relayedAt:now, triggered:false}); onToast && onToast(`Relais noté. Bon repos${W.aidant ? ", " + W.aidant : ""}.`); }
+  function addMine(){ const t = draft.trim(); if(!t) return; const next = [{id:"m"+Date.now(), text:t, ts:Date.now()}, ...mine]; setMine(next); persist({mine:next}); setDraft(""); onToast && onToast("Ajouté à ton carnet à toi."); }
   function startRec(){
     setRecording(true); const t = "Chanter dans la voiture, fort, sur le parking avant de rentrer."; let i = 0;
     const id = setInterval(() => { i += 3; setDraft(t.slice(0,i)); if(i >= t.length){ clearInterval(id); setTimeout(() => { const n = {id:"m"+Date.now(), text:t, ts:Date.now()}; const next = [n, ...mine]; setMine(next); persist({mine:next}); setRecording(false); setDraft(""); onToast && onToast("Ajouté à ton carnet à toi."); }, 500); } }, 60);
@@ -116,14 +135,14 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
             <p style={{marginTop:16, font:"800 20px var(--sans)", letterSpacing:"-.025em", lineHeight:1.15}}>{ZONE.title}</p>
             <p style={{marginTop:6, fontSize:13.5, fontWeight:600, lineHeight:1.5, opacity:.9}}>{ZONE.body}</p>
             <ul style={{listStyle:"none", padding:0, margin:"16px 0 0", display:"grid", gridTemplateColumns:"repeat(3,minmax(0,1fr))", gap:6}}>
-              {[[lastRelayDays, "jour"+(lastRelayDays>1?"s":"")+" sans relais"], [charge.night, "note"+(charge.night>1?"s":"")+" la nuit"], [charge.days, "jour"+(charge.days>1?"s":"")+" sur 7 mobilisée"]].map(([n,l]) => (
+              {[[lastRelayDays, "jour"+(lastRelayDays>1?"s":"")+" sans relais"], [charge.night, "note"+(charge.night>1?"s":"")+" la nuit"], [charge.days, "jour"+(charge.days>1?"s":"")+" sur 7 avec des notes"]].map(([n,l]) => (
                 <li key={l} style={{background:"rgba(255,255,255,.6)", borderRadius:14, padding:"10px 10px", color:"var(--ink)"}}>
                   <span style={{display:"block", font:"800 22px var(--sans)", letterSpacing:"-.03em", lineHeight:1}}>{n}</span>
                   <span style={{display:"block", marginTop:4, fontSize:11.5, fontWeight:700, lineHeight:1.25, opacity:.8}}>{l}</span>
                 </li>
               ))}
             </ul>
-            <p style={{marginTop:12, fontSize:12, fontWeight:600, opacity:.75, lineHeight:1.45}}>Calculé à partir de tes {charge.week} notes de la semaine, de leurs horaires et du dernier relais. Jamais partagé.</p>
+            <p style={{marginTop:12, fontSize:12, fontWeight:600, opacity:.75, lineHeight:1.45}}>Calculé à partir de tes {charge.week} notes de la semaine, de leurs horaires, de ton ressenti et de ton dernier relais (la dernière fiche partagée compte). Jamais partagé.</p>
           </div>
         </Pad>
 
@@ -140,7 +159,7 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
             </button>
             {showPlan && (
               <div className="slide-up" style={{padding:"0 16px 16px"}}>
-                <p style={{fontSize:13.5, fontWeight:600, color:"var(--ink-2)", lineHeight:1.5}}>Quand on est épuisée, on ne demande plus d'aide. Alors on la programme avant.</p>
+                <p style={{fontSize:13.5, fontWeight:600, color:"var(--ink-2)", lineHeight:1.5}}>Quand on est à bout, on ne demande plus d'aide. Alors on la programme avant.</p>
                 <p className="kicker" style={{marginTop:16}}>Je passe le relais quand ma charge est</p>
                 <div className="seg" style={{marginTop:8}}>
                   {[["orange","Élevée"],["rouge","Critique"]].map(([id,l]) => <button key={id} className={plan.seuil === id ? "on" : ""} onClick={() => { const p = {...plan, seuil:id}; setPlan(p); persist({plan:p}); }}>{l}</button>)}
@@ -149,9 +168,10 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
                 <div style={{display:"flex", gap:8, marginTop:8, flexWrap:"wrap"}}>
                   {RELAYS.map(w => <button key={w} className="chip" aria-pressed={plan.who === w} onClick={() => { const p = {...plan, who:w}; setPlan(p); persist({plan:p}); }}>{w}</button>)}
                 </div>
-                <p className="kicker" style={{marginTop:16}}>Ce qui part automatiquement</p>
+                <p className="kicker" style={{marginTop:16}}>{W.demo ? "Ce qui part automatiquement" : "Ce qui se passe"}</p>
                 <ul style={{listStyle:"none", padding:0, margin:"8px 0 0", display:"grid", gap:6}}>
-                  {["Un message écrit par toi, à l'avance", `Le carnet de ${W.person}, en accès 7 jours`, "Une pause de notifications pour toi, 48 h"].map(t => <li key={t} style={{display:"flex", gap:10, alignItems:"center", fontSize:14, fontWeight:600}}><span style={{width:22, height:22, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><IconCheck size={12} sw={2.6}/></span>{t}</li>)}
+                  {(W.demo ? ["Un message écrit par toi, à l'avance", `Le carnet de ${W.person}, en accès 7 jours`, "Une pause de notifications pour toi, 48 h"]
+                           : ["Le carnet te prévient, ici, quand le seuil est atteint", `Ton message pour ${plan.who} est déjà prêt`, `Tu envoies la fiche de ${W.person} en un geste`]).map(t => <li key={t} style={{display:"flex", gap:10, alignItems:"center", fontSize:14, fontWeight:600}}><span style={{width:22, height:22, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0}}><IconCheck size={12} sw={2.6}/></span>{t}</li>)}
                 </ul>
                 <button className={"btn" + (plan.on ? " soft" : "")} style={{marginTop:16, width:"100%"}} onClick={() => { const p = {...plan, on:!plan.on}; setPlan(p); persist({plan:p}); onToast && onToast(p.on ? "Plan de relais activé." : "Plan de relais désactivé."); }}>{plan.on ? "Désactiver le plan" : "Activer mon plan de relais"}</button>
               </div>
@@ -182,15 +202,21 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
             <div role="radiogroup" style={{display:"grid", gridTemplateColumns:"repeat(4,minmax(0,1fr))", gap:6, marginTop:10}}>
               {LEVELS.map(l => { const on = today === l.v; return <button key={l.v} role="radio" aria-checked={on} onClick={() => pickMood(l.v)} style={{border:"none", cursor:"pointer", borderRadius:12, minHeight:44, background: on ? "var(--ink)" : "var(--bg)", color: on ? "#fff" : "var(--ink)", font:"800 13px var(--sans)"}}>{l.l}</button>; })}
             </div>
-            <div style={{display:"flex", gap:5, alignItems:"flex-end", height:40, marginTop:14}}>
-              {DAYS.map((d,i) => { const v = moods[i]; return <div key={i} style={{flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, height:"100%", justifyContent:"flex-end"}}><span style={{width:"100%", borderRadius:6, background: v == null ? "var(--line)" : v <= 2 ? "var(--c-apaise)" : "var(--c-sante)", height: v == null ? 6 : 6 + v*6}}/><span style={{font:"800 10px var(--sans)", color:"var(--ink-3)"}}>{d}</span></div>; })}
-            </div>
+            <ul aria-label="Ton ressenti ces 7 derniers jours" style={{listStyle:"none", padding:0, margin:"14px 0 0", display:"flex", gap:5, alignItems:"flex-end", height:44}}>
+              {week7.map((d,i) => { const v = moods[i]; const isToday = i === 6; const label = v == null ? "pas renseigné" : LEVELS.find(l => l.v === v).l;
+                return <li key={i} aria-label={`${isToday ? "Aujourd'hui" : d.toLocaleDateString("fr-FR", {weekday:"long", day:"numeric"})} : ${label}`} style={{flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, height:"100%", justifyContent:"flex-end"}}>
+                  <span aria-hidden="true" style={{width:"100%", borderRadius:6, height: v == null ? 6 : 6 + v*6, background: v == null ? "transparent" : v <= 2 ? "var(--c-apaise)" : "var(--c-sante)", border: v == null ? "1.5px dashed var(--line-2)" : "none", boxSizing:"border-box"}}/>
+                  <span aria-hidden="true" style={{font:"800 10px var(--sans)", color: isToday ? "var(--ink)" : "var(--ink-3)", textDecoration: isToday ? "underline" : "none"}}>{DAY_LETTER[d.getDay()]}</span>
+                </li>; })}
+            </ul>
+            <p className="meta" style={{marginTop:8, fontSize:12}}>Un trait en pointillés : jour non renseigné.</p>
           </div>
         </Pad>
 
         {/* ── Mon carnet à moi ── */}
-        <H2 t="Mon carnet à moi" s={`Ce qui te recharge, dicté comme pour ${W.person}. Pour ne pas l'oublier les jours où tout s'efface.`}/>
+        <H2 t="Mon carnet à moi" s={`Ce qui te recharge${W.demo ? `, dicté comme pour ${W.person}` : ""}. Pour ne pas l'oublier les jours où tout s'efface.`}/>
         <Pad>
+          {W.demo ? (
           <button onClick={startRec} disabled={recording} className="card-press" style={{width:"100%", border:"none", cursor:"pointer", borderRadius:"var(--r-xl)", padding:18, background:"var(--c-parler)", color:"var(--c-parler-ink)", textAlign:"left", display:"flex", gap:14, alignItems:"center"}}>
             <Circle Icon={IconMic} size={48} isize={22}/>
             <span style={{flex:1, minWidth:0}}>
@@ -198,13 +224,20 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
               <span style={{display:"block", marginTop:4, fontSize:13, fontWeight:600, opacity:.8, minHeight:18}}>{recording ? draft : "Une phrase suffit. Je la garde pour toi."}</span>
             </span>
           </button>
+          ) : (
+          <div style={{borderRadius:"var(--r-xl)", padding:18, background:"var(--c-parler)", color:"var(--c-parler-ink)"}}>
+            <label htmlFor="moi-mine" style={{display:"block", font:"800 16px var(--sans)", letterSpacing:"-.02em"}}>Qu'est-ce qui t'a fait du bien, récemment ?</label>
+            <textarea id="moi-mine" rows={2} maxLength={300} value={draft} onChange={e => setDraft(e.target.value)} placeholder="Une phrase suffit." style={{marginTop:10}}/>
+            <button className="btn" style={{marginTop:10, width:"100%"}} disabled={!draft.trim()} onClick={addMine}>Garder pour moi</button>
+          </div>
+          )}
           <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
             {mine.map(n => <li key={n.id} className="card" style={{padding:"12px 14px", font:"600 14px var(--sans)", lineHeight:1.45}}>{n.text}</li>)}
           </ul>
-          <button onClick={() => { setMineShared(v => !v); persist({mineShared:!mineShared}); onToast && onToast(!mineShared ? `${plan.who} sait maintenant comment prendre soin de toi.` : "Carnet à toi de nouveau privé."); }} className="card card-press" style={{marginTop:8, width:"100%", textAlign:"left", cursor:"pointer", display:"flex", gap:12, alignItems:"center", padding:14, background: mineShared ? "var(--c-proches)" : "var(--card)", color: mineShared ? "var(--c-proches-ink)" : "var(--ink)"}}>
+          {W.demo && <button onClick={() => { setMineShared(v => !v); persist({mineShared:!mineShared}); onToast && onToast(!mineShared ? `${plan.who} sait maintenant comment prendre soin de toi.` : "Carnet à toi de nouveau privé."); }} className="card card-press" style={{marginTop:8, width:"100%", textAlign:"left", cursor:"pointer", display:"flex", gap:12, alignItems:"center", padding:14, background: mineShared ? "var(--c-proches)" : "var(--card)", color: mineShared ? "var(--c-proches-ink)" : "var(--ink)"}}>
             <Circle Icon={mineShared ? CatPeople : IconLock} size={36} isize={16} bg={mineShared ? "var(--ink)" : "var(--bg)"} color={mineShared ? "#fff" : "var(--ink)"}/>
             <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 14px var(--sans)"}}>{mineShared ? `Partagé avec ${plan.who}` : `Partager avec ${plan.who}`}</span><span style={{display:"block", marginTop:2, fontSize:12.5, fontWeight:600, opacity:.8}}>Quand il prend le relais, il saura aussi comment t'aider, toi.</span></span>
-          </button>
+          </button>}
         </Pad>
 
         {/* ── Respiration ── */}
@@ -219,13 +252,13 @@ function AidantMoi({notes=[], onOpenShare, onToast}){
               <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Transmettre le carnet</span><span className="meta" style={{display:"block", marginTop:4}}>Un proche ou une auxiliaire prend le relais avec tout ce qu'il faut savoir.</span></span>
               <IconChevron size={18}/>
             </button></li>
-            <li><a href="tel:0805380381" className="card card-press" style={{display:"flex", gap:14, alignItems:"center", padding:16, textDecoration:"none", color:"var(--ink)"}}>
+            <li><a href="https://www.monparcourshandicap.gouv.fr/aidants-familiaux/les-solutions-de-repit-pour-les-aidants" target="_blank" rel="noopener noreferrer" className="card card-press" style={{display:"flex", gap:14, alignItems:"center", padding:16, textDecoration:"none", color:"var(--ink)"}}>
               <Circle Icon={CatSun} bg="var(--c-habitudes)" color="var(--c-habitudes-ink)"/>
-              <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Pause répit · 0 805 38 03 81</span><span className="meta" style={{display:"block", marginTop:4}}>Accueil de jour, de nuit, hébergement temporaire. Gratuit, en partie financé.</span></span>
+              <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Trouver une solution de répit</span><span className="meta" style={{display:"block", marginTop:4}}>Accueil de jour, hébergement temporaire, relais à domicile. Le guide officiel, sur monparcourshandicap.gouv.fr.</span></span>
             </a></li>
-            <li><a href="tel:0972303030" className="card card-press" style={{display:"flex", gap:14, alignItems:"center", padding:16, textDecoration:"none", color:"var(--ink)"}}>
+            <li><a href="tel:0184729472" className="card card-press" style={{display:"flex", gap:14, alignItems:"center", padding:16, textDecoration:"none", color:"var(--ink)"}}>
               <Circle Icon={CatHeart} bg="var(--c-apaise)" color="var(--c-apaise-ink)"/>
-              <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Allô Aidants · 09 72 30 30 30</span><span className="meta" style={{display:"block", marginTop:4}}>Écoute 7j/7, confidentielle, sans jugement.</span></span>
+              <span style={{flex:1, minWidth:0}}><span style={{display:"block", font:"800 15.5px var(--sans)", letterSpacing:"-.015em"}}>Avec nos proches · 01 84 72 94 72</span><span className="meta" style={{display:"block", marginTop:4}}>Écoute des aidants par d'anciens aidants, 7j/7 de 8h à 22h, anonyme. Prix d'un appel local.</span></span>
             </a></li>
           </ul>
           <p className="meta" style={{marginTop:16, marginBottom:8, textAlign:"center", lineHeight:1.5}}>Rien de cette page n'est visible par {W.person}, les proches ou l'établissement.</p>

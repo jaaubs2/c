@@ -30,3 +30,4 @@ ios/DerivedData/
 
 # Système
 .DS_Store
+dist-demo

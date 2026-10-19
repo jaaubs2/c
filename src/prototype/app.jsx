@@ -7,7 +7,7 @@ const { INITIAL_NOTES, DEFAULT_SHARE, CATEGORIES: CATS_APP, RELAIS_CARNETS, soft
 const { Toast, DemoPill, TabBar, StatusBar: SBApp } = window.UI;
 const { AidantHome, AidantCarnet, AidantCapture, AidantCategory } = window.Aidant;
 const { AidantTransmettre, AidantSettings } = window.AidantShare;
-const { AidantNotifications, AidantSettingsV2, CaptureConfirmation, AidantCare } = window.AidantExtras;
+const { AidantNotifications, unseenNotifs, AidantSettingsV2, CaptureConfirmation, AidantCare } = window.AidantExtras;
 const { LaunchScreen, SignupScreen, LoginScreen, RecoveryScreen, VerificationScreen, OnboardingFlow, RelaisLanding, RelaisLiteSignup, ChooseProfileScreen, AccessScreen } = window.Auth;
 const { SettingsFull } = window.SettingsFull;
 const { RelaisCarnetPicker, RelaisWelcome, RelaisHome, RelaisDiscover, RelaisCategory, RelaisToday, RelaisRespond } = window.Relais;
@@ -68,7 +68,9 @@ function App(){
   const [notes, setNotes] = useStateApp(() => REAL ? [] : [...INITIAL_NOTES].sort(byDate));
   const [visibility, setVisibility] = useStateApp({});
   const [sharePayload, setSharePayload] = useStateApp(DEFAULT_SHARE);
-  const [mood, setMood] = useStateApp("sereine");
+  // « Comment va Jeanne aujourd'hui » : rien n'est choisi d'avance, et le choix du jour est gardé sur ce téléphone.
+  const [mood, setMoodState] = useStateApp(() => { try { const m = JSON.parse(localStorage.getItem("cv-humeur-du-jour") || "{}"); return m.day === new Date().toDateString() ? m.mood : null; } catch(e){ return null; } });
+  const setMood = (v) => { setMoodState(v); try { localStorage.setItem("cv-humeur-du-jour", JSON.stringify({day:new Date().toDateString(), mood:v})); } catch(e){} };
   const [toast, setToast] = useStateApp("");
 
   // ── Vrais comptes ──
@@ -216,7 +218,7 @@ function App(){
   }
   function editNote(id, text){
     if(REAL) return remote(async () => replaceNote(await Backend.updateNote(id, {text})), "Note mise à jour.");
-    setNotes(prev => prev.map(n => n.id === id ? {...n, text} : n));
+    setNotes(prev => prev.map(n => n.id === id ? {...n, text, updatedAt:Date.now()} : n));
     setToast("Note mise à jour.");
   }
   function confirmNote(id){
@@ -260,6 +262,7 @@ function App(){
     onSaveCarnet: async (patch) => { const k = await Backend.updateCarnet(carnet.id, patch); setCarnet(k); },
     onInvite: (opts) => Backend.createInvite(carnet.id, opts),
     listMembers: () => Backend.listMembers(carnet.id),
+    onRemoveMember: (userId) => Backend.removeMember(carnet.id, userId),
     shares,
     onRevoke: (id) => shareLive && shareLive.onRevoke(id),
     access: account.access || null,
@@ -365,6 +368,7 @@ function App(){
                     onOpenCapture={() => setAidantTab("capture")}
                     onTab={setAidantTab}
                     onOpenNotifs={() => setShowNotifs(true)}
+                    hasNewNotifs={unseenNotifs(liveNotifs).length > 0}
                     onOpenJournal={REAL ? null : () => setShowJournal(true)}
                     onOpenCare={() => setShowCare(true)}
                     sharePayload={sharePayload}
@@ -376,7 +380,7 @@ function App(){
       return <AidantCarnet notes={notes} onOpenCat={id => setAidantCat(id)}/>;
     }
     if(aidantTab === "moi"){
-      return <AidantMoi notes={notes} onOpenShare={() => setAidantTab("transmettre")} onToast={setToast}/>;
+      return <AidantMoi notes={notes} lastShareAt={REAL && shares.length ? Math.max(...shares.map(s => s.createdAt || 0)) : null} onOpenShare={() => setAidantTab("transmettre")} onToast={setToast}/>;
     }
     if(aidantTab === "transmettre"){
       return <AidantTransmettre notes={visibleNotes} sharePayload={sharePayload} setSharePayload={setSharePayload} onClose={() => setAidantTab("moi")}

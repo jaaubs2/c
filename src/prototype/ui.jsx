@@ -177,8 +177,35 @@ function useA11y(){
   return [a, (k, v) => setA(prev => ({...prev, [k]: v}))];
 }
 
+/* Apparence choisie dans les Réglages (clair, mode soir, automatique), gardée sur ce téléphone. */
+const THEME_LABEL = { clair:"Clair", soir:"Mode soir", auto:"Automatique" };
+function getTheme(){ try { const t = localStorage.getItem("lcv-theme"); return THEME_LABEL[t] ? t : "clair"; } catch(e){ return "clair"; } }
+function useTheme(){
+  const [t, setT] = useState(getTheme);
+  return [t, (v) => { setT(v); try { localStorage.setItem("lcv-theme", v); } catch(e){} }];
+}
+
+/* Questions fréquentes : chaque question s'ouvre et se referme pour montrer sa réponse. */
+function Faq({items}){
+  const [open, setOpen] = useState(null);
+  return (
+    <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
+      {items.map(([q, answer], i) => { const on = open === i; const id = "faq-" + i; return (
+        <li key={i} style={{background:"var(--card)", border:"1px solid var(--line)", borderRadius:18, overflow:"hidden"}}>
+          <button aria-expanded={on} aria-controls={id} onClick={() => setOpen(on ? null : i)}
+                  style={{width:"100%", textAlign:"left", background:"none", border:"none", padding:"14px 16px", cursor:"pointer", display:"flex", gap:12, alignItems:"center", minHeight:56, color:"var(--ink)"}}>
+            <span style={{flex:1, fontSize:14.5, fontWeight: on ? 800 : 500}}>{q}</span>
+            <span aria-hidden="true" style={{display:"flex", transform: on ? "rotate(90deg)" : "none", transition:"transform .2s"}}><IconChevron size={16}/></span>
+          </button>
+          {on && <p id={id} style={{padding:"0 16px 16px", fontSize:14, color:"var(--ink-2)", lineHeight:1.55}}>{answer}</p>}
+        </li>
+      ); })}
+    </ul>
+  );
+}
+
 window.UI = {
-  StatusBar, Toast, DemoPill, TabBar, SearchBar, Avatar,
+  StatusBar, Toast, DemoPill, TabBar, SearchBar, Avatar, Faq, THEME_LABEL, getTheme, useTheme,
   timeGreeting, momentNow,
   useTTS, ReadAloud, ReadAll, useA11y
 };

@@ -30,7 +30,7 @@ const Ring = ({value, max, size=40, stroke=2.5, label}) => {
 
 /* ── CARNET ─────────────────────────────────────────────── */
 function AidantCarnet({notes, onOpenCat}){
-  const counts = useMemo(() => { const c = {}; for(const n of notes) c[n.catId] = (c[n.catId]||0)+1; return c; }, [notes]);
+  const counts = useMemo(() => { const c = {}; for(const n of notes) if(!n.archived) c[n.catId] = (c[n.catId]||0)+1; return c; }, [notes]);
   const [search, setSearch] = useState("");
   const q = search.trim().toLowerCase();
   const filtered = q ? CATEGORIES.filter(c => c.title.toLowerCase().includes(q) || notes.some(n => n.catId === c.id && n.text.toLowerCase().includes(q))) : CATEGORIES;
@@ -43,14 +43,14 @@ function AidantCarnet({notes, onOpenCat}){
       <div className="scroll">
         <div style={{padding:"10px 20px 0"}}><SearchBar value={search} onChange={setSearch} placeholder="Rechercher une note"/></div>
         <ul style={{listStyle:"none", padding:"16px 20px 0", margin:0, display:"grid", gap:12}}>
-          {filtered.map(c => { const n = counts[c.id]||0; const recent = notes.filter(x => x.catId === c.id).sort((a,b) => b.ts-a.ts)[0]; return (
+          {filtered.map(c => { const n = counts[c.id]||0; const recent = notes.filter(x => x.catId === c.id && !x.archived).sort((a,b) => b.ts-a.ts)[0]; return (
             <li key={c.id}>
-              <button onClick={() => onOpenCat(c.id)} className="card-press" aria-label={`${c.title}, ${n} notes`}
+              <button onClick={() => onOpenCat(c.id)} className="card-press"
                       style={{width:"100%", textAlign:"left", border:"none", cursor:"pointer", background:c.bg, color:c.ink, borderRadius:"var(--r-lg)", padding:18, display:"flex", gap:14, alignItems:"flex-start", minWidth:0}}>
                 <Circle Icon={c.Icon} size={46} isize={22}/>
                 <span style={{flex:1, minWidth:0}}>
                   <span style={{display:"flex", justifyContent:"space-between", alignItems:"center", gap:10}}>
-                    <span style={{font:"800 17px var(--sans)", letterSpacing:"-.02em", lineHeight:1.2}}>{c.title}</span>
+                    <span style={{font:"800 17px var(--sans)", letterSpacing:"-.02em", lineHeight:1.2}}>{c.title}<span style={{position:"absolute", width:1, height:1, overflow:"hidden", clip:"rect(0 0 0 0)", whiteSpace:"nowrap"}}>, {n} note{n > 1 ? "s" : ""}.</span></span>
                     <Ring value={Math.min(n,8)} max={8} label={n}/>
                   </span>
                   <span style={{display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden", marginTop:8, fontSize:13.5, fontWeight:600, opacity:.85, lineHeight:1.45}}>
@@ -132,7 +132,9 @@ function CaptureDemo({onClose, onSave}){
 
 /* ── CATEGORY ───────────────────────────────────────────── */
 const STALE_DAYS = 90;
-const isStale = (n) => !n.archived && !n.confirmedAt && (Date.now() - n.ts) / 86400000 > STALE_DAYS;
+// Une note est à revérifier 3 mois après sa dernière relecture : son écriture, sa dernière
+// modification (« A changé ») ou sa dernière confirmation (« Toujours vrai »).
+const isStale = (n) => !n.archived && (Date.now() - Math.max(n.ts, n.updatedAt || 0, n.confirmedAt || 0)) / 86400000 > STALE_DAYS;
 function Trace({archived, show, setShow}){
   if(!archived.length) return null;
   return (

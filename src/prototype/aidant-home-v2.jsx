@@ -20,13 +20,17 @@ function Ring({value, max, size=56, stroke=3, label}){
   );
 }
 
-function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, onOpenNotifs, sharePayload, lastShare, onOpenJournal}){
+function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, onOpenNotifs, hasNewNotifs, sharePayload, lastShare, onOpenJournal}){
   const W = window.Who;
-  const counts = useMemo(() => { const c = {}; for(const n of notes) c[n.catId] = (c[n.catId]||0)+1; return c; }, [notes]);
+  // Les notes « plus vraies » (gardées dans la trace de vie) ne comptent pas et ne s'affichent pas sur l'accueil.
+  const active = useMemo(() => notes.filter(n => !n.archived), [notes]);
+  const counts = useMemo(() => { const c = {}; for(const n of active) c[n.catId] = (c[n.catId]||0)+1; return c; }, [active]);
+  // Sous chaque rubrique : la dernière note ajoutée.
+  const latest = useMemo(() => { const l = {}; for(const n of active) if(!l[n.catId] || n.ts > l[n.catId].ts) l[n.catId] = n; return l; }, [active]);
   const filled = CATEGORIES.filter(c => counts[c.id] > 0).length;
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const matches = useMemo(() => { if(!search.trim()) return []; const q = search.toLowerCase(); return notes.filter(n => n.text.toLowerCase().includes(q)).slice(0,5); }, [search, notes]);
+  const matches = useMemo(() => { if(!search.trim()) return []; const q = search.toLowerCase(); return active.filter(n => n.text.toLowerCase().includes(q)).slice(0,5); }, [search, active]);
   const m = momentNow();
   const ritual = (W.demo ? RITUALS.find(x => x.moment === m) || RITUALS[0] : window.Live.ritual(notes, m))
     || { catId:"habitudes", title:"Un repère pour ce moment", body:`Qu'est-ce qui compte pour ${W.g("elle", "lui")} à ce moment de la journée ? Note-le.` };
@@ -47,9 +51,9 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
             <p className="meta" style={{fontSize:12.5, marginTop:2}}>Aux côtés de {W.person}</p>
           </div>
         </div>
-        <button className="iconbtn" aria-label="Notifications" onClick={onOpenNotifs} style={{position:"relative"}}>
+        <button className="iconbtn" aria-label={hasNewNotifs ? "Notifications, du nouveau" : "Notifications"} onClick={onOpenNotifs} style={{position:"relative"}}>
           <IconBell size={20}/>
-          <span aria-hidden="true" style={{position:"absolute", top:10, right:11, width:8, height:8, borderRadius:"50%", background:"var(--accent-2)", border:"2px solid #fff"}}/>
+          {hasNewNotifs && <span aria-hidden="true" style={{position:"absolute", top:10, right:11, width:8, height:8, borderRadius:"50%", background:"var(--accent-2)", border:"2px solid #fff"}}/>}
         </button>
       </div>
 
@@ -78,7 +82,7 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
               <Ring value={filled} max={CATEGORIES.length} size={60} stroke={3}/>
             </div>
             <h1 style={{marginTop:18, fontSize:30}}>Le carnet de {W.person}</h1>
-            <p className="meta" style={{marginTop:6, opacity:.8}}>{notes.length} notes · {filled} rubriques sur {CATEGORIES.length} renseignées</p>
+            <p className="meta" style={{marginTop:6, opacity:.8}}>{active.length} notes · {filled} rubriques sur {CATEGORIES.length} renseignées</p>
 
             <div role="radiogroup" aria-label={`Comment va ${W.person} aujourd'hui`} style={{display:"flex", gap:6, marginTop:18, flexWrap:"wrap"}}>
               {MOODS.map(x => { const on = mood === x.id; return (
@@ -110,15 +114,15 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
 
         {/* Rubrique grid */}
         <div style={{...pad, paddingTop:14, display:"grid", gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)", gap:12}}>
-          {shown.map(c => { const Icon = c.Icon; const n = counts[c.id]||0; const last = notes.find(x => x.catId === c.id); return (
-            <button key={c.id} onClick={() => onOpenCat(c.id)} className="card-press" aria-label={`${c.title}, ${n} notes`}
+          {shown.map(c => { const Icon = c.Icon; const n = counts[c.id]||0; const last = latest[c.id]; return (
+            <button key={c.id} onClick={() => onOpenCat(c.id)} className="card-press"
                     style={{borderRadius:"var(--r-lg)", border:"none", background:c.bg, color:c.ink, padding:16, minHeight:172, minWidth:0, overflow:"hidden", cursor:"pointer", textAlign:"left", display:"flex", flexDirection:"column", gridColumn: shown.length===1 ? "1 / -1" : "auto"}}>
               <span style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
                 <span aria-hidden="true" style={{width:42, height:42, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center"}}><Icon size={20} sw={1.8}/></span>
                 <Ring value={Math.min(n,8)} max={8} size={40} stroke={2.5} label={n}/>
               </span>
               <span style={{flex:1}}/>
-              <span style={{font:"800 16px var(--sans)", letterSpacing:"-.02em", lineHeight:1.15, display:"block", minWidth:0, width:"100%"}}>{c.title}</span>
+              <span style={{font:"800 16px var(--sans)", letterSpacing:"-.02em", lineHeight:1.15, display:"block", minWidth:0, width:"100%"}}>{c.title}<span style={{position:"absolute", width:1, height:1, overflow:"hidden", clip:"rect(0 0 0 0)", whiteSpace:"nowrap"}}>, {n} note{n > 1 ? "s" : ""}.</span></span>
               <span style={{display:"block", width:"100%", minWidth:0, marginTop:6, fontSize:12.5, fontWeight:600, opacity:.8, lineHeight:1.35, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{last ? last.text : c.blurb}</span>
             </button>
           ); })}
@@ -155,7 +159,7 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
         {onOpenJournal && <div style={{...pad, paddingTop:14}}><window.FamilyJournalCard onOpen={onOpenJournal}/></div>}
 
         {/* Relecture des notes anciennes */}
-        {(() => { const stale = notes.filter(n => !n.archived && !n.confirmedAt && (Date.now() - n.ts) / 86400000 > 90); if(!stale.length) return null; const first = stale[stale.length-1]; const c = CAT_BY_ID[first.catId]; return (
+        {(() => { const stale = notes.filter(n => !n.archived && (Date.now() - Math.max(n.ts, n.updatedAt || 0, n.confirmedAt || 0)) / 86400000 > 90); if(!stale.length) return null; const first = stale[stale.length-1]; const c = CAT_BY_ID[first.catId]; return (
           <div style={{...pad, paddingTop:14}}>
             <button onClick={() => onOpenCat(first.catId)} className="card card-press" style={{width:"100%", textAlign:"left", cursor:"pointer", padding:16, display:"flex", gap:14, alignItems:"center", background:"var(--c-histoire)", color:"var(--c-histoire-ink)"}}>
               <span aria-hidden="true" style={{width:44, height:44, borderRadius:"50%", background:"var(--ink)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, font:"800 15px var(--sans)"}}>{stale.length}</span>

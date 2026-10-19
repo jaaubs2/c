@@ -36,7 +36,7 @@ function RelaisMenuRoot({onPick, currentCarnetId, onLogout}){
       { id:"account", title:"Mon compte léger",    body:"Prénom, email, déconnexion." },
       { id:"a11y",    title:"Accessibilité",       body:"Taille, contraste, animations, voix." },
       { id:"notif",   title:"Notifications",       body:"Quand un nouveau carnet t'est partagé." },
-      { id:"appear",  title:"Apparence",           body:"Clair · Mode soir." }
+      { id:"appear",  title:"Apparence",           body:window.UI.THEME_LABEL[window.UI.getTheme()] }
     ]},
     { group:"L'app", items:[
       { id:"help",    title:"Aide & à propos",     body:"FAQ, contact, mentions légales." }
@@ -343,7 +343,7 @@ function RelaisNotifPage({onBack}){
 
 /* ─── Apparence ─── */
 function RelaisAppearancePage({onBack}){
-  const [theme, setTheme] = useSRS("clair");
+  const [theme, setTheme] = window.UI.useTheme();
   return (
     <RSubPage title="Apparence" onBack={onBack}>
       <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>
@@ -396,22 +396,18 @@ function RelaisHelpPage({onBack}){
       </div>
 
       <p className="kicker" style={{marginTop:22}}>Questions fréquentes</p>
-      <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
-        {[
-          "Puis-je télécharger une fiche pour la lire hors ligne ?",
-          "Que se passe-t-il quand le lien expire ?",
-          "Comment retrouver un carnet plus tard ?",
-          "Puis-je écrire dans le carnet ?",
-          "Comment laisser un mot à la famille ?"
-        ].map((q, i) => (
-          <li key={i}>
-            <button style={{width:"100%", textAlign:"left", background:"var(--card)", border:"1px solid var(--line)", borderRadius:18, padding:"14px 16px", cursor:"pointer", display:"flex", gap:12, alignItems:"center", minHeight:56}}>
-              <span style={{flex:1, fontSize:14.5, color:"var(--ink)"}}>{q}</span>
-              <IconChevronRS size={16}/>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <window.UI.Faq items={[
+        ["Puis-je lire une fiche sans internet ?",
+         "Pas encore : la fiche s'ouvre avec une connexion internet. Garde le lien dans tes messages, il suffit de le rouvrir."],
+        ["Que se passe-t-il quand le lien expire ?",
+         "La fiche ne s'ouvre plus. Si tu en as encore besoin, demande un nouveau lien à la personne qui te l'a envoyé."],
+        ["Comment retrouver un carnet plus tard ?",
+         "Rouvre le lien reçu par message, tant qu'il est valable. Tu n'as pas besoin de compte."],
+        ["Puis-je écrire dans le carnet ?",
+         "Non, la fiche se lit seulement. Si tu remarques quelque chose d'important, dis-le à la personne qui te l'a envoyée : elle pourra l'ajouter. Si elle t'invite dans son cercle d'aidants, tu pourras écrire toi aussi."],
+        ["Qui sait que j'ai ouvert la fiche ?",
+         "Seule la personne qui te l'a envoyée : elle voit que la fiche a été ouverte, et combien de fois. Rien d'autre."]
+      ]}/>
 
       <p className="kicker" style={{marginTop:22}}>Mentions légales</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>

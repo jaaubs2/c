@@ -127,7 +127,6 @@ function RelaisCarnetPicker({onPick, name="Claire"}){
             return (
               <li key={c.id}>
                 <button onClick={() => onPick(c.id)}
-                        aria-label={`Ouvrir le carnet de ${c.profile.name}`}
                         className="card-press"
                         style={{
                           width:"100%", textAlign:"left",
@@ -155,7 +154,7 @@ function RelaisCarnetPicker({onPick, name="Claire"}){
                   </div>
                   <div style={{flex:1, minWidth:0}}>
                     <p className="label" style={{fontSize:10.5}}>Carnet de</p>
-                    <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:22, letterSpacing:"-.01em", marginTop:2}}>{c.profile.name}</p>
+                    <p style={{fontFamily:"var(--display)", fontWeight:800, fontSize:22, letterSpacing:"-.01em", marginTop:2}}><span style={{position:"absolute", width:1, height:1, overflow:"hidden", clip:"rect(0 0 0 0)", whiteSpace:"nowrap"}}>Ouvrir le carnet de </span>{c.profile.name}</p>
                     <p className="meta" style={{marginTop:4, fontSize:12.5}}>
                       {c.profile.age} ans · partagé par {c.sharedBy}
                     </p>
@@ -268,8 +267,8 @@ function RelaisHome({notes, payload, onOpenCat, onTab, currentCarnetId, onSwitch
           <div className="hero" style={{padding:"22px 20px", position:"relative"}}>
             <button
               onClick={() => hasMultiple && setSwitcherOpen(v => !v)}
-              aria-expanded={switcherOpen}
-              aria-label={hasMultiple ? `Changer de carnet — actuel : ${personFirst}` : `Carnet de ${personFirst}`}
+              aria-expanded={hasMultiple ? switcherOpen : undefined}
+              aria-label={hasMultiple ? `Tu accompagnes ${personFirst}, changer de carnet` : undefined}
               disabled={!hasMultiple}
               style={{
                 all:"unset", display:"flex", gap:14, alignItems:"center", width:"100%",

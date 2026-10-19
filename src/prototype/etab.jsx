@@ -159,14 +159,14 @@ function ResidentGrid({list, notesOf, onOpen}){
     <ul style={{listStyle:"none", padding:"0 20px", margin:0, display:"grid", gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)", gap:12}}>
       {list.map(r => { const ns = notesOf(r); const isNew = ns.some(n => Date.now() - n.ts < 2*86400000); return (
         <li key={r.id} style={{minWidth:0}}>
-          <button onClick={() => onOpen(r.id)} className="card-press" aria-label={`Ouvrir le carnet de ${r.profile.name}`}
+          <button onClick={() => onOpen(r.id)} className="card-press"
                   style={{width:"100%", textAlign:"left", border:"none", cursor:"pointer", background:r.tone, color:r.ink, borderRadius:"var(--r-lg)", padding:16, minHeight:176, display:"flex", flexDirection:"column", minWidth:0, overflow:"hidden"}}>
             <span style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", width:"100%"}}>
               <Portrait r={r} size={48}/>
               {isNew && <Pill dark>Nouveau</Pill>}
             </span>
             <span style={{flex:1}}/>
-            <span style={{display:"block", font:"800 17px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1, width:"100%"}}>{r.profile.name}</span>
+            <span style={{display:"block", font:"800 17px var(--sans)", letterSpacing:"-.02em", lineHeight:1.1, width:"100%"}}><span style={{position:"absolute", width:1, height:1, overflow:"hidden", clip:"rect(0 0 0 0)", whiteSpace:"nowrap"}}>Ouvrir le carnet de </span>{r.profile.name}</span>
             <span style={{display:"block", marginTop:5, fontSize:12.5, fontWeight:700, opacity:.8}}>{r.profile.age} ans · {r.room}</span>
             <span style={{display:"block", marginTop:8, fontSize:12.5, fontWeight:700, opacity:.9, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", width:"100%"}}>{ns.length ? `${ns.length} note${ns.length>1?"s":""}` : "Carnet à ouvrir"}{r.sharedBy ? " · famille" : ""}</span>
           </button>

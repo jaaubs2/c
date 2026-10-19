@@ -92,6 +92,7 @@ const mapNote = (n) => ({
   authorId: n.author_id,
   status: n.status || "published",
   confirmedAt: ts(n.confirmed_at),
+  updatedAt: ts(n.updated_at),
   archived: Boolean(n.archived_at),
   archivedAt: ts(n.archived_at),
 });
@@ -278,6 +279,7 @@ const Backend = {
   previewInvite: (token) => call("carnet_invite_preview", { p_token: token }),
   acceptInvite: (token) => call("carnet_invite_accept", { p_token: token }),
   listMembers: (carnetId) => call("carnet_members_list", { p_carnet: carnetId }),
+  removeMember: (carnetId, userId) => call("member_remove", { p_carnet: carnetId, p_user: userId }),
 
   // ── Établissement ──
   createOrg: ({ name, kind, finess, city, displayName, jobTitle, units }) =>

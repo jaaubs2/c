@@ -101,9 +101,23 @@ async function mkUser(name, email) {
   await fails(rpc(leo, 'create_share', { p_carnet: carnet.id, p_recipient_type: 'proche', p_recipient_name: 'x', p_categories: ['habitudes'] }), 'Léo crée un lien (réservé à Anne)');
   ok((await rpc(anne, 'note_update', { p_note: nl.id, p_body: 'J\'appelle mamie chaque dimanche.' })).body.includes('chaque'), 'Anne peut corriger une note du cercle');
 
+  console.log('\n■ Cercle d\'aidants : retirer un proche');
+  const paul = await mkUser('Paul', 'paul@test.fr');
+  const invP = await rpc(anne, 'carnet_invite_create', { p_carnet: carnet.id, p_invited_name: 'Paul', p_relation: 'voisin' });
+  await rpc(paul, 'carnet_invite_accept', { p_token: invP.token });
+  const np = await rpc(paul, 'note_add', { p_carnet: carnet.id, p_category: 'proches', p_body: 'Je passe le jeudi.' });
+  await fails(rpc(mallory, 'member_remove', { p_carnet: carnet.id, p_user: paul.id }), 'une inconnue retire Paul du cercle');
+  await fails(rpc(leo, 'member_remove', { p_carnet: carnet.id, p_user: paul.id }), 'Léo retire Paul (réservé à Anne)');
+  await rpc(anne, 'member_remove', { p_carnet: carnet.id, p_user: paul.id });
+  ok(!(await rpc(anne, 'carnet_members_list', { p_carnet: carnet.id })).some(m => m.user_id === paul.id), 'Anne retire Paul du cercle');
+  ok((await rpc(paul, 'notes_list', { p_carnet: carnet.id })).length === 0, 'Paul ne voit plus le carnet');
+  await fails(rpc(paul, 'note_add', { p_carnet: carnet.id, p_category: 'proches', p_body: 'encore moi' }), 'Paul ajoute une note après son retrait');
+  ok((await rpc(anne, 'notes_list', { p_carnet: carnet.id })).some(n => n.id === np.id && n.author_name === 'Paul'), 'la note de Paul reste, signée « Paul »');
+  await fails(rpc(anne, 'member_remove', { p_carnet: carnet.id, p_user: paul.id }), 'retirer deux fois la même personne');
+
   console.log('\n■ RGPD : export et suppression');
   const exp = await rpc(anne, 'export_my_data');
-  ok(exp.carnets.length === 1 && exp.carnets[0].notes.length === 4 && exp.consentements.length === 3, 'l\'export contient carnet, notes et consentements');
+  ok(exp.carnets.length === 1 && exp.carnets[0].notes.length === 5 && exp.consentements.length === 3, 'l\'export contient carnet, notes et consentements');
   ok(!JSON.stringify(exp).includes('token_hash'), 'l\'export ne contient pas les hash des liens');
   await rpc(anne, 'delete_my_account');
   ok((await db.query('select count(*)::int c from public.carnets')).rows[0].c === 0, 'le carnet de Jeanne est supprimé avec le compte d\'Anne');

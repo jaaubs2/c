@@ -17,6 +17,9 @@
     --r-xl:32px; --r-lg:24px; --r-md:18px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  /* Le zoom à deux doigts reste possible (accessibilité), mais le double appui ne zoome plus par accident.
+     Sur iPhone, un champ écrit en moins de 16 px fait zoomer la page quand on le touche : tous les champs font 16 px ou plus. */
+  html{touch-action:manipulation}
   html,body{margin:0;padding:0;background:#DEDDD8;font-family:var(--sans);color:var(--ink)}
   body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   #root{width:min(420px,100%);max-width:420px;flex-shrink:0}
@@ -60,7 +63,7 @@
   .card.paper{background:#fff}
   .card.dashed{border:1.5px dashed var(--line-2);box-shadow:none;background:transparent}
   .searchbar{display:flex;align-items:center;gap:12px;background:#fff;border:none;border-radius:999px;padding:0 18px;height:52px;color:var(--ink-3);box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .2s}
-  .searchbar input[type="text"]{flex:1;border:none;background:transparent;outline:none;font:600 15px var(--sans);color:var(--ink);padding:0;border-radius:0;width:auto}
+  .searchbar input[type="text"]{flex:1;border:none;background:transparent;outline:none;font:600 16px var(--sans);color:var(--ink);padding:0;border-radius:0;width:auto}
   .searchbar input::placeholder{color:var(--ink-3);font-weight:500}
   .searchbar input[type="text"]:focus{outline:none;background:transparent}
   .searchbar:focus-within{box-shadow:0 0 0 2px var(--ink);color:var(--ink)}
