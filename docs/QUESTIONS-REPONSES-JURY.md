@@ -65,7 +65,9 @@ Ce document prépare les 10 minutes de questions. Chaque réponse ne dit **que d
 - Le carnet vivant est **non médical par conception** : il garde ce qui fait la personne au quotidien (ce qui l'apaise, ce qu'elle aime, comment lui parler) et le partage avec la famille, les proches relais **et** l'équipe.
 
 **L'argument le plus fort :**
-> « Notre carnet suit **la personne**, pas l'établissement. Il commence à domicile, il suit la personne en Ehpad ou en foyer, et la famille le garde. Un logiciel de soins appartient à un seul établissement : il ne peut pas faire ça. »
+> « Notre carnet est pensé pour suivre **la personne**, pas l'établissement. Aujourd'hui, la famille tient le carnet à domicile, et un établissement peut ouvrir le sien et y inviter la famille. La prochaine étape, c'est que le carnet commencé à domicile **suive la personne** quand elle entre en Ehpad ou en foyer, et que la famille le garde. Un logiciel de soins appartient à un seul établissement : il ne peut pas faire ça. »
+
+⚠️ **Ne pas dire** qu'un carnet passe déjà de la maison à l'établissement : ce n'est pas encore possible dans l'app.
 
 ---
 
@@ -237,7 +239,7 @@ Et l'impact que nous visons :
 ## 16. Pourquoi pas un cahier de liaison papier ?
 
 **Réponse :**
-> « Le papier reste à un seul endroit. Le carnet vivant se lit à distance, s'écoute, suit la personne d'un lieu à l'autre, et se transmet au remplaçant du week-end par un simple lien. Et on peut savoir s'il a été lu. »
+> « Le papier reste à un seul endroit. Le carnet vivant se lit à distance, s'écoute, et se transmet au remplaçant du week-end par un simple lien. Et on peut savoir s'il a été lu. »
 
 ---
 

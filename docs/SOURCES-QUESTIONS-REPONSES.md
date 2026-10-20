@@ -92,3 +92,4 @@ Ces points ont été vérifiés dans le code de l'app et sont couverts par plus 
 | « L'app est connectée aux logiciels de soins » | Ce n'est pas prévu à court terme, et il faudrait un hébergement HDS. |
 | « 100 % des données restent en France » | La base est en France, mais l'IA traite le texte en Europe. |
 | « 45 minutes au lieu de 15 » | Chiffre sans source. |
+| « Le carnet passe déjà de la maison à l'établissement » | Pas encore : aujourd'hui, l'établissement ouvre son propre carnet et y invite la famille. |
