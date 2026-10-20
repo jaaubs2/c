@@ -11,9 +11,9 @@ const storeKey = () => KEY + ":" + (window.Who.demo ? "demo" : (window.Who.userI
 const load = () => { try { return JSON.parse(localStorage.getItem(storeKey()) || "{}"); } catch(e){ return {}; } };
 const save = (patch) => { try { localStorage.setItem(storeKey(), JSON.stringify({...load(), ...patch})); } catch(e){} };
 const DAY = 86400000;
-// Le ressenti est enregistré par date : « 2026-10-19 » → 1 à 4.
-const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-const lastDays = (n) => Array.from({length:n}, (_, i) => { const d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate() - (n-1-i)); return d; });
+// Le ressenti est enregistré par date : « 2026-10-19 » → 1 à 4. Avec un vrai compte, il est gardé
+// sur le serveur, lisible uniquement par l'aidant ; en démo, sur ce téléphone.
+const { dayKey, lastDays } = window.AppData;
 const DAY_LETTER = ["D","L","M","M","J","V","S"];
 const demoMoods = () => { const v = [2,2,3,1,2,3], out = {}; lastDays(7).slice(0,6).forEach((d,i) => { out[dayKey(d)] = v[i]; }); return out; };
 const Circle = ({Icon, bg="var(--ink)", color="#fff", size=44, isize=20}) => (
@@ -61,7 +61,11 @@ function Breath(){
 function AidantMoi({notes=[], lastShareAt=null, onOpenShare, onToast}){
   const st = load();
   const W = window.Who;
-  const [moodByDay, setMoodByDay] = useState(st.moodByDay || (W.demo ? demoMoods() : {}));
+  const [moodByDay, setMoodByDay] = useState(W.demo ? (st.moodByDay || demoMoods()) : {});
+  useEffect(() => {
+    if(W.demo) return;
+    window.Backend.listMyMoods(30).then(list => setMoodByDay(Object.fromEntries(list.map(m => [m.day, m.level])))).catch(() => {});
+  }, []);
   const week7 = lastDays(7);
   const moods = week7.map(d => moodByDay[dayKey(d)] ?? null);
   const RELAYS = W.demo ? ["Léo","Claire","Auxiliaire"] : ["Un proche","Un voisin","Auxiliaire"];
@@ -94,7 +98,13 @@ function AidantMoi({notes=[], lastShareAt=null, onOpenShare, onToast}){
   }[charge.zone];
   const seuilHit = plan.on && !triggered && (plan.seuil === "orange" ? charge.zone !== "vert" : charge.zone === "rouge");
 
-  function pickMood(v){ const k = dayKey(new Date()); const next = {...moodByDay}; if(next[k] === v) delete next[k]; else next[k] = v; setMoodByDay(next); persist({moodByDay:next}); }
+  function pickMood(v){
+    const k = dayKey(new Date()), before = moodByDay, next = {...moodByDay};
+    if(next[k] === v) delete next[k]; else next[k] = v;
+    setMoodByDay(next);
+    if(W.demo) return persist({moodByDay:next});
+    window.Backend.setMyMood(k, next[k] ?? null).catch(e => { setMoodByDay(before); onToast && onToast(e.message); });
+  }
   function fire(){
     setTriggered(true); persist({triggered:true});
     // En démo, on simule l'envoi. Avec un vrai compte, on ouvre le partage : c'est toi qui envoies la fiche.

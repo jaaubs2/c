@@ -115,9 +115,28 @@ async function mkUser(name, email) {
   ok((await rpc(anne, 'notes_list', { p_carnet: carnet.id })).some(n => n.id === np.id && n.author_name === 'Paul'), 'la note de Paul reste, signée « Paul »');
   await fails(rpc(anne, 'member_remove', { p_carnet: carnet.id, p_user: paul.id }), 'retirer deux fois la même personne');
 
+  console.log('\n■ Humeurs du jour');
+  const today = new Date().toISOString().slice(0, 10);
+  ok((await rpc(anne, 'person_mood_set', { p_carnet: carnet.id, p_day: today, p_mood: 'sereine' })).author_name === 'Anne', 'Anne note que Jeanne est sereine aujourd\'hui');
+  ok((await rpc(leo, 'person_moods_list', { p_carnet: carnet.id, p_days: 30 }))[0]?.mood === 'sereine', 'Léo, du cercle, voit comment va Jeanne');
+  ok((await rpc(mallory, 'person_moods_list', { p_carnet: carnet.id, p_days: 30 })).length === 0, 'une inconnue ne voit pas l\'humeur de Jeanne');
+  await fails(rpc(mallory, 'person_mood_set', { p_carnet: carnet.id, p_day: today, p_mood: 'fragile' }), 'une inconnue change l\'humeur de Jeanne');
+  ok((await rpc(leo, 'person_mood_set', { p_carnet: carnet.id, p_day: today, p_mood: 'fatiguee' })).author_name === 'Léo', 'Léo peut la mettre à jour, signée « Léo »');
+  await fails(rpc(anne, 'person_mood_set', { p_carnet: carnet.id, p_day: today, p_mood: 'malade' }), 'une humeur inconnue (ex. médicale)');
+  await fails(rpc(anne, 'person_mood_set', { p_carnet: carnet.id, p_day: '2000-01-01', p_mood: 'sereine' }), 'une date trop ancienne');
+  await rpc(anne, 'my_mood_set', { p_day: today, p_level: 2 });
+  ok((await rpc(anne, 'my_moods_list', { p_days: 7 }))[0]?.level === 2, 'Anne garde son propre ressenti sur son compte');
+  ok((await rpc(leo, 'my_moods_list', { p_days: 7 })).length === 0, 'personne d\'autre ne voit le ressenti d\'Anne');
+  const peek = await asUser(leo, 'select count(*)::int n from public.caregiver_moods');
+  ok(peek.rows[0].n === 0, 'même en lisant la table directement, Léo ne voit rien');
+  await rpc(anne, 'my_mood_set', { p_day: today, p_level: null });
+  ok((await rpc(anne, 'my_moods_list', { p_days: 7 })).length === 0, 'Anne peut effacer son ressenti du jour');
+  await rpc(anne, 'my_mood_set', { p_day: today, p_level: 3 });
+
   console.log('\n■ RGPD : export et suppression');
   const exp = await rpc(anne, 'export_my_data');
   ok(exp.carnets.length === 1 && exp.carnets[0].notes.length === 5 && exp.consentements.length === 3, 'l\'export contient carnet, notes et consentements');
+  ok(exp.carnets[0].humeurs.length === 1 && exp.mon_ressenti.length === 1 && !('author_id' in exp.carnets[0].humeurs[0]), 'l\'export contient les humeurs de Jeanne et le ressenti d\'Anne');
   ok(!JSON.stringify(exp).includes('token_hash'), 'l\'export ne contient pas les hash des liens');
   await rpc(anne, 'delete_my_account');
   ok((await db.query('select count(*)::int c from public.carnets')).rows[0].c === 0, 'le carnet de Jeanne est supprimé avec le compte d\'Anne');

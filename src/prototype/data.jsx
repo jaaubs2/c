@@ -345,3 +345,20 @@ window.AppData = { ...window.AppData,
   staleCandidates, ENRICHMENT_PROMPTS, RITUALS, ACTIVITY_LOG, SEARCH_SEMANTIC, autoSummary,
   RELAIS_CARNETS
 };
+
+/* ─────────────────────────────────────────────────────────────
+   Jours (heure locale) et humeurs de la personne
+   ───────────────────────────────────────────────────────────── */
+// « 2026-10-20 » : la clé d'une journée, à l'heure du téléphone.
+const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+// Les n derniers jours, du plus ancien à aujourd'hui.
+const lastDays = (n) => Array.from({length:n}, (_, i) => { const d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate() - (n-1-i)); return d; });
+
+// Démo : comment va Jeanne ces 30 derniers jours (aujourd'hui reste à renseigner).
+function demoPersonMoods(){
+  const seq = "sbsfsssbfsssrfssbssfssbsfsssb";
+  const ids = { s:"sereine", f:"fatiguee", r:"fragile", b:"belle" };
+  return lastDays(30).slice(0, 29).map((d, i) => ({ day:dayKey(d), mood:ids[seq[i]], author_name: i % 5 === 3 ? "Léo" : "Anne" }));
+}
+
+window.AppData = { ...window.AppData, dayKey, lastDays, demoPersonMoods };

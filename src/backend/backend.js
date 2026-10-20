@@ -281,6 +281,12 @@ const Backend = {
   listMembers: (carnetId) => call("carnet_members_list", { p_carnet: carnetId }),
   removeMember: (carnetId, userId) => call("member_remove", { p_carnet: carnetId, p_user: userId }),
 
+  // ── Humeurs du jour (jour au format « 2026-10-20 », heure locale) ──
+  setPersonMood: (carnetId, day, mood) => call("person_mood_set", { p_carnet: carnetId, p_day: day, p_mood: mood || null }),
+  listPersonMoods: (carnetId, days = 30) => call("person_moods_list", { p_carnet: carnetId, p_days: days }),
+  setMyMood: (day, level) => call("my_mood_set", { p_day: day, p_level: level ?? null }),
+  listMyMoods: (days = 30) => call("my_moods_list", { p_days: days }),
+
   // ── Établissement ──
   createOrg: ({ name, kind, finess, city, displayName, jobTitle, units }) =>
     call("org_create", {

@@ -1,9 +1,82 @@
 // Aidant Home v2 — modern, color-block, UX-first. Overrides window.Aidant.AidantHome.
 (() => {
 const { useState, useMemo } = React;
-const { IconMic, IconBell, IconChevron, IconShare, IconSparkle, JeanneIllustration } = window.Icons;
-const { CATEGORIES, CAT_BY_ID, softDate, MOODS, RITUALS, ENRICHMENT_PROMPTS } = window.AppData;
+const { IconMic, IconBell, IconChevron, IconShare, IconSparkle, IconBack, JeanneIllustration } = window.Icons;
+const { CATEGORIES, CAT_BY_ID, softDate, MOODS, RITUALS, ENRICHMENT_PROMPTS, dayKey, lastDays } = window.AppData;
 const { StatusBar, SearchBar, Avatar, timeGreeting, momentNow } = window.UI;
+
+// « Sereine » ou « Serein », selon la personne.
+const moodLabel = (id) => { const m = MOODS.find(x => x.id === id); if(!m) return ""; return window.Who.pronoun === "il" ? ({sereine:"Serein", fatiguee:"Fatigué"}[id] || m.label) : m.label; };
+const MOOD_TONE = Object.fromEntries(MOODS.map(m => [m.id, m.tone]));
+
+/* « Comment va Jeanne » : les 30 derniers jours, d'après ce que le cercle a noté chaque jour. */
+function PersonMoodsPage({moods, onBack}){
+  const W = window.Who;
+  const byDay = Object.fromEntries((moods || []).map(m => [m.day, m]));
+  const days = lastDays(30);
+  const lead = (days[0].getDay() + 6) % 7;            // la grille commence un lundi
+  const counts = MOODS.map(m => [m, (moods || []).filter(x => x.day in byDay && x.mood === m.id && days.some(d => dayKey(d) === x.day)).length]);
+  const filled = days.filter(d => byDay[dayKey(d)]).length;
+  const recent = days.slice().reverse().map(d => [d, byDay[dayKey(d)]]).filter(([, m]) => m).slice(0, 7);
+  const long = (d) => d.toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long" });
+  return (
+    <div className="screen slide-up">
+      <StatusBar/>
+      <div className="topbar">
+        <button className="iconbtn" aria-label="Retour" onClick={onBack}><IconBack size={20}/></button>
+        <h1 className="serif" style={{fontSize:20, letterSpacing:"-.01em"}}>Comment va {W.person}</h1>
+        <span style={{width:44}}/>
+      </div>
+      <div className="scroll" tabIndex={0} role="region" aria-label={`Comment va ${W.person}, 30 derniers jours`} style={{padding:"6px 20px 24px"}}>
+        <p style={{fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>Les 30 derniers jours, d'après ce que vous notez chaque jour sur l'accueil.</p>
+
+        <ul style={{listStyle:"none", padding:0, margin:"16px 0 0", display:"grid", gridTemplateColumns:"repeat(2,minmax(0,1fr))", gap:8}}>
+          {counts.map(([m, n]) => (
+            <li key={m.id} style={{background:m.tone, borderRadius:16, padding:"12px 14px", color:"var(--ink)"}}>
+              <span style={{display:"block", font:"800 22px var(--sans)", letterSpacing:"-.03em"}}>{n} <span style={{fontSize:13, fontWeight:700}}>jour{n > 1 ? "s" : ""}</span></span>
+              <span style={{display:"block", marginTop:2, fontSize:13.5, fontWeight:700}}>{moodLabel(m.id)}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="meta" style={{marginTop:8}}>{filled} jour{filled > 1 ? "s" : ""} renseigné{filled > 1 ? "s" : ""} sur 30.</p>
+
+        <div className="card" style={{marginTop:16, padding:14}}>
+          <div aria-hidden="true" style={{display:"grid", gridTemplateColumns:"repeat(7,minmax(0,1fr))", gap:6, marginBottom:6}}>
+            {["L","M","M","J","V","S","D"].map((l, i) => <span key={i} style={{textAlign:"center", font:"800 11px var(--sans)", color:"var(--ink-3)"}}>{l}</span>)}
+          </div>
+          <ul aria-label="Les 30 derniers jours" style={{listStyle:"none", padding:0, margin:0, display:"grid", gridTemplateColumns:"repeat(7,minmax(0,1fr))", gap:6}}>
+            {Array.from({length:lead}, (_, i) => <li key={"v" + i} aria-hidden="true"/>)}
+            {days.map((d, i) => { const m = byDay[dayKey(d)]; const today = i === days.length - 1; return (
+              <li key={dayKey(d)} aria-label={`${today ? "Aujourd'hui" : long(d)} : ${m ? moodLabel(m.mood) + (m.author_name ? ", noté par " + m.author_name : "") : "pas renseigné"}`}
+                  style={{aspectRatio:"1", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", font:"800 12px var(--sans)",
+                          background: m ? MOOD_TONE[m.mood] : "transparent", border: m ? "none" : "1.5px dashed var(--line-2)",
+                          color:"var(--ink)", outline: today ? "2px solid var(--ink)" : "none", outlineOffset:1}}>
+                <span aria-hidden="true">{d.getDate()}</span>
+              </li>
+            ); })}
+          </ul>
+          <p className="meta" style={{marginTop:10, fontSize:12}}>Case en pointillés : jour non renseigné. Case entourée : aujourd'hui.</p>
+        </div>
+
+        {recent.length > 0 && (<>
+          <p className="kicker" style={{marginTop:22}}>Les derniers jours</p>
+          <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
+            {recent.map(([d, m]) => (
+              <li key={m.day} className="card" style={{padding:"12px 14px", display:"flex", gap:12, alignItems:"center"}}>
+                <span aria-hidden="true" style={{width:14, height:14, borderRadius:"50%", background:MOOD_TONE[m.mood], flexShrink:0, boxShadow:"inset 0 0 0 1px rgba(0,0,0,.12)"}}/>
+                <span style={{flex:1, minWidth:0, fontSize:14}}><b style={{fontWeight:800}}>{moodLabel(m.mood)}</b> · {long(d)}</span>
+                {m.author_name && <span className="meta" style={{whiteSpace:"nowrap"}}>{m.author_name}</span>}
+              </li>
+            ))}
+          </ul>
+        </>)}
+
+        <p className="meta" style={{marginTop:18, lineHeight:1.5}}>Visible par toi et ton cercle d'aidants. Jamais dans les fiches envoyées aux relais.</p>
+      </div>
+    </div>
+  );
+}
+window.PersonMoodsPage = PersonMoodsPage;
 
 const SHORT = { histoire:"Histoire", habitudes:"Habitudes", apaise:"Apaisement", parler:"Lui parler", gouts:"Goûts", sante:"Vigilance", proches:"Proches" };
 
@@ -20,7 +93,7 @@ function Ring({value, max, size=56, stroke=3, label}){
   );
 }
 
-function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, onOpenNotifs, hasNewNotifs, sharePayload, lastShare, onOpenJournal}){
+function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, onOpenNotifs, hasNewNotifs, onOpenMoods, sharePayload, lastShare, onOpenJournal}){
   const W = window.Who;
   // Les notes « plus vraies » (gardées dans la trace de vie) ne comptent pas et ne s'affichent pas sur l'accueil.
   const active = useMemo(() => notes.filter(n => !n.archived), [notes]);
@@ -90,6 +163,11 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
                         style={{border:"none", borderRadius:999, padding:"0 14px", minHeight:38, cursor:"pointer", font:"700 13px var(--sans)", background: on ? "var(--ink)" : "rgba(255,255,255,.55)", color: on ? "#fff" : "inherit"}}>{W.pronoun === "il" ? ({sereine:"Serein", fatiguee:"Fatigué"}[x.id] || x.label) : x.label}</button>
               ); })}
             </div>
+            {onOpenMoods && (<div>
+              <button onClick={onOpenMoods} style={{marginTop:10, border:"none", background:"none", padding:"6px 0", minHeight:36, cursor:"pointer", display:"inline-flex", alignItems:"center", gap:6, font:"700 13.5px var(--sans)", color:"inherit", textDecoration:"underline", textUnderlineOffset:3}}>
+                Comment va {W.person} ces 30 derniers jours <IconChevron size={14}/>
+              </button>
+            </div>)}
             <button onClick={onOpenCapture} className="btn" style={{marginTop:18, minHeight:50, paddingLeft:22, whiteSpace:"nowrap"}}>
               <IconMic size={18}/> Ajouter une note
             </button>

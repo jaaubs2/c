@@ -78,6 +78,14 @@ const see = async (page, text, label) => {
   await see(anne, '21 notes', 'avec ses 21 notes');
   await see(anne, 'Aux côtés de Jeanne', '« Aux côtés de Jeanne »');
   ok(val('Code de la mutuelle') === 'DEMO-2026', 'la mutuelle de démo et son code sont créés');
+  await anne.getByRole('button', { name: /Comment va Jeanne ces 30 derniers jours/ }).click();
+  await see(anne, '29 jours renseignés sur 30', '« Comment va Jeanne » : 29 jours déjà notés par Anne et Léo');
+  await anne.getByRole('button', { name: 'Retour' }).first().click();
+  await anne.getByRole('radio', { name: 'Sereine' }).click();
+  await anne.getByRole('button', { name: /Comment va Jeanne ces 30 derniers jours/ }).click();
+  await see(anne, '30 jours renseignés sur 30', '   l\'humeur du jour s\'ajoute');
+  await anne.getByRole('button', { name: 'Retour' }).first().click();
+  await anne.getByRole('radio', { name: 'Sereine' }).click();
 
   console.log('\n■ Claire ouvre la fiche, sans compte');
   const claire = await (await browser.newContext({ ...devices['iPhone 14'] })).newPage();

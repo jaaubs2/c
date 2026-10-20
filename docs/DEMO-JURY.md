@@ -21,7 +21,7 @@ Le parcours ci-dessous a été répété automatiquement, clic par clic (33 vér
 
 Mot de passe de tous les comptes : **`CarnetVivant-2026`** (modifiable en haut du fichier de démo).
 
-Ce qui est déjà en place : les 21 notes de Jeanne dans les 7 rubriques ; une fiche pour Claire,
+Ce qui est déjà en place : les 21 notes de Jeanne dans les 7 rubriques ; 29 jours de « Comment va Jeanne » (lien sous les humeurs, sur l'accueil d'Anne) ; une fiche pour Claire,
 **déjà ouverte 2 fois** ; une ancienne fiche désactivée ; la Maison des Tilleuls avec 3 unités,
 6 soignants, 28 résidents ; **2 notes qui attendent le visa de Marc** ; une mutuelle fictive
 (« Mutuelle Exemple (démo) », code **`DEMO-2026`**) qui prend Anne en charge. Si on te demande de montrer
