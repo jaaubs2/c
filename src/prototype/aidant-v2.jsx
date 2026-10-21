@@ -205,13 +205,13 @@ function AidantCategory({catId, notes, onBack, onOpenCapture, onEdit, onDelete, 
                 <div className="note" style={{padding:16, outline: st ? "2px solid var(--c-histoire)" : "none"}}>
                   <p style={{font:"600 15.5px var(--sans)", lineHeight:1.5, letterSpacing:"-.005em"}}>{n.text}</p>
                   {st && (
-                    <div style={{display:"flex", gap:6, marginTop:12}}>
-                      <button className="chip" onClick={() => onConfirm(n.id)} style={{flex:1, justifyContent:"center", background:"var(--ink)", color:"#fff", minHeight:40, padding:"0 10px", whiteSpace:"nowrap"}}><IconCheck size={15}/> Toujours vrai</button>
-                      <button className="chip" onClick={() => { setEditingId(n.id); setDraft(n.text); }} style={{flex:1, justifyContent:"center", background:"var(--bg)", boxShadow:"none", minHeight:40, padding:"0 10px", whiteSpace:"nowrap"}}>A changé</button>
+                    <div style={{display:"flex", flexWrap:"wrap", gap:6, marginTop:12}}>
+                      <button className="chip" onClick={() => onConfirm(n.id)} style={{flex:"1 1 auto", justifyContent:"center", background:"var(--ink)", color:"#fff", minHeight:40, padding:"0 10px", whiteSpace:"nowrap"}}><IconCheck size={15}/> Toujours vrai</button>
+                      <button className="chip" onClick={() => { setEditingId(n.id); setDraft(n.text); }} style={{flex:"1 1 auto", justifyContent:"center", background:"var(--bg)", boxShadow:"none", minHeight:40, padding:"0 10px", whiteSpace:"nowrap"}}>A changé</button>
                       <button className="chip" onClick={() => onArchive(n.id)} style={{background:"var(--bg)", boxShadow:"none", minHeight:40, padding:"0 10px", whiteSpace:"nowrap"}}>Plus vrai</button>
                     </div>
                   )}
-                  <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10}}>
+                  <div style={{display:"flex", flexWrap:"wrap", gap:8, justifyContent:"space-between", alignItems:"center", marginTop:10}}>
                     <span className="when">{n.confirmedAt ? `confirmé ${softDate(n.confirmedAt)}` : `noté ${softDate(n.ts)}`}{by}</span>
                     {a11y.ttsOnRead && <span style={{marginLeft:"auto", marginRight:8}}><window.UI.ReadAloud text={n.text} size={36}/></span>}
                     {canEdit && <button onClick={() => { setEditingId(n.id); setDraft(n.text); }} style={{border:"none", background:"var(--bg)", borderRadius:999, padding:"0 12px", minHeight:34, font:"700 13px var(--sans)", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:6}}><IconEdit size={14}/> Modifier</button>}
