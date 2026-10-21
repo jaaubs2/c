@@ -55,6 +55,12 @@ html.device .phone .scroll::after {
 html.device .phone:has(.tabbar) .scroll::after {
   height: calc(100px + env(safe-area-inset-bottom));
 }
+html.device .phone[data-text="large"]:has(.tabbar) .scroll::after {
+  height: calc(116px + env(safe-area-inset-bottom));
+}
+html.device .phone[data-text="xlarge"]:has(.tabbar) .scroll::after {
+  height: calc(136px + env(safe-area-inset-bottom));
+}
 
 /* Tablettes : on garde une colonne lisible au centre. */
 @media (min-width: 600px) {

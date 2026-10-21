@@ -17,6 +17,13 @@
     --r-xl:32px; --r-lg:24px; --r-md:18px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  /* Le zoom à deux doigts reste possible (accessibilité), mais le double appui ne zoome plus par accident.
+     Sur iPhone, un champ écrit en moins de 16 px fait zoomer la page quand on le touche : tous les champs font 16 px ou plus. */
+  html{touch-action:manipulation}
+  /* Très grand texte, mode dyslexie : un élément de liste ou une carte ne doit jamais élargir la page.
+     Ils peuvent rétrécir, et les mots trop longs passent à la ligne. */
+  .phone li,.phone .card,.phone .note{min-width:0}
+  .phone :is(p,h1,h2,h3,span,label){overflow-wrap:break-word}
   html,body{margin:0;padding:0;background:#DEDDD8;font-family:var(--sans);color:var(--ink)}
   body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
   #root{width:min(420px,100%);max-width:420px;flex-shrink:0}
@@ -60,7 +67,7 @@
   .card.paper{background:#fff}
   .card.dashed{border:1.5px dashed var(--line-2);box-shadow:none;background:transparent}
   .searchbar{display:flex;align-items:center;gap:12px;background:#fff;border:none;border-radius:999px;padding:0 18px;height:52px;color:var(--ink-3);box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .2s}
-  .searchbar input[type="text"]{flex:1;border:none;background:transparent;outline:none;font:600 15px var(--sans);color:var(--ink);padding:0;border-radius:0;width:auto}
+  .searchbar input[type="text"]{flex:1;border:none;background:transparent;outline:none;font:600 16px var(--sans);color:var(--ink);padding:0;border-radius:0;width:auto}
   .searchbar input::placeholder{color:var(--ink-3);font-weight:500}
   .searchbar input[type="text"]:focus{outline:none;background:transparent}
   .searchbar:focus-within{box-shadow:0 0 0 2px var(--ink);color:var(--ink)}
@@ -127,6 +134,11 @@
      dans la largeur disponible, y compris les tailles écrites directement dans les écrans. */
   .phone[data-text="large"] .scroll>*,.phone[data-text="large"] .topbar{zoom:1.14}
   .phone[data-text="xlarge"] .scroll>*,.phone[data-text="xlarge"] .topbar{zoom:1.3}
+  /* La barre de menu grandit avec le texte (boutons plus gros, plus faciles à toucher), et le bas des pages laisse sa place. */
+  .phone[data-text="large"] .tabbar{zoom:1.14}
+  .phone[data-text="xlarge"] .tabbar{zoom:1.3}
+  .phone[data-text="large"]:has(.tabbar) .scroll::after{height:116px}
+  .phone[data-text="xlarge"]:has(.tabbar) .scroll::after{height:136px}
   /* Focus clavier toujours visible, sur tout ce qui se clique ou se remplit */
   .phone :is(a,button,[role="button"],[role="switch"],[role="radio"],[role="tab"],[role="link"],summary,select,[tabindex]:not([tabindex="-1"])):focus-visible{outline:3px solid var(--focus);outline-offset:2px}
   .hero :is(a,button,[role="button"]):focus-visible{outline-color:currentColor}

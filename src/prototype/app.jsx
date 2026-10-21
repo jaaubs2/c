@@ -3,11 +3,11 @@
 //   • démo (sans serveur configuré, ou avec « ?demo ») : données d'exemple, sélecteur Proche / Aidant / Équipe ;
 //   • vrais comptes (Supabase) : chacun arrive dans son espace, avec ses propres données.
 const { useState: useStateApp, useEffect: useEffectApp, useRef: useRefApp } = React;
-const { INITIAL_NOTES, DEFAULT_SHARE, CATEGORIES: CATS_APP, RELAIS_CARNETS, softDate: softDateApp } = window.AppData;
+const { INITIAL_NOTES, DEFAULT_SHARE, CATEGORIES: CATS_APP, RELAIS_CARNETS, softDate: softDateApp, dayKey, demoPersonMoods } = window.AppData;
 const { Toast, DemoPill, TabBar, StatusBar: SBApp } = window.UI;
 const { AidantHome, AidantCarnet, AidantCapture, AidantCategory } = window.Aidant;
 const { AidantTransmettre, AidantSettings } = window.AidantShare;
-const { AidantNotifications, AidantSettingsV2, CaptureConfirmation, AidantCare } = window.AidantExtras;
+const { AidantNotifications, unseenNotifs, AidantSettingsV2, CaptureConfirmation, AidantCare } = window.AidantExtras;
 const { LaunchScreen, SignupScreen, LoginScreen, RecoveryScreen, VerificationScreen, OnboardingFlow, RelaisLanding, RelaisLiteSignup, ChooseProfileScreen, AccessScreen } = window.Auth;
 const { SettingsFull } = window.SettingsFull;
 const { RelaisCarnetPicker, RelaisWelcome, RelaisHome, RelaisDiscover, RelaisCategory, RelaisToday, RelaisRespond } = window.Relais;
@@ -62,13 +62,17 @@ function App(){
   const [currentCarnetId, setCurrentCarnetId] = useStateApp("jeanne");
   const [showNotifs, setShowNotifs] = useStateApp(false);
   const [showCare, setShowCare] = useStateApp(false);
+  const [showMoods, setShowMoods] = useStateApp(false);
   const [showJournal, setShowJournal] = useStateApp(false);
   const [savedNote, setSavedNote] = useStateApp(null); // {catId} when showing confirmation
 
   const [notes, setNotes] = useStateApp(() => REAL ? [] : [...INITIAL_NOTES].sort(byDate));
   const [visibility, setVisibility] = useStateApp({});
   const [sharePayload, setSharePayload] = useStateApp(DEFAULT_SHARE);
-  const [mood, setMood] = useStateApp("sereine");
+  // « Comment va Jeanne » : une humeur par jour, rien de choisi d'avance. Avec un vrai compte, elle est
+  // gardée dans le carnet (tout le cercle la voit) ; en démo, 30 jours d'exemple.
+  const [personMoods, setPersonMoods] = useStateApp(() => REAL ? [] : demoPersonMoods());
+  const mood = (personMoods.find(m => m.day === dayKey(new Date())) || {}).mood || null;
   const [toast, setToast] = useStateApp("");
 
   // ── Vrais comptes ──
@@ -114,8 +118,8 @@ function App(){
   }, []);
 
   function resetAccount(){
-    setAccount(null); setCarnet(null); setNotes([]); setShares([]);
-    setAidantTab("home"); setAidantCat(null); setShowNotifs(false); setShowCare(false);
+    setAccount(null); setCarnet(null); setNotes([]); setShares([]); setPersonMoods([]);
+    setAidantTab("home"); setAidantCat(null); setShowNotifs(false); setShowCare(false); setShowMoods(false);
     window.Who.reset(); window.Who.set({ demo:false });
   }
 
@@ -135,6 +139,7 @@ function App(){
     const list = await Backend.listNotes(k.id);
     setNotes(list.sort(byDate));
     setShares(["owner", "cadre"].includes(k.my_role) ? await Backend.listShares(k.id) : []);
+    Backend.listPersonMoods(k.id, 30).then(setPersonMoods).catch(() => setPersonMoods([]));
   }
 
   /** Charge le compte connecté et l'envoie dans son espace. */
@@ -214,9 +219,16 @@ function App(){
     try { const r = await fn(); if(ok) setToast(ok); return r; }
     catch(e){ setToast(e.message); }
   }
+  /** Humeur du jour de la personne (v à null : l'efface). */
+  function setMood(v){
+    const day = dayKey(new Date()), before = personMoods;
+    const rest = before.filter(m => m.day !== day);
+    setPersonMoods(v ? [...rest, { day, mood:v, author_name:window.Who.aidant || "" }].sort((a, b) => a.day < b.day ? -1 : 1) : rest);
+    if(REAL) Backend.setPersonMood(carnet.id, day, v).catch(e => { setPersonMoods(before); setToast(e.message); });
+  }
   function editNote(id, text){
     if(REAL) return remote(async () => replaceNote(await Backend.updateNote(id, {text})), "Note mise à jour.");
-    setNotes(prev => prev.map(n => n.id === id ? {...n, text} : n));
+    setNotes(prev => prev.map(n => n.id === id ? {...n, text, updatedAt:Date.now()} : n));
     setToast("Note mise à jour.");
   }
   function confirmNote(id){
@@ -260,6 +272,7 @@ function App(){
     onSaveCarnet: async (patch) => { const k = await Backend.updateCarnet(carnet.id, patch); setCarnet(k); },
     onInvite: (opts) => Backend.createInvite(carnet.id, opts),
     listMembers: () => Backend.listMembers(carnet.id),
+    onRemoveMember: (userId) => Backend.removeMember(carnet.id, userId),
     shares,
     onRevoke: (id) => shareLive && shareLive.onRevoke(id),
     access: account.access || null,
@@ -339,6 +352,8 @@ function App(){
       return <AidantNotifications onBack={() => setShowNotifs(false)} live={liveNotifs}
                                    onOpenCat={id => { setShowNotifs(false); setAidantCat(id); }}/>;
     }
+    // « Comment va Jeanne » sur 30 jours
+    if(showMoods) return <window.PersonMoodsPage moods={personMoods} onBack={() => setShowMoods(false)}/>;
     // Care overlay (over home)
     if(showCare){
       return <AidantCare onBack={() => setShowCare(false)}/>;
@@ -365,6 +380,8 @@ function App(){
                     onOpenCapture={() => setAidantTab("capture")}
                     onTab={setAidantTab}
                     onOpenNotifs={() => setShowNotifs(true)}
+                    hasNewNotifs={unseenNotifs(liveNotifs).length > 0}
+                    onOpenMoods={() => setShowMoods(true)}
                     onOpenJournal={REAL ? null : () => setShowJournal(true)}
                     onOpenCare={() => setShowCare(true)}
                     sharePayload={sharePayload}
@@ -376,7 +393,7 @@ function App(){
       return <AidantCarnet notes={notes} onOpenCat={id => setAidantCat(id)}/>;
     }
     if(aidantTab === "moi"){
-      return <AidantMoi notes={notes} onOpenShare={() => setAidantTab("transmettre")} onToast={setToast}/>;
+      return <AidantMoi notes={notes} lastShareAt={REAL && shares.length ? Math.max(...shares.map(s => s.createdAt || 0)) : null} onOpenShare={() => setAidantTab("transmettre")} onToast={setToast}/>;
     }
     if(aidantTab === "transmettre"){
       return <AidantTransmettre notes={visibleNotes} sharePayload={sharePayload} setSharePayload={setSharePayload} onClose={() => setAidantTab("moi")}
@@ -446,7 +463,7 @@ function App(){
   }
 
   const showTabBar = view === "aidant"
-    ? aidantTab !== "capture" && !aidantCat && !showNotifs && !showCare && !savedNote && !showJournal
+    ? aidantTab !== "capture" && !aidantCat && !showNotifs && !showCare && !showMoods && !savedNote && !showJournal
     : (guest || relaisPickerSeen) && relaisOnboarded && !relaisCat && !showJournal;
 
   /* Choix du profil à l'inscription. */

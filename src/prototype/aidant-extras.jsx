@@ -13,17 +13,32 @@ const { StatusBar: SBAX, Avatar: AvatarAX, useA11y } = window.UI;
 /* ─────────────────────────────────────────────────────────────
    NOTIFICATIONS — slide-up
    ───────────────────────────────────────────────────────────── */
+// Les notifications effacées restent effacées : on les mémorise sur ce téléphone, par compte.
+// Avec un vrai compte, une nouvelle ouverture de fiche crée une nouvelle notification.
+const seenStoreKey = () => "cv-notifs-vues:" + (window.Who.demo ? "demo" : (window.Who.userId || "moi"));
+const notifKey = (n) => window.Who.demo ? n.id : n.id + "@" + n.ts;
+function seenSet(){ try { return new Set(JSON.parse(localStorage.getItem(seenStoreKey()) || "[]")); } catch(e){ return new Set(); } }
+function markSeen(list){
+  const s = seenSet(); list.forEach(n => s.add(notifKey(n)));
+  try { localStorage.setItem(seenStoreKey(), JSON.stringify([...s].slice(-300))); } catch(e){}
+}
+const allNotifs = (live) => live || [REQUEST, ...NOTIFICATIONS];
+/** Les notifications pas encore effacées (pour la pastille de la cloche). */
+function unseenNotifs(live){ const s = seenSet(); return allNotifs(live).filter(n => !s.has(notifKey(n))); }
+
+const REQUEST = { id:"req-tilleuls", kind:"request", ts:Date.now()-2*3600000, title:"La Maison des Tilleuls a ouvert le carnet de Jeanne", body:"Marc Aubry, cadre de santé · Unité B, t'invite à y contribuer : ce que toi seule sais d'elle, l'équipe ne peut pas le deviner. Choisis ce que tu partages.", cats:["habitudes","apaise","parler","histoire"] };
 function AidantNotifications({onBack, onOpenCat, live}){
-  const REQUEST = { id:"req-tilleuls", kind:"request", ts:Date.now()-2*3600000, title:"La Maison des Tilleuls a ouvert le carnet de Jeanne", body:"Marc Aubry, cadre de santé · Unité B, t'invite à y contribuer : ce que toi seule sais d'elle, l'équipe ne peut pas le deviner. Choisis ce que tu partages.", cats:["habitudes","apaise","parler","histoire"] };
   // Avec un vrai compte : les vraies ouvertures de fiches (journal d'accès).
-  const [items, setItems] = useStateAX(live || [REQUEST, ...NOTIFICATIONS]);
+  const [items, setItems] = useStateAX(() => unseenNotifs(live));
   const [reqCats, setReqCats] = useStateAX(REQUEST.cats);
   const [decided, setDecided] = useStateAX(null);
 
   function ackOne(id){
+    markSeen(items.filter(n => n.id === id));
     setItems(prev => prev.filter(n => n.id !== id));
   }
   function clear(){
+    markSeen(items);
     setItems([]);
   }
 
@@ -577,11 +592,11 @@ function AidantCare({onBack}){
         {/* Resources */}
         <p className="kicker" style={{marginTop:28}}>Si tu as besoin de plus</p>
         <div className="card paper" style={{marginTop:12, padding:16}}>
-          <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15.5, color:"var(--ink)"}}>Tu n'es jamais seule.</p>
+          <p style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:15.5, color:"var(--ink)"}}>Tu n'as pas à tout porter.</p>
           <ul style={{listStyle:"none", padding:0, margin:"12px 0 0", display:"grid", gap:8}}>
             <li style={{display:"flex", justifyContent:"space-between", alignItems:"center", gap:10}}>
-              <span style={{fontSize:14, color:"var(--ink)"}}>Allô Aidants</span>
-              <span className="mono" style={{fontSize:12, color:"var(--ink-2)"}}>09 72 30 30 30</span>
+              <span style={{fontSize:14, color:"var(--ink)"}}>Avec nos proches (écoute des aidants)</span>
+              <span className="mono" style={{fontSize:12, color:"var(--ink-2)"}}>01 84 72 94 72</span>
             </li>
             <li style={{display:"flex", justifyContent:"space-between", alignItems:"center", gap:10}}>
               <span style={{fontSize:14, color:"var(--ink)"}}>France Alzheimer</span>
@@ -596,7 +611,7 @@ function AidantCare({onBack}){
             </li>
           </ul>
           <p className="meta" style={{marginTop:14, lineHeight:1.5}}>
-            Numéros gratuits, écoute confidentielle, sans jugement.
+            Écoute confidentielle, sans jugement.
           </p>
         </div>
 
@@ -638,12 +653,12 @@ function AidantCare({onBack}){
             <p className="kicker" style={{marginTop:20}}>Qui contacter</p>
             <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6, fontSize:14, color:"var(--ink-2)"}}>
               <li style={{display:"flex", justifyContent:"space-between", gap:10}}>
-                <span>Ton point d'information local</span>
-                <span className="mono" style={{color:"var(--ink-2)"}}>clic-info-personnes-agees.fr</span>
+                <span>Le portail officiel</span>
+                <span className="mono" style={{color:"var(--ink-2)"}}>pour-les-personnes-agees.gouv.fr</span>
               </li>
               <li style={{display:"flex", justifyContent:"space-between", gap:10}}>
-                <span>Plateforme nationale répit</span>
-                <span className="mono" style={{color:"var(--ink-2)"}}>0 805 38 03 81</span>
+                <span>Les solutions de répit</span>
+                <span className="mono" style={{color:"var(--ink-2)"}}>monparcourshandicap.gouv.fr</span>
               </li>
               <li style={{display:"flex", justifyContent:"space-between", gap:10}}>
                 <span>Ta caisse de retraite</span>
@@ -652,8 +667,8 @@ function AidantCare({onBack}){
             </ul>
 
             <button className="btn primary" style={{marginTop:18, width:"100%"}}
-                    onClick={() => { window.location.href = "tel:0805380381"; }}>
-              Appeler la plateforme répit
+                    onClick={() => { window.open("https://www.monparcourshandicap.gouv.fr/aidants-familiaux/les-solutions-de-repit-pour-les-aidants", "_blank", "noopener"); }}>
+              Voir les solutions de répit
             </button>
             <button className="btn ghost" style={{marginTop:8, width:"100%"}}
                     onClick={() => setShowRepit(false)}>
@@ -678,4 +693,4 @@ function AidantCare({onBack}){
   );
 }
 
-window.AidantExtras = { AidantNotifications, AidantSettingsV2, CaptureConfirmation, AidantCare };
+window.AidantExtras = { AidantNotifications, unseenNotifs, AidantSettingsV2, CaptureConfirmation, AidantCare };

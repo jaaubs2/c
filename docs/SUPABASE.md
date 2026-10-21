@@ -25,8 +25,10 @@ Tant que ce n'est pas fait, l'app reste en **mode démo** (données d'exemple).
 2. Ouvre le fichier `supabase/migrations/20260925000000_init.sql` du projet (dans VS Code),
    copie **tout** son contenu, et colle-le dans l'éditeur Supabase.
 3. Clique **Run**. Tu dois voir **Success. No rows returned**.
-4. Fais pareil, dans l'ordre, avec les deux autres fichiers du dossier (nouvelle requête, tout coller, **Run**) :
-   `20260926000000_ai.sql` (l'IA), puis `20260927000000_mutuelle.sql` (l'accès par la mutuelle).
+4. Fais pareil, dans l'ordre, avec les autres fichiers du dossier (nouvelle requête, tout coller, **Run**) :
+   `20260926000000_ai.sql` (l'IA), `20260927000000_mutuelle.sql` (l'accès par la mutuelle),
+   `20261019000000_cercle.sql` (retirer un proche du cercle d'aidants),
+   puis `20261020000000_humeurs.sql` (« Comment va Jeanne » et le ressenti de l'aidant).
 5. Pour chaque mutuelle partenaire, crée son code (nouvelle requête) :
    `select private.mutuelle_code_add('Nom de la mutuelle', 'CODE-2026');`
    Les adhérents saisissent ce code dans l'app. Pour le désactiver :

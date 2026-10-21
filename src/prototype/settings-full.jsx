@@ -49,7 +49,7 @@ function SettingsMenu({onPick, onLogout}){
       {id:"account", title:"Mon compte",                    body:"Email, mot de passe, déconnexion."},
       {id:"a11y",    title:"Accessibilité",                 body:"Taille, contraste, animations, voix."},
       {id:"notif",   title:"Notifications",                 body:"Rappels doux, consultations, mises à jour."},
-      {id:"appear",  title:"Apparence",                     body:"Clair · Mode soir."}
+      {id:"appear",  title:"Apparence",                     body:window.UI.THEME_LABEL[window.UI.getTheme()]}
     ]},
     {group:W.person,       items:[
       {id:"profile", title:`Profil de ${W.person}`,         body:"Prénom, avatar, âge, depuis…"},
@@ -492,10 +492,10 @@ function Field2({label, id, type="text", value, onChange}){
 
 /* ─── Cercle d'aidants ─── */
 function CirclePage({onBack}){
-  const members = [
+  const [members, setMembers] = useSSet([
     {name:"Anne C.", role:"Sa fille", tag:"Toi", tone:"cool", contrib: 18, lastSeen:"il y a 3 h"},
     {name:"Léo C.", role:"Son petit-fils", tag:"Contributeur", tone:"sage", contrib: 3, lastSeen:"hier"}
-  ];
+  ]);
   const [invite, setInvite] = useSSet(false);
   const [inviteEmail, setInviteEmail] = useSSet("");
   const [inviteRole, setInviteRole] = useSSet("contributeur");
@@ -532,7 +532,8 @@ function CirclePage({onBack}){
               <p className="meta" style={{marginTop:2}}>{m.role} · {m.contrib} notes · vu {m.lastSeen}</p>
             </div>
             {m.tag !== "Toi" && (
-              <button className="chip" style={{minHeight:36, padding:"6px 12px", fontSize:13}}>Gérer</button>
+              <button className="chip" style={{minHeight:36, padding:"6px 12px", fontSize:13}} aria-label={`Retirer ${m.name} du cercle`}
+                      onClick={() => { setMembers(list => list.filter(x => x.name !== m.name)); setSent({ok:true, msg:`${m.name} ne fait plus partie du cercle. Ses notes restent, signées de son prénom.`}); }}>Retirer</button>
             )}
           </li>
         ))}
@@ -583,7 +584,7 @@ function CirclePage({onBack}){
           </span>
           <p style={{fontSize:14, color:"var(--ink)", lineHeight:1.5, flex:1}}>
             {sent.msg}
-            {sent.ok && <span style={{display:"block", marginTop:4, fontSize:12.5, color:"var(--ink-2)"}}>Tu seras notifié{"e"} dès qu'iel rejoint.</span>}
+            {sent.ok && sent.email && <span style={{display:"block", marginTop:4, fontSize:12.5, color:"var(--ink-2)"}}>Tu recevras une notification dès que cette personne rejoint le carnet.</span>}
           </p>
           <button className="iconbtn" aria-label="Fermer" onClick={() => setSent(null)} style={{flexShrink:0}}>
             <IconCloseSet size={16}/>
@@ -846,7 +847,7 @@ function NotifPrefsPage({onBack}){
 
 /* ─── Apparence ─── */
 function AppearancePage({onBack}){
-  const [theme, setTheme] = useSSet("clair");
+  const [theme, setTheme] = window.UI.useTheme();
   return (
     <SubPage title="Apparence" onBack={onBack}>
       <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>
@@ -883,9 +884,6 @@ function AppearancePage({onBack}){
         })}
       </div>
 
-      <p className="meta" style={{marginTop:20, textAlign:"center", lineHeight:1.55}}>
-        Tu peux aussi tout retoucher finement via le panneau Tweaks.
-      </p>
     </SubPage>
   );
 }
@@ -905,22 +903,18 @@ function HelpPage({onBack}){
       </div>
 
       <p className="kicker" style={{marginTop:22}}>Questions fréquentes</p>
-      <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
-        {[
-          "Que se passe-t-il si je n'ai plus mon téléphone ?",
-          "Puis-je inviter une auxiliaire de vie ?",
-          "Comment supprimer un partage ?",
-          "Le carnet est-il accessible à l'administration ?",
-          "Que devient le carnet après le décès ?"
-        ].map((q, i) => (
-          <li key={i}>
-            <button style={{width:"100%", textAlign:"left", background:"var(--card)", border:"1px solid var(--line)", borderRadius:18, padding:"14px 16px", cursor:"pointer", display:"flex", gap:12, alignItems:"center", minHeight:56}}>
-              <span style={{flex:1, fontSize:14.5, color:"var(--ink)"}}>{q}</span>
-              <IconChevronSet size={16}/>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <window.UI.Faq items={[
+        ["Que se passe-t-il si je n'ai plus mon téléphone ?",
+         "Rien n'est perdu : le carnet est enregistré sur nos serveurs, pas dans ton téléphone. Connecte-toi avec ton email sur un autre téléphone ou un ordinateur, et tu retrouves tout."],
+        ["Puis-je inviter une auxiliaire de vie ?",
+         "Oui, de deux façons. Pour qu'elle lise l'essentiel : envoie-lui une fiche avec « Partager la fiche », sans compte à créer. Pour qu'elle ajoute aussi ses notes : invite-la dans « Le cercle d'aidants »."],
+        ["Comment supprimer un partage ?",
+         "Va dans Réglages, puis « Accès & partages ». Sous la fiche concernée, touche « Désactiver ce lien » : il ne s'ouvre plus, tout de suite. Chaque lien s'arrête aussi tout seul à sa date de fin."],
+        ["Le carnet est-il accessible à l'administration ?",
+         "Non. Seules les personnes que tu invites, ou à qui tu envoies une fiche, peuvent le lire. Ni l'administration, ni ta mutuelle, ni nous ne lisons ton carnet. Nous ne transmettrions des données que si la loi nous y obligeait, par exemple sur décision de justice."],
+        ["Que devient le carnet après le décès ?",
+         "Le carnet reste tel quel, et c'est toi qui décides : le garder en souvenir, l'exporter pour le conserver, ou le supprimer depuis « Mon compte ». Les fiches partagées s'arrêtent à leur date de fin, et tu peux les désactiver avant. Si personne ne se connecte pendant 2 ans, nous te prévenons avant de supprimer le compte."]
+      ]}/>
 
       <p className="kicker" style={{marginTop:22}}>Nous contacter</p>
       <div className="card" style={{marginTop:10, padding:16}}>
@@ -1100,18 +1094,50 @@ function LiveCirclePage({live, onBack}){
   const [members, setMembers] = useSSet(null);
   const [f, setF] = useSSet({ name:"", relation:"" });
   const [invite, setInvite] = useSSet(null);
+  const [removing, setRemoving] = useSSet(null);
   const a = window.BUI.useAction();
+  const rm = window.BUI.useAction();
   useESet(() => { live.listMembers().then(setMembers).catch(() => setMembers([])); }, []);
   return (
     <SubPage title="Le cercle d'aidants" onBack={onBack}>
-      <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>Les proches invités lisent le carnet de {W.person} et y ajoutent ce qu'ils savent. Chaque note est signée.</p>
+      <p style={{marginTop:6, fontSize:15, color:"var(--ink-2)", lineHeight:1.55}}>Les proches invités lisent tout le carnet de {W.person} et y ajoutent ce qu'ils savent. Chaque note est signée.</p>
+      <details className="card" style={{marginTop:12, padding:"12px 16px"}}>
+        <summary style={{cursor:"pointer", font:"800 14px var(--sans)", minHeight:28, display:"flex", alignItems:"center"}}>Ce que voit un proche du cercle</summary>
+        <ul style={{margin:"10px 0 4px", paddingLeft:18, fontSize:13.5, color:"var(--ink-2)", lineHeight:1.55, display:"grid", gap:4}}>
+          <li>Toutes les rubriques et toutes les notes du carnet.</li>
+          <li>Il peut ajouter des notes, signées de son prénom, et modifier les siennes.</li>
+          <li>Il ne peut ni modifier ni supprimer les notes des autres.</li>
+          <li>Il ne voit pas les fiches partagées, ni ton onglet « Moi ».</li>
+        </ul>
+      </details>
       <p className="kicker" style={{marginTop:22}}>Dans le cercle</p>
       <ul style={{listStyle:"none", padding:0, margin:"10px 0 0", display:"grid", gap:6}}>
         {owner && <LiveRow label={`${live.name || "Toi"} · toi`} value="Tient le carnet"/>}
         {members === null && <li className="meta">Chargement…</li>}
-        {members && members.map(m => <LiveRow key={m.user_id} label={`${m.display_name || "Proche"}${m.relation ? " · " + m.relation : ""}`} value={`${m.contributions} note${m.contributions > 1 ? "s" : ""}`}/>)}
+        {members && members.map(m => { const who = m.display_name || "Ce proche"; return (
+          <li key={m.user_id} className="card" style={{padding:"12px 16px"}}>
+            <div style={{display:"flex", justifyContent:"space-between", gap:12, alignItems:"center"}}>
+              <span style={{fontSize:13, color:"var(--ink-2)", minWidth:0}}>{`${m.display_name || "Proche"}${m.relation ? " · " + m.relation : ""}`}</span>
+              <span style={{fontFamily:"var(--display)", fontWeight:800, letterSpacing:"-.02em", fontSize:14.5, textAlign:"right", whiteSpace:"nowrap"}}>{`${m.contributions} note${m.contributions > 1 ? "s" : ""}`}</span>
+            </div>
+            {owner && (removing === m.user_id ? (
+              <div role="group" aria-label={`Retirer ${who} du cercle`} style={{marginTop:10}}>
+                <p style={{fontSize:13.5, lineHeight:1.5, color:"var(--ink)"}}>{who} n'aura plus accès au carnet. Ses notes restent, signées de son prénom.</p>
+                <div style={{display:"flex", gap:8, marginTop:10, flexWrap:"wrap"}}>
+                  <button className="chip" style={{color:"#8C1D18"}} disabled={rm.busy}
+                          onClick={() => rm.run(() => live.onRemoveMember(m.user_id)).then(() => { setMembers(list => list.filter(x => x.user_id !== m.user_id)); setRemoving(null); }).catch(() => {})}>{rm.busy ? "Retrait…" : "Retirer du cercle"}</button>
+                  <button className="chip" style={{background:"var(--bg)", boxShadow:"none"}} onClick={() => { setRemoving(null); rm.setError(""); }}>Annuler</button>
+                </div>
+                <window.BUI.FormError msg={rm.error}/>
+              </div>
+            ) : (
+              <button className="chip" style={{marginTop:10, minHeight:36, fontSize:13}} onClick={() => setRemoving(m.user_id)} aria-label={`Retirer ${who} du cercle`}>Retirer</button>
+            ))}
+          </li>
+        ); })}
         {members && members.length === 0 && <li className="meta" style={{padding:"4px 2px"}}>Personne d'autre pour l'instant.</li>}
       </ul>
+
       {owner && !invite && (<>
         <p className="kicker" style={{marginTop:24}}>Inviter un proche</p>
         <div style={{display:"grid", gap:10, marginTop:10}}>

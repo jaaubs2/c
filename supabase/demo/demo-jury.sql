@@ -150,6 +150,19 @@ begin
             v_now - make_interval(days => (n->>0)::int), v_now - make_interval(days => (n->>0)::int));
   end loop;
 
+  -- Comment va Jeanne : les 29 derniers jours (aujourd'hui reste à noter pendant la démo).
+  -- Ignoré si la base n'a pas encore le fichier 20261020000000_humeurs.sql.
+  if to_regclass('public.person_moods') is not null then
+    insert into public.person_moods (carnet_id, day, mood, author_id, author_name, updated_at)
+    select v_carnet, current_date - (30 - i),
+           case substr('sbsfsssbfsssrfssbssfssbsfsssb', i, 1)
+             when 's' then 'sereine' when 'b' then 'belle' when 'f' then 'fatiguee' else 'fragile' end,
+           case when i % 5 = 4 then (u->>'leo')::uuid else (u->>'anne')::uuid end,
+           case when i % 5 = 4 then 'Léo' else 'Anne' end,
+           v_now
+    from generate_series(1, 29) as i;
+  end if;
+
   -- La fiche pour Claire : créée il y a 2 jours, valable encore 5 jours, déjà ouverte deux fois.
   v_token := private.random_token();
   insert into public.shares (carnet_id, created_by, from_name, recipient_type, recipient_name, categories, intro,
