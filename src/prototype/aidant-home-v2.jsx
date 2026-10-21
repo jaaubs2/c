@@ -147,14 +147,20 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
 
         {/* Hero — Jeanne */}
         <div style={{...pad, paddingTop:16}}>
-          <div className="hero" style={{padding:"22px 22px 22px"}}>
+          {/* Toucher le bloc (hors boutons) ouvre « Comment va Jeanne » sur 30 jours. Au clavier et au
+              lecteur d'écran, c'est le titre qui sert de bouton : rien ne change à l'œil. */}
+          <div className="hero" onClick={onOpenMoods ? (e) => { if(!e.target.closest("button")) onOpenMoods(); } : undefined}
+               style={{padding:"22px 22px 22px", cursor: onOpenMoods ? "pointer" : "default"}}>
             <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
               <button onClick={() => onTab("settings")} aria-label={`Profil de ${W.person}`} style={{width:52, height:52, borderRadius:"50%", background:"var(--ink)", border:"none", padding:0, overflow:"hidden", display:"flex", alignItems:"flex-end", justifyContent:"center", cursor:"pointer"}}>
                 {W.demo || W.pronoun !== "il" ? <JeanneIllustration size={50}/> : <window.Persona name={W.personFull || W.person} size={50} bg="transparent" style="short"/>}
               </button>
               <Ring value={filled} max={CATEGORIES.length} size={60} stroke={3}/>
             </div>
-            <h1 style={{marginTop:18, fontSize:30}}>Le carnet de {W.person}</h1>
+            <h1 style={{marginTop:18, fontSize:30}}>{onOpenMoods
+              ? <button onClick={onOpenMoods} aria-label={`Le carnet de ${W.person}, voir comment ${W.g("elle", "il")} va ces 30 derniers jours`}
+                        style={{all:"unset", cursor:"pointer", borderRadius:8}}>Le carnet de {W.person}</button>
+              : <>Le carnet de {W.person}</>}</h1>
             <p className="meta" style={{marginTop:6, opacity:.8}}>{active.length} notes · {filled} rubriques sur {CATEGORIES.length} renseignées</p>
 
             <div role="radiogroup" aria-label={`Comment va ${W.person} aujourd'hui`} style={{display:"flex", gap:6, marginTop:18, flexWrap:"wrap"}}>
@@ -163,11 +169,6 @@ function AidantHomeV2({notes, mood, setMood, onOpenCat, onOpenCapture, onTab, on
                         style={{border:"none", borderRadius:999, padding:"0 14px", minHeight:38, cursor:"pointer", font:"700 13px var(--sans)", background: on ? "var(--ink)" : "rgba(255,255,255,.55)", color: on ? "#fff" : "inherit"}}>{W.pronoun === "il" ? ({sereine:"Serein", fatiguee:"Fatigué"}[x.id] || x.label) : x.label}</button>
               ); })}
             </div>
-            {onOpenMoods && (<div>
-              <button onClick={onOpenMoods} style={{marginTop:10, border:"none", background:"none", padding:"6px 0", minHeight:36, cursor:"pointer", display:"inline-flex", alignItems:"center", gap:6, font:"700 13.5px var(--sans)", color:"inherit", textDecoration:"underline", textUnderlineOffset:3}}>
-                Comment va {W.person} ces 30 derniers jours <IconChevron size={14}/>
-              </button>
-            </div>)}
             <button onClick={onOpenCapture} className="btn" style={{marginTop:18, minHeight:50, paddingLeft:22, whiteSpace:"nowrap"}}>
               <IconMic size={18}/> Ajouter une note
             </button>
